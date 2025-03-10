@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
+const { globalLimiter } = require('./middleware/rateLimiter');
 const compression = require('compression');
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
@@ -29,12 +29,7 @@ app.use(cors({
 }));
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again after 15 minutes'
-});
-app.use('/api/', limiter);
+app.use('/api/', globalLimiter);
 
 // Request parsing middleware
 app.use(bodyParser.json({ limit: '10mb' }));
