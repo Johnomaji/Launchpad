@@ -6,7 +6,7 @@ const useAuthFlow = () => {
   const { mutate: loginUser } = useLoginUser();
   const { mutate: registerUser } = useRegisterUser();
 
-  const handleAuth = async (walletAddress) => {
+  const handleAuth = async (walletAddress, signature) => {
     if (!walletAddress) {
       toast.error('Wallet address is missing.');
       return;
@@ -14,14 +14,15 @@ const useAuthFlow = () => {
 
     try {
       // Try to log in the user
-      await loginUser(walletAddress);
+      await loginUser(walletAddress, signature);
     } catch (error) {
       if (error.response?.status === 404) {
         // If the user is not found, register them
-        await registerUser(walletAddress);
+        await registerUser(walletAddress, signature);
       } else {
         toast.error('Authentication failed.');
         console.error('Error during authentication:', error);
+        throw new error;
       }
     }
   };

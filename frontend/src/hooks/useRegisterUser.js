@@ -7,9 +7,10 @@ const useRegisterUser = () => {
   const login = useAuthStore((state) => state.login);
 
   return useMutation({
-    mutationFn: async (walletAddress) => {
+    mutationFn: async (walletAddress, signature) => {
       const userData = {
         walletAddress,
+        signature,
         username: `user_${walletAddress.slice(0, 8)}`, // Auto-generate a username
         bio: 'Crypto enthusiast',
       };

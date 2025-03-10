@@ -7,8 +7,8 @@ const useLoginUser = () => {
   const login = useAuthStore((state) => state.login);
 
   return useMutation({
-    mutationFn: async (walletAddress) => {
-      const response = await axiosInstance.post('/auth/login', { walletAddress });
+    mutationFn: async (walletAddress, signature) => {
+      const response = await axiosInstance.post('/auth/login', { walletAddress, signature });
       return response.data;
     },
     onSuccess: (data) => {

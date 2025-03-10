@@ -1,41 +1,73 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useAuthFlow from "../hooks/useAuthFlow";
-import { ConnectButton, useWallet } from "@suiet/wallet-kit";
+import { useWallet, ConnectModal, ConnectButton } from "@suiet/wallet-kit";
 import { toast } from "react-toastify";
+import CustomWalletConnect from "./CustomWalletConnect";
 
 const AuthButton = () => {
   const wallet = useWallet();
+  console.log(wallet);
+  const [showModal, setShowModal] = useState(false);
   const { handleAuth } = useAuthFlow();
 
   useEffect(() => {
     if (!wallet.connected) return;
 
-    const handleSignMessage = async () => {
+    const authenticateUser = async () => {
       try {
         // Sign a message for authentication
-        await wallet.signPersonalMessage({
-          message: new TextEncoder().encode("Authentication"),
-        });
+        const msg = 'Authentication'
+      // convert string to Uint8Array 
+      const msgBytes = new TextEncoder().encode(msg)
+      
+      const result = await wallet.signPersonalMessage({
+        message: msgBytes
+      })
+            // verify signature with publicKey and SignedMessage (params are all included in result)
+      const verifyResult = await wallet.verifySignedMessage(result, wallet.account.publicKey)
+      if (!verifyResult) {
+        console.log('signPersonalMessage succeed, but verify signedMessage failed')
+      } else {
+        console.log('signPersonalMessage succeed, and verify signedMessage succeed! :', verifyResult)
+        await handleAuth(wallet.account?.address, verifyResult);
+      }
 
         // Trigger the authentication flow with the wallet address
-        await handleAuth(wallet.account?.address);
 
-        toast.success("Authentication Successful");
       } catch (error) {
         console.error("Authentication failed:", error);
         toast.error("Authentication Failed");
-        wallet.disconnect
+        wallet.disconnect(); // Disconnect wallet on failure
       }
     };
 
-    handleSignMessage();
-
-    console.log("connected wallet name: ", wallet.name);
-    console.log("account address: ", wallet.account?.address);
-    console.log("account publicKey: ", wallet.account?.publicKey);
+    authenticateUser();
   }, [wallet.connected]);
 
-  return <ConnectButton />;
+  if (wallet.connected) return <ConnectButton></ConnectButton>;
+
+  return (
+    // <ConnectModal open={showModal} onOpenChange={(open) => setShowModal(open)}>
+    //   <CustomWalletConnect
+    //     connected={wallet.connected}
+    //     connecting={wallet.connecting}
+    //   />
+    // </ConnectModal>
+    <ConnectButton
+      style={{
+        backgroundColor: "transparent",
+        padding: "none",
+        margin: "none",
+        maxWidth:"fit-content"
+      }}
+    >
+      <CustomWalletConnect
+        walletAddress={wallet.address}
+        connected={wallet.connected}
+        connecting={wallet.connecting}
+      />
+    </ConnectButton>
+  );
 };
 
 export default AuthButton;
