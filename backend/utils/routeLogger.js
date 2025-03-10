@@ -41,7 +41,23 @@ const extractRoutes = (app) => {
       });
     } else if (layer.name === 'router' && layer.handle.stack) {
       // It's a sub-router
-      const routerPath = (layer.regexp.toString().match(/^\/\^(\/[^\/?]+)/i) || [])[1] || '';
+      let routerPath = '';
+      
+      // Alternative approach to get the path from the route handler
+      if (layer.regexp && layer.path) {
+        // Use the path directly if available
+        routerPath = layer.path;
+      } else if (layer.regexp) {
+        // Try to get the path from the 'handle' property of the layer
+        routerPath = layer.regexp.source
+          .replace(/^\^\\\//, '/') // Remove leading ^\/
+          .replace(/\\\//g, '/') // Replace \/ with /
+          .replace(/\(\?:([^)]+)\).*$/, '$1') // Remove complex regex patterns
+          .replace(/\?(?:\/|$).*$/, '') // Remove query params and end markers
+          .replace(/\/\?.*$/, '') // Remove path params
+          .replace(/\\/g, ''); // Remove remaining backslashes
+      }
+      
       const newBasePath = basePath + routerPath;
 
       // Process all routes in this router
@@ -54,8 +70,21 @@ const extractRoutes = (app) => {
         // Skip global middleware
       } else if (layer.regexp) {
         // Get the path
-        const path = (layer.regexp.toString().match(/^\/\^(\/[^\/?]+)/i) || [])[1] || '';
-        if (path) {
+        let path = '';
+        
+        if (layer.path) {
+          path = layer.path;
+        } else {
+          path = layer.regexp.source
+            .replace(/^\^\\\//, '/') // Remove leading ^\/
+            .replace(/\\\//g, '/') // Replace \/ with /
+            .replace(/\(\?:([^)]+)\).*$/, '$1') // Remove complex regex patterns
+            .replace(/\?(?:\/|$).*$/, '') // Remove query params and end markers
+            .replace(/\/\?.*$/, '') // Remove path params
+            .replace(/\\/g, ''); // Remove remaining backslashes
+        }
+        
+        if (path && path !== '/') {
           routes.push({
             path: basePath + path,
             methods: ['MIDDLEWARE'],
@@ -86,9 +115,10 @@ const formatRoutesTable = (routes) => {
       colors.green('Path'),
       colors.green('Methods'),
       colors.green('Content Types'),
-      colors.green('Auth Required')
+      colors.green('Auth Required'),
+      colors.green('Group') // Add a Group column
     ],
-    colWidths: [40, 25, 30, 15],
+    colWidths: [40, 25, 30, 15, 20], // Adjust column widths
     style: {
       head: [], // Disable colors in header
       border: [] // Disable colors for borders
@@ -120,7 +150,8 @@ const formatRoutesTable = (routes) => {
       colors.yellow(route.path),
       colors.cyan(route.methods.join(', ')),
       colors.magenta(contentTypes.length ? contentTypes.join(', ') : 'N/A'),
-      colors.red(authRequired ? '✓' : '✗')
+      colors.red(authRequired ? '✓' : '✗'),
+      colors.blue(route.group || 'general') // Add group info
     ]);
   });
 

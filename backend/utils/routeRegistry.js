@@ -133,8 +133,12 @@ class RouteRegistry {
             });
         } else if (layer.name === 'router' && layer.handle.stack) {
           // It's a sub-router
-          const routerPath = (layer.regexp.toString().match(/^\/\^(\/[^\/?]+)/i) || [])[1] || '';
-          const newBasePath = basePath + routerPath;
+          const routerPath = layer.regexp && layer.regexp.source
+            .replace('^', '')
+            .replace('\\/?(?=\\/|$)', '')
+            .replace(/\\\//g, '/');
+
+          const newBasePath = basePath + (routerPath !== '/' ? routerPath : '');
 
           // Process all routes in this router
           layer.handle.stack.forEach(stackItem => {
