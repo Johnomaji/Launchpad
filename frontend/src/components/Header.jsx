@@ -5,7 +5,7 @@ import { navigation } from "../constants";
 import Button from "./Button";
 import MenuSvg from "../assets/MenuSvg";
 import { useState } from "react";
-import {ConnectButton} from '@suiet/wallet-kit';
+import AuthButton from "./AuthButton";
 
 const Header = () => {
   const pathname = useLocation();
@@ -71,7 +71,7 @@ const Header = () => {
         >
           Create Coin
         </a>
-        <ConnectButton/>
+        <AuthButton/>
         {/* <Button className="hidden lg:flex" href="#login">
           Sign in
         </Button> */}
