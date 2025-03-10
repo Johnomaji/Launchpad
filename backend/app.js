@@ -8,7 +8,7 @@ const compression = require('compression');
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
-// const { errorHandler, notFoundHandler } = require('./middleware/errorHandlers');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandlers');
 
 // Import route modules
 const authRoutes = require('./routes/authRoutes');
@@ -18,7 +18,6 @@ const memecoinRoutes = require('./routes/memecoinRoutes');
 // Import route registry for documentation
 const routeRegistry = require('./utils/routeRegistry');
 
-// Create Express app
 const app = express();
 
 // Security middleware
@@ -77,7 +76,7 @@ app.use(`${API_PREFIX}/memecoins`, memecoinRoutes);
 routeRegistry.registerRoutes(app);
 
 // Error handling middleware
-//app.use(notFoundHandler);
-//app.use(errorHandler);
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 module.exports = app;
