@@ -116,9 +116,8 @@ const formatRoutesTable = (routes) => {
       colors.green('Methods'),
       colors.green('Content Types'),
       colors.green('Auth Required'),
-      colors.green('Group') // Add a Group column
     ],
-    colWidths: [40, 25, 30, 15, 20], // Adjust column widths
+    colWidths: [40, 25, 30, 15], // Adjust column widths
     style: {
       head: [], // Disable colors in header
       border: [] // Disable colors for borders
@@ -151,7 +150,6 @@ const formatRoutesTable = (routes) => {
       colors.cyan(route.methods.join(', ')),
       colors.magenta(contentTypes.length ? contentTypes.join(', ') : 'N/A'),
       colors.red(authRequired ? '✓' : '✗'),
-      colors.blue(route.group || 'general') // Add group info
     ]);
   });
 

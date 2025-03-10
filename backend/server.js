@@ -4,7 +4,7 @@ const cluster = require('cluster');
 const os = require('os');
 const colors = require('colors/safe');
 const app = require('./app');
-const connectDB = require('./config/db');
+const { connectDB, disconnectDB } = require('./config/db');
 const { printRouteInfo } = require('./utils/routeLogger');
 
 // Configuration
@@ -31,7 +31,7 @@ const gracefulShutdown = (server, options = { coredump: false, timeout: 30000 })
       console.log('Server closed');
 
       // Close database connections
-      connectDB.disconnect()
+      disconnectDB()
         .then(() => {
           console.log('Database connections closed');
           exitFunction();

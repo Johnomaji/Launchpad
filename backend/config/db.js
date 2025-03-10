@@ -6,7 +6,7 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, {
+    const db = await mongoose.connect(MONGO_URI, {
 // DEPRECATED OPTIONS
 //      useNewUrlParser: true,
 //      useUnifiedTopology: true,
@@ -18,4 +18,16 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+const disconnectDB = async () => {
+  try {
+    await mongoose.disconnect();
+    console.log('MongoDB Disconnected');
+  } catch (err) {
+    console.error('MongoDB Disconnection Error:', err.message);
+  }
+};
+
+module.exports = {
+  connectDB,
+  disconnectDB
+}
