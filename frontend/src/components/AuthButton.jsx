@@ -13,18 +13,18 @@ const AuthButton = () => {
   const { isAuthenticated } = useAuthCheck();
 
   //Disconnect User
-  const handleDisconnect = () =>{
-    wallet.disconnect()
+  const handleDisconnect = () => {
+    wallet.disconnect();
     logout();
-  }
+  };
 
   useEffect(() => {
     if (!wallet.connected) {
       return;
     }
 
-    if(isAuthenticated){
-        return;
+    if (isAuthenticated) {
+      return;
     }
     const authenticateUser = async () => {
       try {
@@ -52,7 +52,7 @@ const AuthButton = () => {
             verifyResult
           );
           // Trigger the authentication flow with the wallet address and signature
-            await handleAuth(wallet.account?.address, verifyResult);
+          await handleAuth(wallet.account?.address, result?.signature);
         }
       } catch (error) {
         console.error("Authentication failed:", error);
@@ -63,8 +63,13 @@ const AuthButton = () => {
     authenticateUser();
   }, [wallet.connected]);
 
- 
-  if (wallet.connected) return <ConnectedWalletConnect walletAddress={wallet.address} handleDisconnect={handleDisconnect} />;
+  if (wallet.connected)
+    return (
+      <ConnectedWalletConnect
+        walletAddress={wallet.address}
+        handleDisconnect={handleDisconnect}
+      />
+    );
 
   return (
     <ConnectButton
