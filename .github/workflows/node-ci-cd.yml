@@ -87,7 +87,7 @@ jobs:
       - name: Create deployment package
         run: |
           mkdir -p deployment
-          cp -r package*.json server.js app.js config/ controllers/ middlewares/ models/ routes/ utils/ deployment/
+          cp -r package*.json server.js app.js config/ controllers/ middleware/ models/ routes/ utils/ deployment/
           cd deployment && npm ci --production
         working-directory: ./backend
 
@@ -158,7 +158,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-build
           path: ./deployment
