@@ -1,27 +1,35 @@
-import useLoginUser from './useLoginUser';
-import useRegisterUser from './useRegisterUser';
-import { toast } from 'react-toastify';
+import { useWallet } from "@suiet/wallet-kit";
+import useLoginUser from "./useLoginUser";
+import useRegisterUser from "./useRegisterUser";
+import { toast } from "react-toastify";
 
 const useAuthFlow = () => {
-  const { mutate: loginUser } = useLoginUser();
-  const { mutate: registerUser } = useRegisterUser();
+  const wallet = useWallet();
+  const { mutateAsync: loginUser } = useLoginUser();
+  const { mutateAsync: registerUser } = useRegisterUser();
 
   const handleAuth = async (walletAddress, signature) => {
     if (!walletAddress) {
-      toast.error('Wallet address is missing.');
+      toast.error("Wallet address is missing.");
       return;
     }
 
     try {
       // Try to log in the user
-      await loginUser(walletAddress, signature);
+      await loginUser({ walletAddress, signature });
     } catch (error) {
-      if (error.response?.status === 404) {
-        // If the user is not found, register them
-        await registerUser(walletAddress, signature);
+      // If the user is not found, register them
+      if (error.response?.status === 404 || error.response?.status === 400) {
+        try {
+          await registerUser({ walletAddress, signature });
+        } catch (registrationError) {
+          console.error("Error during registration:", registrationError);
+          toast.error("Registration failed.");
+        }
       } else {
-        toast.error('Authentication failed.');
-        console.error('Error during authentication:', error);
+        wallet.disconnect();
+        toast.error("Authentication failed.");
+        console.error("Error during authentication:", error);
       }
     }
   };

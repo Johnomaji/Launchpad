@@ -4,8 +4,19 @@ import Coins from "./pages/Coins";
 import CoinDetails from "./pages/CoinDetails";
 import Leaderboard from "./pages/Leaderboard";
 import CreateCoin from "./pages/CreateCoin";
+import useAuthStore from "./store/authStore";
+import { useEffect } from "react";
+import useAuthCheck from "./hooks/useAuthCheck";
 
 const App = () => {
+
+  const {isAuthenticated} = useAuthCheck();
+
+  useEffect(()=>{
+
+    // console.log("IsAuthenticated: ", isAuthenticated)
+  }, [isAuthenticated])
+
   return (
     <>
       <BrowserRouter>
