@@ -192,17 +192,17 @@ jobs:
             pm2 start server.js --name "app-prod" --env production
             pm2 save
 
-  notify:
-    name: Send Deployment Notification
-    needs: [deploy-development, deploy-production]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Slack notification
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,commit,author,action,eventName,ref,workflow
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+#  notify:
+#    name: Send Deployment Notification
+#    needs: [deploy-development, deploy-production]
+#    if: always()
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Send Slack notification
+#        uses: 8398a7/action-slack@v3
+#        with:
+#          status: ${{ job.status }}
+#          fields: repo,message,commit,author,action,eventName,ref,workflow
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
