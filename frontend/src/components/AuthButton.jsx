@@ -1,21 +1,34 @@
 import React, { useEffect } from "react";
 import useAuthFlow from "../hooks/useAuthFlow";
 import { useWallet, ConnectButton } from "@suiet/wallet-kit";
-import { toast } from "react-toastify";
 import CustomWalletConnect from "./CustomWalletConnect";
+import useLogout from "../hooks/useLogout";
+import useAuthCheck from "../hooks/useAuthCheck";
+import ConnectedWalletConnect from "./ConnectedWalletConnect";
 
 const AuthButton = () => {
   const wallet = useWallet();
-  console.log(wallet);
   const { handleAuth } = useAuthFlow();
+  const { logout } = useLogout();
+  const { isAuthenticated } = useAuthCheck();
+
+  const handleDisconnect = () =>{
+    wallet.disconnect()
+    logout();
+  }
 
   useEffect(() => {
-    if (!wallet.connected) return;
+    if (!wallet.connected) {
+      return;
+    }
 
+    if(isAuthenticated){
+        return;
+    }
     const authenticateUser = async () => {
       try {
         // Sign a message for authentication
-        const msg = "Authentication";
+        const msg = "Sign-In Request";
         // convert string to Uint8Array
         const msgBytes = new TextEncoder().encode(msg);
 
@@ -31,18 +44,17 @@ const AuthButton = () => {
           console.log(
             "signPersonalMessage succeed, but verify signedMessage failed"
           );
+          wallet.disconnect();
         } else {
           console.log(
             "signPersonalMessage succeed, and verify signedMessage succeed! :",
             verifyResult
           );
           // Trigger the authentication flow with the wallet address and signature
-          await handleAuth(wallet.account?.address, verifyResult);
+            await handleAuth(wallet.account?.address, verifyResult);
         }
-
       } catch (error) {
         console.error("Authentication failed:", error);
-        toast.error("Authentication Failed");
         wallet.disconnect();
       }
     };
@@ -50,7 +62,8 @@ const AuthButton = () => {
     authenticateUser();
   }, [wallet.connected]);
 
-  if (wallet.connected) return <ConnectButton></ConnectButton>;
+ 
+  if (wallet.connected) return <ConnectedWalletConnect walletAddress={wallet.address} handleDisconnect={handleDisconnect} />;
 
   return (
     <ConnectButton
@@ -59,6 +72,9 @@ const AuthButton = () => {
         padding: "0px",
         margin: "0px",
         maxWidth: "fit-content",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
       <CustomWalletConnect
