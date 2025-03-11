@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import useAuthFlow from "../hooks/useAuthFlow";
-import { useWallet, ConnectModal, ConnectButton } from "@suiet/wallet-kit";
+import { useWallet, ConnectButton } from "@suiet/wallet-kit";
 import { toast } from "react-toastify";
 import CustomWalletConnect from "./CustomWalletConnect";
 
 const AuthButton = () => {
   const wallet = useWallet();
   console.log(wallet);
-  const [showModal, setShowModal] = useState(false);
   const { handleAuth } = useAuthFlow();
 
   useEffect(() => {
@@ -37,7 +36,7 @@ const AuthButton = () => {
       } catch (error) {
         console.error("Authentication failed:", error);
         toast.error("Authentication Failed");
-        wallet.disconnect(); // Disconnect wallet on failure
+        wallet.disconnect(); 
       }
     };
 
@@ -47,17 +46,11 @@ const AuthButton = () => {
   if (wallet.connected) return <ConnectButton></ConnectButton>;
 
   return (
-    // <ConnectModal open={showModal} onOpenChange={(open) => setShowModal(open)}>
-    //   <CustomWalletConnect
-    //     connected={wallet.connected}
-    //     connecting={wallet.connecting}
-    //   />
-    // </ConnectModal>
     <ConnectButton
       style={{
         backgroundColor: "transparent",
-        padding: "none",
-        margin: "none",
+        padding: "0px",
+        margin: "0px",
         maxWidth:"fit-content"
       }}
     >
