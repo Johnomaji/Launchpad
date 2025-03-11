@@ -32,7 +32,7 @@ jobs:
         image: mongo:6.0
         ports:
           - 27017:27017
-
+        options: --health-cmd "mongo --eval 'db.runCommand(\"ping\").ok'" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -102,13 +102,13 @@ jobs:
   deploy-development:
     name: Deploy to Development
     needs: build
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/alviss' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'development')
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'development')
     runs-on: ubuntu-latest
     environment: development
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: app-build
           path: ./deployment
@@ -152,7 +152,7 @@ jobs:
   deploy-production:
     name: Deploy to Production
     needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alviss' || github.ref == 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     runs-on: ubuntu-latest
     environment: production
 
@@ -199,3 +199,65 @@ jobs:
             pm2 delete app-prod || true
             pm2 start server.js --name "app-prod" --env production
             pm2 save
+
+  test-local-production:
+    name: Test Local Production Server
+    needs: build
+    if: github.ref == 'refs/heads/alviss'
+    runs-on: ubuntu-latest
+
+    services:
+      # Add MongoDB service container for testing
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: --health-cmd "mongo --eval 'db.runCommand(\"ping\").ok'" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: ./local-prod-test
+
+      - name: Setup production environment
+        run: |
+          cd ./local-prod-test
+          echo "NODE_ENV=production" > .env
+          echo "PORT=5000" >> .env
+          echo "HOST=localhost" >> .env
+          echo "ENABLE_CLUSTERING=true" >> .env
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI || secrets.DEV_MONGODB_URI }}" >> .env
+        env:
+          NODE_ENV: production
+          MONGODB_URI: mongodb://localhost:27017/test_db
+          ENABLE_CLUSTERING: true
+
+      - name: Start local production server
+        run: |
+          cd ./local-prod-test
+          node server.js &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+
+          # Verify server is running
+          sleep 5
+          curl -s http://localhost:5000/health || echo "Server health check failed"
+
+          # Wait for 70 seconds
+          echo "Server running for test purposes. Will shut down in 70 seconds..."
+          sleep 70
+        env:
+          NODE_ENV: production
+          MONGODB_URI: mongodb://localhost:27017/test_db
+          ENABLE_CLUSTERING: true
+
+      - name: Stop local production server
+        if: always()
+        run: |
+          if [ -n "${{ env.SERVER_PID }}" ]; then
+            echo "Shutting down test server (PID: ${{ env.SERVER_PID }})..."
+            kill ${{ env.SERVER_PID }} || true
+            echo "Server stopped"
+          fi
