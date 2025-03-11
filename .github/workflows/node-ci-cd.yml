@@ -25,14 +25,17 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x, 18.x, 20.x]
-
     services:
       # Add MongoDB service container for testing
       mongodb:
         image: mongo:6.0
         ports:
           - 27017:27017
-        options: --health-cmd "mongo --eval 'db.runCommand(\"ping\").ok'" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -212,8 +215,11 @@ jobs:
         image: mongo:6.0
         ports:
           - 27017:27017
-        options: --health-cmd "mongo --eval 'db.runCommand(\"ping\").ok'" --health-interval 10s --health-timeout 5s --health-retries 5
-
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
