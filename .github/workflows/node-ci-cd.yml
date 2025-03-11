@@ -92,11 +92,12 @@ jobs:
         working-directory: ./backend
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: deployment/
+          path: backend/deployment/
           retention-days: 1
+          overwrite: true
 
   deploy-development:
     name: Deploy to Development
