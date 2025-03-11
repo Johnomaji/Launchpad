@@ -34,7 +34,7 @@ const Header = () => {
         openNavigation ? "bg-n-8" : "bg-n-8/90 backdrop-blur-sm"
       }`}
     >
-      <div className="flex items-center px-5 lg:px-7.5 xl:px-10 max-lg:py-4">
+      <div className="flex justify-between items-center px-5 lg:px-7.5 xl:px-10 max-lg:py-4">
         <a className="block w-[12rem] xl:mr-8" href="#hero">
           {/* <img src="lauchpad.png" width={190} height={40} alt="LaunchPad" /> */}
           LaunchPad
@@ -72,9 +72,6 @@ const Header = () => {
           Create Coin
         </a>
         <AuthButton/>
-        {/* <Button className="hidden lg:flex" href="#login">
-          Sign in
-        </Button> */}
 
         <Button
           className="ml-auto lg:hidden"
