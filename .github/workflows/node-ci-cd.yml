@@ -102,7 +102,7 @@ jobs:
   deploy-development:
     name: Deploy to Development
     needs: build
-    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'development')
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/alviss' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'development')
     runs-on: ubuntu-latest
     environment: development
 
@@ -152,7 +152,7 @@ jobs:
   deploy-production:
     name: Deploy to Production
     needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/alviss' || github.ref == 'refs/heads/master' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     runs-on: ubuntu-latest
     environment: production
 
