@@ -62,6 +62,9 @@ const Header = () => {
                 {item.title}
               </a>
             ))}
+            <div className="lg:hidden">
+          <AuthButton />
+        </div>
           </div>
         </nav>
 
@@ -71,7 +74,7 @@ const Header = () => {
         >
           Create Coin
         </a>
-        <div className="px-2">
+        <div className="hidden lg:block">
           <AuthButton />
         </div>
 

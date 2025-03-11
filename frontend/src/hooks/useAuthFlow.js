@@ -22,7 +22,6 @@ const useAuthFlow = () => {
       } else {
         toast.error('Authentication failed.');
         console.error('Error during authentication:', error);
-        throw new error;
       }
     }
   };

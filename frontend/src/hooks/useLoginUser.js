@@ -2,8 +2,10 @@ import { useMutation } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosInstance';
 import useAuthStore from '../store/authStore';
 import { toast } from 'react-toastify';
+import { useWallet } from '@suiet/wallet-kit';
 
 const useLoginUser = () => {
+    const wallet = useWallet();
   const login = useAuthStore((state) => state.login);
 
   return useMutation({
@@ -17,7 +19,10 @@ const useLoginUser = () => {
     },
     onError: (error) => {
       toast.error('Error logging in.');
-      throw error; // Propagate the error to handle it in useAuthFlow
+      if(wallet.connected){
+        wallet.disconnect();
+    }
+      throw error;
     },
   });
 };

@@ -1,9 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
-import axiosInstance from '../api/axiosInstance';
-import useAuthStore from '../store/authStore';
-import { toast } from 'react-toastify';
+import { useMutation } from "@tanstack/react-query";
+import axiosInstance from "../api/axiosInstance";
+import useAuthStore from "../store/authStore";
+import { toast } from "react-toastify";
+import { useWallet } from "@suiet/wallet-kit";
 
 const useRegisterUser = () => {
+  const wallet = useWallet();
   const login = useAuthStore((state) => state.login);
 
   return useMutation({
@@ -12,18 +14,21 @@ const useRegisterUser = () => {
         walletAddress,
         signature,
         username: `user_${walletAddress.slice(0, 8)}`, // Auto-generate a username
-        bio: 'Crypto enthusiast',
+        bio: "Crypto enthusiast",
       };
-      const response = await axiosInstance.post('/auth/register', userData);
+      const response = await axiosInstance.post("/auth/register", userData);
       return response.data;
     },
     onSuccess: (data) => {
       login(data);
-      toast.success('User registered successfully!');
+      toast.success("User registered successfully!");
     },
     onError: (error) => {
-      toast.error('Error registering user.');
-      throw error; // Propagate the error to handle it in useAuthFlow
+      toast.error("Error registering user.");
+      if (wallet.connected) {
+        wallet.disconnect();
+      }
+      throw error;
     },
   });
 };
