@@ -1,4 +1,3 @@
-// useLogout.js
 import useAuthStore from '../store/authStore';
 import { toast } from 'react-toastify';
 

@@ -12,6 +12,7 @@ const AuthButton = () => {
   const { logout } = useLogout();
   const { isAuthenticated } = useAuthCheck();
 
+  //Disconnect User
   const handleDisconnect = () =>{
     wallet.disconnect()
     logout();
