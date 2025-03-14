@@ -1,10 +1,12 @@
 import React, { useEffect } from "react";
 import useAuthFlow from "../hooks/useAuthFlow";
 import { useWallet, ConnectButton } from "@suiet/wallet-kit";
-import CustomWalletConnect from "./CustomWalletConnect";
 import useLogout from "../hooks/useLogout";
 import useAuthCheck from "../hooks/useAuthCheck";
-import ConnectedWalletConnect from "./ConnectedWalletConnect";
+import PrimaryButton from "./buttons/PrimaryButton";
+import { RiUserLine } from "react-icons/ri";
+import WalletButton from "./buttons/WalletButton";
+import { CiWallet } from "react-icons/ci";
 
 const AuthButton = () => {
   const wallet = useWallet();
@@ -29,45 +31,47 @@ const AuthButton = () => {
     const authenticateUser = async () => {
       try {
         // Sign a message for authentication
-        const msg = "Sign-In Request";
-        // convert string to Uint8Array
-        const msgBytes = new TextEncoder().encode(msg);
+        // const msg = "Sign-In Request";
+        // // convert string to Uint8Array
+        // const msgBytes = new TextEncoder().encode(msg);
 
-        const result = await wallet.signPersonalMessage({
-          message: msgBytes,
-        });
-        // verify signature with publicKey and SignedMessage (params are all included in result)
-        const verifyResult = await wallet.verifySignedMessage(
-          result,
-          wallet.account.publicKey
-        );
-        if (!verifyResult) {
-          console.log(
-            "signPersonalMessage succeed, but verify signedMessage failed"
-          );
-          wallet.disconnect();
-        } else {
-          console.log(
-            "signPersonalMessage succeed, and verify signedMessage succeed! :",
-            verifyResult
-          );
-          // Trigger the authentication flow with the wallet address and signature
-          await handleAuth(wallet.account?.address, result?.signature);
-        }
+        // const result = await wallet.signPersonalMessage({
+        //   message: msgBytes,
+        // });
+        // // verify signature with publicKey and SignedMessage (params are all included in result)
+        // const verifyResult = await wallet.verifySignedMessage(
+        //   result,
+        //   wallet.account.publicKey
+        // );
+        // if (!verifyResult) {
+        //   console.log(
+        //     "signPersonalMessage succeed, but verify signedMessage failed"
+        //   );
+        //   wallet.disconnect();
+        // } else {
+        //   console.log(
+        //     "signPersonalMessage succeed, and verify signedMessage succeed! :",
+        //     verifyResult
+        //   );
+        //   // Trigger the authentication flow with the wallet address and signature
+        //     await handleAuth(wallet.account?.address, result.signature);
+        // }
+
+        await handleAuth(wallet.account?.address, wallet.account?.address);
       } catch (error) {
         console.error("Authentication failed:", error);
         wallet.disconnect();
       }
     };
-
     authenticateUser();
   }, [wallet.connected]);
 
   if (wallet.connected)
     return (
-      <ConnectedWalletConnect
-        walletAddress={wallet.address}
+      <WalletButton
+        wallet={wallet.address}
         handleDisconnect={handleDisconnect}
+        icon={<CiWallet style={{fontSize:"25px"}}/>}
       />
     );
 
@@ -83,11 +87,7 @@ const AuthButton = () => {
         alignItems: "center",
       }}
     >
-      <CustomWalletConnect
-        walletAddress={wallet.address}
-        connected={wallet.connected}
-        connecting={wallet.connecting}
-      />
+      <PrimaryButton name="Log in" icon={<RiUserLine/>} loading={wallet.connecting}/>
     </ConnectButton>
   );
 };
