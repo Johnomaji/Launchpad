@@ -144,9 +144,9 @@ const CardSlider = ({ title, cards }) => {
                     </div>
                   <p className="text-xs text-[#EAEBE7]">{item.buyersPercent}</p>
                   </div>
-                  <div className="flex flex-row gap-1 items-center mt-2">
-                    <PrimaryButton name="Quick Trade"/>
-                    <SecondaryButton icon={<GoArrowRight />}/>
+                  <div className="flex flex-row gap-2 items-center mt-2">
+                    <PrimaryButton name="Quick Trade" className2="bg-[#161616]"/>
+                    <SecondaryButton className="text-xl p-3 px-5" icon={<GoArrowRight />}/>
                   </div>
                 </div>
               </motion.div>

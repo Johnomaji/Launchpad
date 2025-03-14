@@ -8,7 +8,7 @@ const BasicButton = ({
   handleOnclick,
   className,
 }) => {
-  const classes = `relative hover:p-[1px] rounded-3xl inline-block bg-black cursor-pointer ${
+  const classes = `relative rounded-3xl inline-block bg-black cursor-pointer ${
     className || ""
   } `;
   if (href) {
