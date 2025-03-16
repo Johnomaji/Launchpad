@@ -10,6 +10,7 @@ import { PiPaperPlaneTilt } from "react-icons/pi";
 import SecondaryLinkButton from "./buttons/SecondaryLinkButton";
 import SecondaryButton from "./buttons/SecondaryButton";
 import BasicButton from "./buttons/BasicButton";
+import { useLocation } from "react-router-dom";
 
 const sideBarItems = [
   { id: 1, name: "Dashboard", href: "/", icon: <RxDashboard /> },
@@ -24,13 +25,14 @@ const sideBarItems = [
 ];
 
 const Sidebar = () => {
+  const path = useLocation();
    const [right, setRight] = useState(false)
 
   return (
     <>
       <aside
         id="logo-sidebar"
-        className="absolute hidden md:block top-0 left-0 z-40 min-h-full pt-[10rem] transition-transform -translate-x-full bg-black border-r border-[#9033F4] sm:translate-x-0"
+        className="absolute hidden md:block top-0 left-0 z-40 min-h-[90%] pt-[10rem] transition-transform -translate-x-full bg-black border-r border-[#9033F4] sm:translate-x-0"
         aria-label="Sidebar"
       >
         <div className="flex justify-center h-full px-3 pb-4 overflow-y-auto mr-5">
@@ -45,6 +47,7 @@ const Sidebar = () => {
                    className="w-full"
                   href={item.href}
                   icon={item.icon}
+                  active={path.pathname === item.href}
                 />
               </li>
             ))}

@@ -119,7 +119,7 @@ const CardSlider = ({ title, cards }) => {
                 <div class="w-45 md:w-50 h-45 md:h-50 flex items-center justify-center overflow-hidden rounded-xl bg-gray-200">
                   <img
                     src={item.image}
-                    alt="Your Image"
+                    alt="Memecoin"
                     class="w-full h-full object-cover object-center"
                     draggable="false"
                   />

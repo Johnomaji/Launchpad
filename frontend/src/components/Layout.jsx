@@ -10,11 +10,11 @@ const Layout = ({ children }) => {
       <div className="relative my-0 mx-auto w-full sm:w-[1600px]">
         {/* Navbar and Sidebar */}
         <Navbar />
-        <div className="flex flex-row w-full h-full">
+        <div className="flex flex-row w-full">
           <Sidebar />
 
           {/* Page Content */}
-          <div className="w-[100%] md:w-[90%] ml-[0%] md:ml-[10%]">{children}</div>
+          <div className="w-[100%] md:w-[90%] ml-[0%] md:ml-[10%] min-h-screen mt-[15%] md:mt-[6.8%]">{children}</div>
         </div>
         <Footer/>
       </div>

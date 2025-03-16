@@ -7,7 +7,8 @@ import { coin1, coin2 } from "../constants";
 const Home = () => {
   return (
     <div className="rounded-lg ">
-      <div className="relative w-full flex flex-col items-center justify-center mb-4 rounded-sm p-3 md:p-8 pt-[20%] md:pt-[10%] bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
+      {/* Hero Section */}
+      <div className="relative w-full flex flex-col items-center justify-center mb-4 rounded-sm p-3 md:p-8 bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
         <div className="z-10 flex flex-col md:flex-row gap-5 md:gap-10 justify-between items-left md:items-center p-2 md:p-8 py-4 md:py-12 bg-[rgba(0,0,0,0.5)] rounded-2xl">
           <div className="w-full md:w-[43%] flex flex-col gap-2">
             <p className="text-2xl font-semibold">

@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import useAuthCheck from "./hooks/useAuthCheck";
 import Layout from "./components/Layout";
 import DexScreener from "./pages/DexScreener";
+import About from "./pages/About";
 
 const App = () => {
   const { isAuthenticated } = useAuthCheck();
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/create-coin" element={<CreateCoin />} />
           <Route path="/dexscreener" element={<DexScreener />} />
+          <Route path="/about" element={<About />} />
         </Routes>
       </Layout>
     </BrowserRouter>
