@@ -52,7 +52,7 @@ const CardSlider = ({ title, cards }) => {
     <div className="flex flex-col items-center gap-5 p-4 w-[100%]">
       {/* Slider Content */}
       <div className="flex flex-row justify-between items-center w-[100%]">
-        <p className="text-2xl font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
+        <p className="text-xl md:text-2xl font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
           {title}
         </p>
         <div>
@@ -82,7 +82,7 @@ const CardSlider = ({ title, cards }) => {
         {/* Cards Container */}
         <div
           ref={containerRef}
-          className="flex gap-4 overflow-x-auto scroll-snap-x-mandatory scrollbar-hide overflow-x-hidden overflow-y-hidden"
+          className={`flex gap-4 overflow-x-auto scroll-snap-x-mandatory scrollbar-hide overflow-x-hidden overflow-y-hidden ${cardWidth}`}
           style={{ scrollSnapType: "x mandatory" }}
         >
           <motion.div
@@ -160,7 +160,7 @@ const CardSlider = ({ title, cards }) => {
         {cards.map((card, index) => (
           <button
             key={card.id}
-            className={`w-2 h-2 mx-1 rounded-full transition-colors ${
+            className={`w-2 h-2 mx-1 rounded-full transition-colors cursor-pointer ${
               currentIndex === index ? "bg-purple-900" : "bg-gray-400"
             }`}
             onClick={() => handleDotClick(index)}
