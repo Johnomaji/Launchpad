@@ -36,7 +36,7 @@ const Sidebar = () => {
         <div className="flex justify-center h-full px-3 pb-4 overflow-y-auto mr-5">
           <ul className="space-y-5 font-medium">
             <li>
-              <BasicButton handleOnclick={()=>setRight(!right)} icon={right ? (<SlArrowRight />):(<SlArrowLeft />)} className="bg-transparent" />
+              <BasicButton handleOnclick={()=>setRight(!right)} icon={!right ? (<SlArrowRight />):(<SlArrowLeft />)} className="bg-transparent" />
             </li>
             {sideBarItems.map((item) => (
               <li key={item.id}>

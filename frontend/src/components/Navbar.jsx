@@ -32,7 +32,7 @@ const Navbar = () => {
   };
   return (
     <>
-      <nav className="fixed top-0 z-50 w-full sm:w-[1600px] bg-white dark:bg-black ">
+      <nav className="fixed top-0 z-50 w-full sm:w-[1600px] dark:bg-black ">
         <div className="sm:px-4 sm:px-8 py-3 md:py-6 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between items-center">
             <div className="flex items-center justify-start rtl:justify-end">
@@ -49,7 +49,7 @@ const Navbar = () => {
             <nav
               className={`${
                 openNavigation ? "flex" : "hidden"
-              } fixed top-[5rem] left-0 right-0 bottom-0 bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-60% lg:static lg:flex lg:mx-auto lg:bg-transparent`}
+              } fixed top-[4.3rem] left-0 right-0 bottom-0 bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-60% lg:static lg:flex lg:mx-auto lg:bg-transparent`}
             >
               <div className="relative z-50 flex flex-col items-center justify-center m-auto lg:flex-row">
                 {navigation.map((item) => (
@@ -71,7 +71,7 @@ const Navbar = () => {
                 </div>
               </div>
             </nav>
-            <div className="flex items-center gap-3 justify-center">
+            <div className="flex items-center gap-6 justify-center">
               {/* Notification */}
               <div className="hidden md:block">
                 <IconButton icon={<IoNotificationsOutline />} />
