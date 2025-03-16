@@ -1,3 +1,6 @@
+import PrimaryButton from "../components/buttons/PrimaryButton";
+import SecondaryButton from "../components/buttons/SecondaryButton";
+
 const About = () => {
   return (
     <div className="rounded-lg ">
@@ -69,7 +72,7 @@ const About = () => {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-8 my-4 w-full">
+      <div className="flex flex-col items-center justify-center gap-8 my-8 w-full">
         <div className="flex flex-col items-center justify-center w-80% md:w-[50%]">
           <p className="text-2xl font-semibold">
             Who Can Use Memetic Launchpad?
@@ -144,6 +147,77 @@ const About = () => {
                 />
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center justify-center gap-8 my-8 w-full">
+        <p className="text-2xl font-semibold">How it Works</p>
+
+        <div className="flex flex-col md:flex-row gap-8 items-center justify-center w-[55%]">
+          <div className="flex flex-col gap-2 items-center justify-center">
+            <div className="relative w-10 h-10 p-[1px] flex bg-black rounded-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#9033F4] to-[#EC8AEF] hover:bg-transparent rounded-full"></div>
+              <div className="relative w-10 h-10 flex flex-col justify-center items-center bg-[radial-gradient(circle_at_30%_50%,_#9033F4,_#5A189A)]  transition-all duration-900 text-white rounded-full">
+                <p className="font-bold">1</p>
+              </div>
+            </div>
+            <p className="text-md font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
+              Create Your Memecoin
+            </p>
+            <p className="text-center">
+              Use our no-code interface to set up your token's name, supply, and
+              rules.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 items-center justify-center">
+          <div className="relative w-10 h-10 p-[1px] flex bg-black rounded-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#9033F4] to-[#EC8AEF] hover:bg-transparent rounded-full"></div>
+              <div className="relative w-10 h-10 flex flex-col justify-center items-center bg-[radial-gradient(circle_at_30%_50%,_#9033F4,_#5A189A)]  transition-all duration-900 text-white rounded-full">
+                <p className="font-bold">2</p>
+              </div>
+            </div>
+            <p className="text-md font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
+              Deploy Your Token
+            </p>
+            <p className="text-center">
+              Our smart contracts handle the rest, ensuring security and
+              transparency.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 items-center justify-center">
+          <div className="relative w-10 h-10 p-[1px] flex bg-black rounded-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#9033F4] to-[#EC8AEF] hover:bg-transparent rounded-full"></div>
+              <div className="relative w-10 h-10 flex flex-col justify-center items-center bg-[radial-gradient(circle_at_30%_50%,_#9033F4,_#5A189A)]  transition-all duration-900 text-white rounded-full">
+                <p className="font-bold">3</p>
+              </div>
+            </div>
+            <p className="text-md font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
+              Track & Trade
+            </p>
+            <p className="text-center">
+              Monitor your token's performance and trade directly on the
+              platform.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 items-center justify-center w-[100%] md:w-[80%] mt-10">
+          <p className="text-xl md:text-3xl font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
+            Ready to Join the Memecoin Revolution?
+          </p>
+          <p className="text-center">
+            Start creating, trading, and tracking memecoins today!
+          </p>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-3">
+            <SecondaryButton
+              name="Create Your Memecoin"
+              href="/create"
+              className="text-md p-3 px-4"
+            />
+            <PrimaryButton name="Explore the Platform" href="/" className="" />
           </div>
         </div>
       </div>
