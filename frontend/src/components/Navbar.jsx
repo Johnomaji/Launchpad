@@ -11,7 +11,7 @@ import MenuSvg from "../assets/MenuSvg";
 import { navigation } from "../constants";
 
 const Navbar = () => {
-  const pathname = useLocation();
+  const path = useLocation();
   const [openNavigation, setOpenNavigation] = useState(false);
 
   const toggleNavigation = () => {
@@ -41,8 +41,8 @@ const Navbar = () => {
 
               {/* Nav and search */}
               <div className="hidden md:flex flex-row items-center gap-5">
-                <LinkButton name="About Us" href="/about" />
-                <LinkButton name="All Coins" href="/coins" />
+                <LinkButton name="About Us" href="/about" active={path.pathname === "/about"} />
+                <LinkButton name="All Coins" href="/coins" active={path.pathname === "/coins"}/>
                 <Search />
               </div>
             </div>
@@ -58,7 +58,7 @@ const Navbar = () => {
                     href={item.url}
                     onClick={handleClick}
                     className={`block relative font-code text-2xl uppercase text-n-1 transition-colors hover:text-color-1 lg:hidden px-6 py-6 md:py-8 lg:-mr-0.25 lg:text-xs lg:font-semibold ${
-                      item.url === pathname.hash
+                      item.url === path.pathname
                         ? "z-2 lg:text-n-1"
                         : "lg:text-n-1/50"
                     } lg:leading-5 lg:hover:text-n-1 xl:px-12`}
