@@ -24,26 +24,26 @@ const sideBarItems = [
   { id: 4, name: "Leaderboard", href: "/leaderboard", icon: <TfiBarChart /> },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({setOpen, open}) => {
   const path = useLocation();
-   const [right, setRight] = useState(false)
+   
 
   return (
     <>
       <aside
         id="logo-sidebar"
-        className="absolute hidden md:block top-0 left-0 z-40 min-h-[90%] pt-[10rem] transition-transform -translate-x-full bg-black border-r border-[#9033F4] sm:translate-x-0"
+        className={`hidden md:block top-0 left-0 z-40 overflow-hidden${ open ? "w-[20%]" : "w-[10%]"} min-h-[90%] pt-[10rem] transition-transform -translate-x-full bg-black border-r border-[#9033F4] sm:translate-x-0`}
         aria-label="Sidebar"
       >
         <div className="flex justify-center h-full px-3 pb-4 overflow-y-auto mr-5">
           <ul className="space-y-5 font-medium">
             <li>
-              <BasicButton handleOnclick={()=>setRight(!right)} icon={!right ? (<SlArrowRight />):(<SlArrowLeft />)} className="bg-transparent" />
+              <BasicButton handleOnclick={()=>setOpen(!open)} icon={!open ? (<SlArrowRight />):(<SlArrowLeft />)} className="bg-transparent" />
             </li>
             {sideBarItems.map((item) => (
               <li key={item.id}>
                 <SecondaryLinkButton
-                   name={right && item.name}
+                   name={open && item.name}
                    className="w-full"
                   href={item.href}
                   icon={item.icon}
@@ -51,7 +51,7 @@ const Sidebar = () => {
                 />
               </li>
             ))}
-            {!right ? (
+            {!open ? (
             <li>
               <SecondaryButton icon={<IoMdAdd />} />
             </li>

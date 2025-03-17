@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
 
 const Layout = ({ children }) => {
+  const [open, setOpen] = useState(false);
+
+
   return (
     <>
       {/* Fixed-width container */}
@@ -11,10 +14,10 @@ const Layout = ({ children }) => {
         {/* Navbar and Sidebar */}
         <Navbar />
         <div className="flex flex-row w-full">
-          <Sidebar />
+          <Sidebar setOpen={setOpen} open={open}/>
 
           {/* Page Content */}
-          <div className="w-[100%] md:w-[90%] ml-[0%] md:ml-[10%] min-h-screen mt-[15%] md:mt-[6.8%]">{children}</div>
+          <div className={`w-[100%]  ${ open ? "md:max-w-[85%]" : "md:max-w-[91.5%]"} min-h-screen mt-[15%] md:mt-[6.8%]`}>{children}</div>
         </div>
         <Footer/>
       </div>
