@@ -17,7 +17,7 @@ const CardSlider = ({ title, cards }) => {
   const gap = 16; // Gap between cards
   const containerWidth = containerRef.current?.offsetWidth || 0; // Width of the container
 
-  const handleNext = () => {
+      const handleNext = () => {
     if (containerRef.current) {
       const scrollAmount = containerWidth; // Scroll by one container width
       containerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });

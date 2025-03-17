@@ -3,9 +3,9 @@ import SecondaryButton from "../components/buttons/SecondaryButton";
 
 const About = () => {
   return (
-    <div className="rounded-lg ">
+    <div className="rounded-lg">
       {/* Hero Section */}
-      <div className="relative w-full flex flex-col items-center justify-center mb-4 rounded-sm p-3 md:p-8 bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
+      <div className="relative w-full flex flex-col items-center justify-center mb-4 rounded-sm p-3 md:p-10 bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
         <div className="flex w-full flex-col gap-1 md:gap-2 justify-center items-center md:items-center py-4 md:py-12 bg-gradient-to-r from-[#1f0638] via-[#5A189A] to-black rounded-2xl">
           <p className="text-xl md:text-3xl font-semibold">About Us</p>
           <div className="w-[70%] md:w-[30%]">
@@ -15,7 +15,7 @@ const About = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 justify-between w-full mt-15">
+        <div className="flex flex-col md:flex-row gap-4 justify-between w-full mt-15 px-4 md:px-0">
           <div className="flex flex-col justify-left w-full md:w-[55%]">
             <p className="text-2xl font-semibold">What We Do</p>
             <p className="text-md font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
@@ -30,7 +30,7 @@ const About = () => {
             <div className="flex flex-col gap-4 mt-4">
               <div className="flex gap-2 justify-left items-center">
                 <div className="flex justify-center items-center w-8 h-8 rounded-full bg-white">
-                  <img src="/assets/create.png" alt="create" width="50%" />
+                  <img src="/assets/create.png" alt="create" className="w-[50%] h-[50%] object-cover object-center" />
                 </div>
                 <p>
                   <span className="font-semibold">
@@ -41,7 +41,7 @@ const About = () => {
               </div>
               <div className="flex gap-2 justify-left items-center">
                 <div className="flex justify-center items-center w-8 h-8 rounded-full bg-white">
-                  <img src="/assets/track.png" alt="create" width="50%" />
+                  <img src="/assets/track.png" alt="create" className="w-[50%] h-[50%] object-fit object-center" />
                 </div>
                 <p>
                   <span className="font-semibold">Track Performance:</span>{" "}
@@ -50,7 +50,7 @@ const About = () => {
               </div>
               <div className="flex gap-2 justify-left items-center">
                 <div className="flex justify-center items-center w-8 h-8 rounded-full bg-white">
-                  <img src="/assets/create.png" alt="create" width="50%" />
+                  <img src="/assets/create.png" alt="create" className="w-[50%] h-[50%] object-cover object-center" />
                 </div>
                 <p>
                   <span className="font-semibold">Trade Seamlessly:</span> Buy
@@ -72,7 +72,7 @@ const About = () => {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-8 my-8 w-full">
+      <div className="flex flex-col items-center justify-center gap-8 my-8 w-full px-4 md:px-0">
         <div className="flex flex-col items-center justify-center w-80% md:w-[50%]">
           <p className="text-2xl font-semibold">
             Who Can Use Memetic Launchpad?
