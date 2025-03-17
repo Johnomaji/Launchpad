@@ -19,8 +19,8 @@ const CardWallet = ({ cardDetails }) => {
       </div>
       {/* Content */}
       <div className="flex flex-col gap-1 mx-0 md:mx-5">
-        <p className="text-3xl font-medium">{cardDetails.name}</p>
-        <div className="flex flex-row gap-1 mt-1">
+        <p className="text-2xl md:text-3xl font-medium">{cardDetails.name}</p>
+        <div className="flex flex-row gap-1 ">
           <p className="text-sm text-[#B0B0B0]">{`CA: ${cardDetails.ca?.slice(
             0,
             6
@@ -31,13 +31,13 @@ const CardWallet = ({ cardDetails }) => {
           <p className="text-[#B0B0B0] text-sm">Created: {`[${cardDetails.timestamp}]`}</p>
         </div>
         <div className="flex flex-row gap-1 items-center">
-          <p className="text-2xl font-medium  bg-gradient-to-r from-[#EC8AEF] to-[#9033F4] bg-clip-text text-transparent">
+          <p className="text-xl md:text-2xl font-medium  bg-gradient-to-r from-[#EC8AEF] to-[#9033F4] bg-clip-text text-transparent">
             ${cardDetails.marketCap}K
           </p>
           <p className="text-xs text-[#18CA48]">{cardDetails.marketPercent}</p>
         </div>
         <div className="flex flex-row gap-1 items-center">
-          <div className="rounded-full p-1 w-6 h-6 flex justify-center items-center bg-[#B0B0B0]">
+          <div className="rounded-full p-1 w-4 md:w-6 h-4 md:h-6 flex justify-center items-center bg-[#B0B0B0]">
             <RiUserLine style={{ color: "#000" }} />
           </div>
           <p className="text-md text-[#E1D4FF]">

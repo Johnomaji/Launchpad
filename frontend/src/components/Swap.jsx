@@ -67,7 +67,7 @@ const Swap = ({ coinDetails }) => {
             />
           </div>
           <div className="flex flex-col flex-1/2 items-end gap-2">
-            <div className="flex flex-row justify-start items-center rounded-4xl bg-[#000] p-2 gap-2 w-[50%]">
+            <div className="flex flex-row justify-start items-center rounded-4xl bg-[#000] p-2 gap-2 w-[55%]">
               <div class="w-8 h-8 flex items-center justify-center overflow-hidden rounded-full">
                 <img
                   src="/assets/sui-icon.png"
