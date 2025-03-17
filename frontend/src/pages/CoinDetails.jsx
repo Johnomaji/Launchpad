@@ -17,8 +17,8 @@ const CoinDetails = () => {
       {/* Hero Section */}
       <div className="relative w-full flex flex-col items-center justify-center mb-4 rounded-sm p-3 md:p-8 bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
         <div className="z-10 w-full flex flex-col md:flex-row gap-5 md:gap-10 justify-between items-left md:items-center p-2 md:p-8 py-4 md:py-12 mb-8 bg-[rgba(0,0,0,0.5)] rounded-2xl">
-          <div className="flex flex-row gap-6">
-            <div className="flex flex-row justify-center items-center gap-2 border-r border-[#9033F4] pr-6">
+          <div className="flex flex-row gap-3 md:gap-6">
+            <div className="flex flex-row justify-center items-center gap-2 border-r border-[#9033F4] pr-3 md:pr-6">
               <div className="flex justify-center items-center w-10 h-10 rounded-full overflow-hidden">
                 <img
                   src="/assets/user.jpg"
@@ -27,26 +27,26 @@ const CoinDetails = () => {
                 />
               </div>
               <div>
-                <p className="font-light">Owner</p>
-                <p className="text-xl md:text-xl font-semibold bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">{`${userWallet?.slice(
+                <p className="font-light text-sm md:text-md">Owner</p>
+                <p className="text-md md:text-xl font-medium md:font-semibold bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">{`${userWallet?.slice(
                   0,
                   6
                 )}....${userWallet?.slice(-4)}`}</p>
               </div>
             </div>
-            <div className="border-r border-[#9033F4] pr-6">
-              <p className="font-light">Fees Earned</p>
-              <p className="font-semibold">$948.09k</p>
+            <div className="border-r border-[#9033F4] pr-3 md:pr-6">
+              <p className="font-light text-sm md:text-md">Fees Earned</p>
+              <p className="font-medium md:font-semibold text-sm md:text-md">$948.09k</p>
             </div>
             <div>
-              <p className="font-light">Treasury</p>
-              <p className="font-semibold">$500.01k</p>
+              <p className="font-light text-sm md:text-md">Treasury</p>
+              <p className="font-medium md:font-semibold text-sm md:text-md">$500.01k</p>
             </div>
           </div>
         </div>
 
         {/* Card, Token Name and Description */}
-        <div className="z-10 w-full flex flex-col md:flex-row gap-5 md:gap-10 items-left md:items-center p-2 md:p-8 py-4 md:py-2 mb-9 bg-[rgba(0,0,0,0.5)] rounded-2xl">
+        <div className="z-10 w-full flex flex-col md:flex-row gap-5 md:gap-10 items-left md:items-center p-2 px-8 md:p-8 py-4 md:py-2 mb-9 bg-[rgba(0,0,0,0.5)] rounded-2xl">
           <div className="flex-[49%]  md:border-r border-[#9033F4] pr-6">
             <CardWallet cardDetails={singleCoinDetails} />
           </div>
@@ -79,9 +79,9 @@ const CoinDetails = () => {
             </div>
           </div>
         </div>
-        <div className="flex flex-row flex-wrap md:flex-nowrap gap-4 w-full p-4 justify-between mb-12">
+        <div className="flex flex-row flex-wrap md:flex-nowrap gap-8 md:gap-4 w-full p-4 justify-between mb-12">
           {/* 1 */}
-          <div className="w-[48%] md:flex-1/4">
+          <div className="w-[46%] md:flex-1/4">
             <div className="relative w-full p-[1px] flex gap-3 bg-black rounded-2xl">
               <div className="absolute w-full inset-0 bg-gradient-to-r from-[#EC8AEF] to-[#9033F4] hover:bg-transparent rounded-2xl"></div>
               <div className="relative w-full flex flex-col px-8 py-4 gap bg-black transition-all duration-900 text-white rounded-2xl">
@@ -94,7 +94,7 @@ const CoinDetails = () => {
           </div>
 
           {/* 2 */}
-          <div className="w-[48%] md:flex-1/4">
+          <div className="w-[46%] md:flex-1/4">
             <div className="relative w-full p-[1px] flex gap-3 bg-black rounded-2xl">
               <div className="absolute w-full inset-0 bg-gradient-to-r from-[#EC8AEF] to-[#9033F4] hover:bg-transparent rounded-2xl"></div>
               <div className="relative w-full flex flex-col px-8 py-4 gap bg-black transition-all duration-900 text-white rounded-2xl">
@@ -107,7 +107,7 @@ const CoinDetails = () => {
           </div>
 
           {/* 3 */}
-          <div className="w-[48%] md:flex-1/4">
+          <div className="w-[46%] md:flex-1/4">
             <div className="relative w-full p-[1px] flex gap-3 bg-black rounded-2xl">
               <div className="absolute w-full inset-0 bg-gradient-to-r from-[#EC8AEF] to-[#9033F4] hover:bg-transparent rounded-2xl"></div>
               <div className="relative w-full flex flex-col px-8 py-4 gap bg-black transition-all duration-900 text-white rounded-2xl">
@@ -120,7 +120,7 @@ const CoinDetails = () => {
           </div>
 
           {/* 4 */}
-          <div className="w-[48%] md:flex-1/4">
+          <div className="w-[46%] md:flex-1/4">
             <div className="relative w-full p-[1px] flex gap-3 bg-black rounded-2xl">
               <div className="absolute w-full inset-0 bg-gradient-to-r from-[#EC8AEF] to-[#9033F4] hover:bg-transparent rounded-2xl"></div>
               <div className="relative w-full flex flex-col px-8 py-4 gap bg-black transition-all duration-900 text-white rounded-2xl">

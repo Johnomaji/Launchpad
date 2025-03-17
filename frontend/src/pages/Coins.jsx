@@ -12,9 +12,9 @@ const Coins = () => {
       <div className="rounded-lg">
         {/* Hero Section */}
         <div className="relative w-full flex flex-col items-left justify-left mb-4 rounded-sm p-3 mt-6 md:mt-0 md:p-10 bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
-          <div className="flex w-full flex-col gap-1 md:gap-6 justify-left items-left py-4 px-6 md:py-12 bg-[rgba(0,0,0,0.5)] rounded-2xl">
+          <div className="flex w-full flex-col gap-3 md:gap-6 justify-left items-left py-4 px-6 md:py-12 bg-[rgba(0,0,0,0.5)] rounded-2xl">
             <p className="text-xl md:text-3xl font-semibold">All Coins</p>
-            <div className="flex flex-row gap-4 justify-left items-center ">
+            <div className="flex flex-row flex-wrap  gap-4 justify-left items-center ">
               <PrimaryButton name="All" />
               <PrimaryButton name="New" icon={<MdStarBorder />} />
               <PrimaryButton
@@ -25,7 +25,7 @@ const Coins = () => {
             </div>
           </div>
 
-          <div class="grid grid-cols-3 gap-4 mt-4">
+          <div class="grid grid-cols md:grid-cols-3 gap-6 mt-4 p-6">
             {allCoins.map((coin, key) => (
               <Card
                 key={key}

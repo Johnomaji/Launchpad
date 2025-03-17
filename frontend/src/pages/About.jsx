@@ -32,7 +32,7 @@ const About = () => {
                 <div className="flex justify-center items-center w-8 h-8 rounded-full bg-white">
                   <img src="/assets/create.png" alt="create" className="w-[50%] h-[50%] object-cover object-center" />
                 </div>
-                <p>
+                <p className="flex-[90%]">
                   <span className="font-semibold">
                     Create Your Own Memecoin:
                   </span>{" "}
@@ -43,7 +43,7 @@ const About = () => {
                 <div className="flex justify-center items-center w-8 h-8 rounded-full bg-white">
                   <img src="/assets/track.png" alt="create" className="w-[50%] h-[50%] object-fit object-center" />
                 </div>
-                <p>
+                <p className="flex-[90%]">
                   <span className="font-semibold">Track Performance:</span>{" "}
                   Monitor your token's price, and liquidity in real-time.
                 </p>
@@ -52,7 +52,7 @@ const About = () => {
                 <div className="flex justify-center items-center w-8 h-8 rounded-full bg-white">
                   <img src="/assets/create.png" alt="create" className="w-[50%] h-[50%] object-cover object-center" />
                 </div>
-                <p>
+                <p className="flex-[90%]">
                   <span className="font-semibold">Trade Seamlessly:</span> Buy
                   and sell memecoins in a secure environment.
                 </p>
@@ -72,12 +72,12 @@ const About = () => {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-8 my-8 w-full px-4 md:px-0">
+      <div className="flex flex-col items-center justify-center gap-8 my-8 w-full px-6 md:px-0">
         <div className="flex flex-col items-center justify-center w-80% md:w-[50%]">
           <p className="text-2xl font-semibold">
             Who Can Use Memetic Launchpad?
           </p>
-          <p className="text-md font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
+          <p className="text-md font-medium text-center bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
             Who’s It Built For
           </p>
           <p className="mt-5 text-center">
@@ -89,7 +89,7 @@ const About = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-5 items-center justify-center w-full md:w-[90%]">
-          <div className="relative w-[90%] md:w-90 md:h-90 p-[1px] flex gap-3 bg-black rounded-2xl mr-[1px]">
+          <div className="relative w-[90%] md:w-90 md:h-90 p-[1px] flex gap-3 bg-black rounded-2xl ">
             <div className="absolute inset-0 bg-gradient-to-r from-[#9033F4] to-[#EC8AEF] hover:bg-transparent rounded-2xl"></div>
             <div className="relative w-full h-full flex flex-col gap-2 py-6 justify-center items-center bg-gradient-to-bl from-[#3c1166] from-5% via-[#1f0638] via-48% to-[#340761] to-98%  transition-all duration-900 text-white rounded-2xl">
               <p className="font-medium">Memecoin Creators</p>
@@ -204,7 +204,7 @@ const About = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 items-center justify-center w-[100%] md:w-[80%] mt-10">
+        <div className="flex flex-col gap-3 items-center justify-center w-[100%] md:w-[70%] mt-10">
           <p className="text-xl md:text-3xl font-medium bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
             Ready to Join the Memecoin Revolution?
           </p>
