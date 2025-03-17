@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
       <SuiClientProvider networks={networks} defaultNetwork="devnet">
         <WalletProvider>
-          <ToastContainer/>
+          <ToastContainer theme="dark" />
           <App />
         </WalletProvider>
       </SuiClientProvider>
