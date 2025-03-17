@@ -17,7 +17,7 @@ const Layout = ({ children }) => {
           <Sidebar setOpen={setOpen} open={open}/>
 
           {/* Page Content */}
-          <div className={`w-[100%]  ${ open ? "md:max-w-[85%]" : "md:max-w-[91.5%]"} min-h-screen mt-[15%] md:mt-[6.8%]`}>{children}</div>
+          <div className={`w-[100%]  ${ open ? "md:max-w-[85%]" : "md:max-w-[91.5%]"} min-h-screen mt-[13%] md:mt-[6.8%]`}>{children}</div>
         </div>
         <Footer/>
       </div>

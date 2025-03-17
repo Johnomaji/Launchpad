@@ -5,7 +5,7 @@ const About = () => {
   return (
     <div className="rounded-lg">
       {/* Hero Section */}
-      <div className="relative w-full flex flex-col items-center justify-center mb-4 rounded-sm p-3 md:p-10 bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
+      <div className="relative w-full flex flex-col items-center justify-center mb-4 rounded-sm p-3 mt-6 md:mt-0 md:p-10 bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
         <div className="flex w-full flex-col gap-1 md:gap-2 justify-center items-center md:items-center py-4 md:py-12 bg-gradient-to-r from-[#1f0638] via-[#5A189A] to-black rounded-2xl">
           <p className="text-xl md:text-3xl font-semibold">About Us</p>
           <div className="w-[70%] md:w-[30%]">
