@@ -10,9 +10,8 @@ const SecondaryButton = ({
 }) => {
   const oc = `relative p-[2px] inline-block bg-black cursor-pointer rounded-3xl`;
   const sc = `absolute inset-0 bg-gradient-to-r from-[#CBB2FF] to-[#000] hover:bg-transparent rounded-3xl`
-  const ic = `relative flex flex-row justify-center items-center bg-[radial-gradient(circle_at_30%_50%,_#9033F4,_#5A189A)] hover:outline-3 hover:outline-white hover:bg-[#5A189A] font-medium transition-all duration-900 text-white ${
-    className || "text-2xl p-3 px-6 gap-2"
-  } rounded-3xl`;
+  const ic = `relative flex flex-row justify-center items-center bg-[radial-gradient(circle_at_30%_50%,_#9033F4,_#5A189A)] hover:outline-3 hover:outline-white hover:bg-[#5A189A] font-medium transition-all duration-900 text-white ${className || "text-2xl p-3 px-6 gap-2"
+    } rounded-3xl`;
 
   if (href) {
     return (

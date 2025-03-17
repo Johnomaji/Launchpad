@@ -11,13 +11,11 @@ const PrimaryButton = ({
   loaded,
   loading,
 }) => {
-  const classes = `relative p-[1px] rounded-3xl inline-block bg-black cursor-pointer ${
-    className || ""
-  } `;
+  const classes = `relative p-[1px] rounded-3xl inline-block bg-black cursor-pointer ${className || ""
+    } `;
 
-  const classes2 = `relative flex flex-row gap-2 justify-center items-center p-3 px-6 hover:bg-white rounded-3xl font-medium text-md transition-all duration-900 text-[#B386FF] hover:text-[#5A189A] ${
-    className2 || "bg-black"
-  }`;
+  const classes2 = `relative flex flex-row gap-2 justify-center items-center p-3 px-6 hover:bg-white rounded-3xl font-medium text-md transition-all duration-900 text-[#B386FF] hover:text-[#5A189A] ${className2 || "bg-black"
+    }`;
   if (href) {
     return (
       <Link to={href} className={classes}>
