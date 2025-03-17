@@ -74,7 +74,7 @@ const About = () => {
 
       <div className="flex flex-col items-center justify-center gap-8 my-8 w-full px-6 md:px-0">
         <div className="flex flex-col items-center justify-center w-80% md:w-[50%]">
-          <p className="text-2xl font-semibold">
+          <p className="text-2xl font-semibold text-center">
             Who Can Use Memetic Launchpad?
           </p>
           <p className="text-md font-medium text-center bg-gradient-to-r from-[#FFA232] to-[#CC4E02] bg-clip-text text-transparent">
