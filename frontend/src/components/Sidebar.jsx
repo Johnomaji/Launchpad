@@ -24,7 +24,7 @@ const sideBarItems = [
   { id: 4, name: "Leaderboard", href: "/leaderboard", icon: <TfiBarChart /> },
 ];
 
-const Sidebar = ({setOpen, open}) => {
+const Sidebar = ({setOpen, open, toggleOpenCreateCoin}) => {
   const path = useLocation();
    
 
@@ -53,13 +53,13 @@ const Sidebar = ({setOpen, open}) => {
             ))}
             {!open ? (
             <li>
-              <SecondaryButton icon={<IoMdAdd />} />
+              <SecondaryButton handleOnClick={toggleOpenCreateCoin} icon={<IoMdAdd />} />
             </li>
             ) : (
             <li>
                <div className="flex flex-col gap-2 p-2 bg-white rounded-xl w-[200px]">
                   <img src="/assets/create-coin.png" alt="create-coin"/>
-                  <SecondaryButton name="Launch a coin" icon={<PiPaperPlaneTilt />} href="/create" className="text-lg p-2 px-4"/>
+                  <SecondaryButton name="Launch a coin" icon={<PiPaperPlaneTilt />} handleOnClick={toggleOpenCreateCoin} className="text-lg p-2 px-4"/>
                </div>
             </li>
             )}
