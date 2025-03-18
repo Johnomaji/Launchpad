@@ -1,13 +1,43 @@
-const Memecoin = require('../models/Memecoin');
+const Memecoin = require("../models/Memecoin");
+const User = require("../models/User");
 
 exports.createMemecoin = async (req, res) => {
-  const { name, symbol, walletAddress } = req.body;
+  const {
+    name,
+    ticker,
+    coinAddress,
+    creator,
+    image,
+    desc,
+    totalCoins,
+    xSocial,
+    telegramSocial,
+    discordSocial,
+    creatorAddress,
+  } = req.body;
 
   try {
-    const memecoin = new Memecoin({ name, symbol, walletAddress });
+    const user = await User.findOne({ walletAddress: creatorAddress });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const memecoin = new Memecoin({
+      name,
+      ticker,
+      coinAddress,
+      creator,
+      image,
+      desc,
+      totalCoins,
+      xSocial,
+      telegramSocial,
+      discordSocial,
+    });
     await memecoin.save();
 
-    res.status(201).json({ message: 'Memecoin created successfully', memecoin });
+    res
+      .status(201)
+      .json({ message: "Memecoin created successfully", memecoin });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -18,7 +48,7 @@ exports.getMemecoin = async (req, res) => {
 
   try {
     const memecoin = await Memecoin.findOne({ walletAddress });
-    if (!memecoin) return res.status(404).json({ error: 'Memecoin not found' });
+    if (!memecoin) return res.status(404).json({ error: "Memecoin not found" });
 
     res.status(200).json(memecoin);
   } catch (err) {
