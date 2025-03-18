@@ -19,12 +19,12 @@ export const navigation = [
     title: "About",
     url: "/about",
   },
-  {
-    id: "4",
-    title: "Create",
-    url: "/create-coin",
-    onlyMobile: true,
-  },
+  // {
+  //   id: "4",
+  //   title: "Create",
+  //   url: "/create-coin",
+  //   onlyMobile: true,
+  // },
   // {
   //   id: "5",
   //   title: "Sign in",

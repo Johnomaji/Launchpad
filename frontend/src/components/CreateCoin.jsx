@@ -72,7 +72,7 @@ const CreateCoin = ({openCreateCoin, toggleOpenCreateCoin}) => {
                     <CiImageOn />
                   </div>
                   <p className="font-thin">
-                    Add Image (SVG, PNG, JPG or GIF (MAX. 800x400px))
+                    Add Image <span className="hidden md:block">(SVG, PNG, JPG or GIF (MAX. 800x400px))</span>
                   </p>
                 </div>
                 <div class="flex flex-row items-center gap-2 justify-end text-white text-xs">
