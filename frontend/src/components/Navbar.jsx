@@ -9,8 +9,10 @@ import { useLocation } from "react-router-dom";
 import Button from "./Button";
 import MenuSvg from "../assets/MenuSvg";
 import { navigation } from "../constants";
+import SecondaryButton from "./buttons/SecondaryButton";
+import PrimaryButtonInvert from "./buttons/PrimaryButtonInvert";
 
-const Navbar = () => {
+const Navbar = ({ toggleOpenCreateCoin }) => {
   const path = useLocation();
   const [openNavigation, setOpenNavigation] = useState(false);
 
@@ -41,8 +43,16 @@ const Navbar = () => {
 
               {/* Nav and search */}
               <div className="hidden md:flex flex-row items-center gap-5">
-                <LinkButton name="About Us" href="/about" active={path.pathname === "/about"} />
-                <LinkButton name="All Coins" href="/coins" active={path.pathname === "/coins"}/>
+                <LinkButton
+                  name="About Us"
+                  href="/about"
+                  active={path.pathname === "/about"}
+                />
+                <LinkButton
+                  name="All Coins"
+                  href="/coins"
+                  active={path.pathname === "/coins"}
+                />
                 <Search />
               </div>
             </div>
@@ -66,6 +76,15 @@ const Navbar = () => {
                     {item.title}
                   </a>
                 ))}
+                <div className="lg:hidden mb-4">
+                  <PrimaryButtonInvert
+                    handleOnClick={() => {
+                      toggleOpenCreateCoin();
+                      toggleNavigation();
+                    }}
+                    name="Launch a Coin"
+                  />
+                </div>
                 <div className="lg:hidden">
                   <AuthButton />
                 </div>

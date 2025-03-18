@@ -18,7 +18,7 @@ const Layout = ({ children }) => {
       {/* Fixed-width container */}
       <div className="relative my-0 mx-auto w-full sm:w-[1600px]">
         {/* Navbar and Sidebar */}
-        <Navbar />
+        <Navbar toggleOpenCreateCoin={toggleOpenCreateCoin} />
         <div className="flex flex-row w-full">
           {openCreateCoin && (
             <CreateCoin
