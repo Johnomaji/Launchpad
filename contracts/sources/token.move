@@ -7,7 +7,8 @@ module memetic::token {
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
     use sui::balance::Supply;
-
+    use sui::event;
+    use std::ascii::{String as AsciiString};
 
     // === Errors ===
     const EInvalidTokenName: u64 = 0;
