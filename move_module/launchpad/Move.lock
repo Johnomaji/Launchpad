@@ -14,7 +14,7 @@ dependencies = [
 
 [[move.package]]
 id = "Bridge"
-source = { git = "https://github.com/MystenLabs/sui.git", rev = "9c04e1840eb5", subdir = "crates/sui-framework/packages/bridge" }
+source = { git = "https://github.com/MystenLabs/sui.git", rev = "615516edb0ed", subdir = "crates/sui-framework/packages/bridge" }
 
 dependencies = [
   { id = "MoveStdlib", name = "MoveStdlib" },
@@ -24,7 +24,7 @@ dependencies = [
 
 [[move.package]]
 id = "DeepBook"
-source = { git = "https://github.com/MystenLabs/sui.git", rev = "9c04e1840eb5", subdir = "crates/sui-framework/packages/deepbook" }
+source = { git = "https://github.com/MystenLabs/sui.git", rev = "615516edb0ed", subdir = "crates/sui-framework/packages/deepbook" }
 
 dependencies = [
   { id = "MoveStdlib", name = "MoveStdlib" },
@@ -33,11 +33,11 @@ dependencies = [
 
 [[move.package]]
 id = "MoveStdlib"
-source = { git = "https://github.com/MystenLabs/sui.git", rev = "9c04e1840eb5", subdir = "crates/sui-framework/packages/move-stdlib" }
+source = { git = "https://github.com/MystenLabs/sui.git", rev = "615516edb0ed", subdir = "crates/sui-framework/packages/move-stdlib" }
 
 [[move.package]]
 id = "Sui"
-source = { git = "https://github.com/MystenLabs/sui.git", rev = "9c04e1840eb5", subdir = "crates/sui-framework/packages/sui-framework" }
+source = { git = "https://github.com/MystenLabs/sui.git", rev = "615516edb0ed", subdir = "crates/sui-framework/packages/sui-framework" }
 
 dependencies = [
   { id = "MoveStdlib", name = "MoveStdlib" },
@@ -45,7 +45,7 @@ dependencies = [
 
 [[move.package]]
 id = "SuiSystem"
-source = { git = "https://github.com/MystenLabs/sui.git", rev = "9c04e1840eb5", subdir = "crates/sui-framework/packages/sui-system" }
+source = { git = "https://github.com/MystenLabs/sui.git", rev = "615516edb0ed", subdir = "crates/sui-framework/packages/sui-system" }
 
 dependencies = [
   { id = "MoveStdlib", name = "MoveStdlib" },
@@ -59,8 +59,8 @@ flavor = "sui"
 
 [env]
 
-[env.devnet]
-chain-id = "4829d9bc"
-original-published-id = "0x8a4b0811b85cb2ad3f495c58697e191f4dd69fd59b3b604e3680cdd36cae0f11"
-latest-published-id = "0x8a4b0811b85cb2ad3f495c58697e191f4dd69fd59b3b604e3680cdd36cae0f11"
+[env.testnet]
+chain-id = "4c78adac"
+original-published-id = "0xcd5896b4be63cadfcf2531b3c546ed050c1ce02302f9f996d2dc0ecfb1773eaf"
+latest-published-id = "0xcd5896b4be63cadfcf2531b3c546ed050c1ce02302f9f996d2dc0ecfb1773eaf"
 published-version = "1"
