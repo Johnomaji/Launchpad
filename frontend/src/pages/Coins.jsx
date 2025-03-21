@@ -10,13 +10,10 @@ import useGetMemecoins from "../hooks/useGetMemecoins";
 const Coins = () => {
   const { data, isLoading, isError } = useGetMemecoins();
 
+  if (isError) return <div className="p-5">No Memecoin Found.</div>;
 
   return (
     <div>
-
-
-
-
       <div className="rounded-lg">
         {/* Hero Section */}
         <div className="relative w-full flex flex-col items-left justify-left mb-4 rounded-sm p-3 mt-6 md:mt-0 md:p-10 bg-black md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
