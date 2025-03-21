@@ -10,6 +10,7 @@ module memetic::token {
     use std::ascii::{Self, String as AsciiString};
     use std::option::{Self, Option};
     use sui::object::{Self, UID};
+    use sui::object_bag::{ObjectBag};
 
     // === Errors ===
     const EInvalidTokenName: u64 = 0;
@@ -18,6 +19,9 @@ module memetic::token {
     const EInvalidSupply: u64 = 3;
     const EInvalidUrl: u64 = 4;
     const EInvalidDescription: u64 = 5;
+    const ESupplyExceeded: u64 = 6;
+    const ETokenLocked: u64 = 7;
+    const EUnauthorized: u64 = 8;
 
     // === Constants ===
     const MAX_SYMBOL_LENGTH: u64 = 6;
@@ -50,6 +54,17 @@ module memetic::token {
 
     public struct MEMETIC has drop {}
 
+    public struct TokensTransferred has copy, drop {
+        amount: u64,
+        from: address,
+        to: address
+    }
+
+    public struct TokenLocked has copy, drop {
+        locked: bool,
+        by: address
+    }
+
     // === Events ===
     public struct TokenCreated has copy, drop {
         creator: address,
@@ -57,7 +72,8 @@ module memetic::token {
         symbol: String,
         total_supply: u64,
         decimals: u8,
-        token_id: address
+        token_id: address,
+	metadata_id: address
     }
 
     fun init(ctx: &mut TxContext) {
@@ -143,6 +159,8 @@ module memetic::token {
             decimals
         };
         
+	let metadata_id = metadata.get_metadata_id();
+
         transfer::share_object(metadata);
         
         let name_bytes = *string::as_bytes(&name);
@@ -173,7 +191,8 @@ module memetic::token {
             symbol,
             total_supply,
             decimals,
-            token_id: tx_context::sender(ctx)
+            token_id: tx_context::sender(ctx),
+	    metadata_id: sui::object::id_to_address(&metadata_id)
         });
         
         (treasury_cap, minted_coins)
@@ -197,12 +216,44 @@ module memetic::token {
         assert!(string::length(&icon_url) > 0, EInvalidUrl);
     }
 
-    // === GETTER FUNCTIONS ===
-    public fun get_token_creation_fee(fee_config: &TokenCreationFee): u64 {
-        fee_config.fee
+    public fun get_metadata_id (self: &TokenMetadata): ID {
+	*self.id.uid_as_inner()
     }
-        
-    public fun get_fee_recipient(fee_config: &TokenCreationFee): address {
-        fee_config.fee_recipient
+/**
+    public fun get_token_metadata(metadata_id: ID): &TokenMetadata {
+    	let obag = ObjectBag {
+	    id: metadata_id,
+	    size: 1
+	}
+    	sui::object_bag::borrow_mut<ID, TokenMetadata>(&obag, metadata_id)
     }
+*/
+
+/* public struct TokensMinted has copy, drop {
+        amount: u64,
+        by: address
+    }
+
+    public struct TokensBurned has copy, drop {
+        amount: u64,
+        by: address
+    }
+
+    public fun burn_tokens(
+        coins: Coin<MEMETIC>,
+        treasury_cap: &mut TreasuryCap<MEMETIC>,
+    ) {
+        let metadata = get_token_metadata();
+        assert!(!metadata.locked, ETokenLocked);
+
+        let amount = coin::value(&coins);
+        coin::burn(treasury_cap, coins);
+
+        event::emit(TokensBurned {
+            amount,
+            by: tx_context::sender(ctx)
+        });
+    }
+
+*/
 }
