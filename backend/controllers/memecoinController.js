@@ -21,9 +21,9 @@ exports.createMemecoin = async (req, res) => {
       throw new Error("User not found");
     }
 
-    if (!name || !ticker || !desc || !image) {
-      throw new Error("Missing required fields");
-    }
+    // if (!name || !ticker || !desc || !image) {
+    //   throw new Error("Missing required fields");
+    // }
 
     const generateMockSuiAddress = () => {
       const prefix = '0x';
