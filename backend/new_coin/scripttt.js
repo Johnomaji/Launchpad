@@ -33,15 +33,12 @@ const newCoin = (name,symbol, iconUrl, description) => {
 	});
 
 	// Transfer the upgrade capability to the sender so they can upgrade the package later if they want.
-	const result = tx.moveCall({
+	tx.moveCall({
         target: "0x2::package::make_immutable",
         arguments: [
             cap,
         ]
     });
-    // console.log(tx)
-    // console.log(cap)
-    // console.log(result.Result)
 
     return tx;
 }
