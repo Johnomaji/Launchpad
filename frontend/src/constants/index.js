@@ -422,3 +422,35 @@ export const coinChartData = [
     "amt": 2100
   }
 ]
+
+
+
+const dummImageUploadResponse = {
+  "data": [
+      {
+          "url": "https://uploadthing-prod-sea1.s3.us-west-2.amazonaws.com/",
+          "fields": {
+              "Content-Type": "image/jpeg",
+              "Content-Disposition": "inline; filename=\"coin_img_5.jpeg\"; filename*=UTF-8''coin_img_5.jpeg",
+              "bucket": "uploadthing-prod-sea1",
+              "X-Amz-Algorithm": "AWS4-HMAC-SHA256",
+              "X-Amz-Credential": "ASIA4BVCOYKVZLGCLWYY/20250321/us-west-2/s3/aws4_request",
+              "X-Amz-Date": "20250321T130906Z",
+              "X-Amz-Security-Token": "IQoJb3JpZ2luX2VjEE0aCXVzLXdlc3QtMiJGMEQCICJUA3KZeVCWKD7DulfSEHI3uVdBkO7Ef2HTGxLKODFLAiBmBxRWzkMp3g+UQqtvw/CPUyQ8Bb7MUAhYjWYjZ+RyvSqhAgim//////////8BEAAaDDgyODE5NTY1MjI2NyIM7FN9heqJlQCcQdBNKvUBuUZ4sEPpPOI1lRUHN7r+RUO61NdchGJ00mKk7wpIX8AVaF3uY86ZrAnmgOMFFHDknbw2tC1ZTKpMNCA8xmgbCDs+2UoukYD2ZyRdfyoE+/o8Rn3qIDz5/5Jl2dBp8RX9plhfCPeZQf+mmeO2k1Pjd4LUmYSv8VdiuAijtphqa/ms8WgvBGuHcWDiv6Lo9kf0a96zo8yHllm53gFMLAfSLcMC9ChuXtrdQXpa3W0kuW9M7WhzUft06M+XYYbGQSWALlNTD6LGDS4kCS0Dy3lxsm54mPKrtldocwWUzA49w9ZyEqVDRGDCR2hKJcZ0vZzJWMGGEL0w8sn1vgY6ngFYGhGd/XVElXjGsQ8LBFjrRZNvtyoFiSca7UBjtJKp0IwZYoy82WQPiClpi3zV1lsM+t4zeObayv+7fhgUUcJUu1gPyxzaqbspUFaCAZTlNDa8LNBz3aw3AypXksoXfI3h5hJsBpGrzLaMwOWHT2DL76t6U5KbHYDghkzQlUwP7y2dcI1W8bf2YSQZLzklojHRfvjF5GmLYtB8Zz16WQ==",
+              "key": "430693b2-4aac-495f-ba78-4da961e28505-hmsnlh.jpeg",
+              "Policy": "eyJleHBpcmF0aW9uIjoiMjAyNS0wMy0yMVQxMzoxNDowNloiLCJjb25kaXRpb25zIjpbWyJlcSIsIiRDb250ZW50LVR5cGUiLCJpbWFnZS9qcGVnIl0sWyJjb250ZW50LWxlbmd0aC1yYW5nZSIsMCw1OTgzMl0sWyJlcSIsIiRDb250ZW50LURpc3Bvc2l0aW9uIiwiaW5saW5lOyBmaWxlbmFtZT1cImNvaW5faW1nXzUuanBlZ1wiOyBmaWxlbmFtZSo9VVRGLTgnJ2NvaW5faW1nXzUuanBlZyJdLHsiQ29udGVudC1UeXBlIjoiaW1hZ2UvanBlZyJ9LHsiQ29udGVudC1EaXNwb3NpdGlvbiI6ImlubGluZTsgZmlsZW5hbWU9XCJjb2luX2ltZ181LmpwZWdcIjsgZmlsZW5hbWUqPVVURi04Jydjb2luX2ltZ181LmpwZWcifSx7ImJ1Y2tldCI6InVwbG9hZHRoaW5nLXByb2Qtc2VhMSJ9LHsiWC1BbXotQWxnb3JpdGhtIjoiQVdTNC1ITUFDLVNIQTI1NiJ9LHsiWC1BbXotQ3JlZGVudGlhbCI6IkFTSUE0QlZDT1lLVlpMR0NMV1lZLzIwMjUwMzIxL3VzLXdlc3QtMi9zMy9hd3M0X3JlcXVlc3QifSx7IlgtQW16LURhdGUiOiIyMDI1MDMyMVQxMzA5MDZaIn0seyJYLUFtei1TZWN1cml0eS1Ub2tlbiI6IklRb0piM0pwWjJsdVgyVmpFRTBhQ1hWekxYZGxjM1F0TWlKR01FUUNJQ0pVQTNLWmVWQ1dLRDdEdWxmU0VISTN1VmRCa083RWYySFRHeExLT0RGTEFpQm1CeFJXemtNcDNnK1VRcXR2dy9DUFV5UThCYjdNVUFoWWpXWWpaK1J5dlNxaEFnaW0vLy8vLy8vLy8vOEJFQUFhRERneU9ERTVOVFkxTWpJMk55SU03Rk45aGVxSmxRQ2NRZEJOS3ZVQnVVWjRzRVBwUE9JMWxSVUhON3IrUlVPNjFOZGNoR0owMG1Lazd3cElYOEFWYUYzdVk4NlpyQW5tZ09NRkZIRGtuYncydEMxWlRLcE1OQ0E4eG1nYkNEcysyVW91a1lEMlp5UmRmeW9FKy9vOFJuM3FJRHo1LzVKbDJkQnA4Ulg5cGxoZkNQZVpRZittbWVPMmsxUGpkNExVbVlTdjhWZGl1QWlqdHBocWEvbXM4V2d2Qkd1SGNXRGl2NkxvOWtmMGE5NnpvOHlIbGxtNTNnRk1MQWZTTGNNQzlDaHVYdHJkUVhwYTNXMGt1VzlNN1doelVmdDA2TStYWVliR1FTV0FMbE5URDZMR0RTNGtDUzBEeTNseHNtNTRtUEtydGxkb2N3V1V6QTQ5dzlaeUVxVkRSR0RDUjJoS0pjWjB2WnpKV01HR0VMMHc4c24xdmdZNm5nRllHaEdkL1hWRWxYakdzUThMQkZqclJaTnZ0eW9GaVNjYTdVQmp0SktwMEl3WllveTgyV1FQaUNscGkzelYxbHNNK3Q0emVPYmF5dis3ZmhnVVVjSlV1MWdQeXh6YXFic3BVRmFDQVpUbE5EYThMTkJ6M2F3M0F5cFhrc29YZkkzaDVoSnNCcEdyekxhTXdPV0hUMkRMNzZ0NlU1S2JIWURnaGt6UWxVd1A3eTJkY0kxVzhiZjJZU1FaTHprbG9qSFJmdmpGNUdtTFl0QjhaejE2V1E9PSJ9LHsia2V5IjoiNDMwNjkzYjItNGFhYy00OTVmLWJhNzgtNGRhOTYxZTI4NTA1LWhtc25saC5qcGVnIn1dfQ==",
+              "X-Amz-Signature": "fad1fd204a18bcddba4737713bc8de1e2e370061a8154ee62c8b1e103746339f"
+          },
+          "key": "430693b2-4aac-495f-ba78-4da961e28505-hmsnlh.jpeg",
+          "contentDisposition": "inline",
+          "fileUrl": "https://utfs.io/f/430693b2-4aac-495f-ba78-4da961e28505-hmsnlh.jpeg",
+          "appUrl": "https://utfs.io/a/31l5uhpoxp/430693b2-4aac-495f-ba78-4da961e28505-hmsnlh.jpeg",
+          "ufsUrl": "https://31l5uhpoxp.ufs.sh/f/430693b2-4aac-495f-ba78-4da961e28505-hmsnlh.jpeg",
+          "fileName": "coin_img_5.jpeg",
+          "pollingUrl": "https://iubunr2q4qqhmlmm7bkp34az5a0ponok.lambda-url.us-west-2.on.aws/v6/uploadFiles/api/pollUpload/430693b2-4aac-495f-ba78-4da961e28505-hmsnlh.jpeg",
+          "pollingJwt": "",
+          "fileType": "image/jpeg",
+          "customId": null
+      }
+  ]
+}

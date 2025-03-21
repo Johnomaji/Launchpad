@@ -11,17 +11,20 @@ import { BiCopy } from "react-icons/bi";
 
 const CreateCoin = ({openCreateCoin, toggleOpenCreateCoin}) => {
   const [open, setOpen] = useState(false);
+  
 
   const toggleOpenSocials = () => {
     setOpen(!open)
   }
 
+
+
   return (
     <div className={`flex flex-row fixed w-full md:w-[1600px] h-screen z-60 transition-transform duration-300 ease-in-out ${
         openCreateCoin ? 'translate-x-0' : 'translate-x-full'
       }`}>
-      <div className="hidden md:block w-[40%] backdrop-blur-md bg-[rgba(0,0,0,0.5)]" onClick={toggleOpenCreateCoin}></div>
-      <div className={`md:w-[60%] bg-black p-6 overflow-y-scroll transition-transform duration-300 ease-in-out ${
+      {/* <div className="hidden md:block w-[40%] backdrop-blur-md bg-[rgba(0,0,0,0.5)]" onClick={toggleOpenCreateCoin}></div> */}
+      <div className={`md:w-full bg-black p-6 overflow-y-scroll transition-transform duration-300 ease-in-out ${
         openCreateCoin ? 'translate-x-0' : 'translate-x-full'
       }`}>
         <div className="flex flex-row justify-between items-start mb-4">

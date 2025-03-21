@@ -78,10 +78,7 @@ const Navbar = ({ toggleOpenCreateCoin }) => {
                 ))}
                 <div className="lg:hidden mb-4">
                   <PrimaryButtonInvert
-                    handleOnClick={() => {
-                      toggleOpenCreateCoin();
-                      toggleNavigation();
-                    }}
+                    href="/create-coin"
                     name="Launch a Coin"
                   />
                 </div>
