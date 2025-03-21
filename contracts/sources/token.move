@@ -216,10 +216,70 @@ module memetic::token {
         assert!(string::length(&icon_url) > 0, EInvalidUrl);
     }
 
+    // ==== View functions ====
     public fun get_metadata_id (self: &TokenMetadata): ID {
 	*self.id.uid_as_inner()
     }
+
+    public fun get_creator(metadata: &TokenMetadata): address {
+        metadata.creator
+    }
+
+    public fun get_token_id(treasury_cap: &TreasuryCap<MEMETIC>): address {
+        sui::object::id_to_address(&sui::object::id(treasury_cap))
+    }
+
+    public fun get_name(metadata: &TokenMetadata): String {
+        metadata.name
+    }
+
+    public fun get_symbol(metadata: &TokenMetadata): String {
+        metadata.symbol
+    }
+
+    public fun get_description(metadata: &TokenMetadata): String {
+        metadata.description
+    }
+
+    public fun get_created_at(metadata: &TokenMetadata): u64 {
+        metadata.created_at
+    }
+
+    public fun get_total_supply(metadata: &TokenMetadata): u64 {
+        metadata.total_supply
+    }
+
+    public fun get_decimals(metadata: &TokenMetadata): u8 {
+        metadata.decimals
+    }
+
+    public fun get_icon_url(metadata: &TokenMetadata): Url {
+        metadata.icon_url
+    }
+
+    public fun get_website_url(metadata: &TokenMetadata): Option<Url> {
+        metadata.website_url
+    }
+
+    public fun get_twitter_url(metadata: &TokenMetadata): Option<Url> {
+        metadata.twitter_url
+    }
+ 
+    public fun get_telegram_url(metadata: &TokenMetadata): Option<Url> {
+        metadata.telegram_url
+    }
+
+
 /**
+    public fun is_locked(metadata: &TokenMetadata): bool {
+        if (option::is_some(&metadata.locked)) {
+            option::borrow(&metadata.locked)
+        } else {
+            false
+        } 
+    }
+
+
     public fun get_token_metadata(metadata_id: ID): &TokenMetadata {
     	let obag = ObjectBag {
 	    id: metadata_id,
