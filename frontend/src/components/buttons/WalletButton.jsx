@@ -1,36 +1,40 @@
 import React, { useEffect, useRef, useState } from "react";
+import { IoWalletOutline } from "react-icons/io5";
+import { AiOutlineDisconnect } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 const WalletButton = ({ wallet, icon, handleDisconnect }) => {
   const [openDisconnect, setOpenDisconnect] = useState(false);
   const divRef = useRef(null);
+
+  // Toggle disconnect dropdown
   const handleDisconnectButton = () => {
-    setOpenDisconnect(!openDisconnect);
-    handleDisconnect();
+    setOpenDisconnect(false); // Close the dropdown
+    handleDisconnect(); // Call the disconnect handler
   };
 
+  // Handle clicks outside the component
   const handleClickOutside = (event) => {
-    // Check if the click occurred outside the div
     if (divRef.current && !divRef.current.contains(event.target)) {
-      setOpenDisconnect(!openDisconnect);
+      setOpenDisconnect(false); // Close the dropdown
     }
   };
 
+  // Attach and clean up the event listener
   useEffect(() => {
-    // Attach the event listener when the component mounts
     document.addEventListener("mousedown", handleClickOutside);
-
-    // Clean up the event listener when the component unmounts
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
+  // CSS classes
   const classes = `relative p-[1px] rounded-3xl inline-block bg-black cursor-pointer`;
-
   const classes2 = `relative flex flex-row gap-2 justify-center items-center p-3 px-6 hover:bg-white rounded-3xl font-medium text-md transition-all duration-900 text-[#B386FF] hover:text-[#5A189A] bg-black`;
 
   return (
-    <div className="flex flex-col relative justify-center items-center">
+    <div ref={divRef} className="flex flex-col relative justify-center items-center">
+      {/* Wallet Button */}
       <button
         onClick={() => setOpenDisconnect(!openDisconnect)}
         type="button"
@@ -44,14 +48,35 @@ const WalletButton = ({ wallet, icon, handleDisconnect }) => {
         </div>
       </button>
 
+      {/* Disconnect Dropdown */}
       {openDisconnect && (
-        <button
-          onClick={handleDisconnectButton}
-          type="button"
-          class="absolute top-14 py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-        >
-          Disconnect
-        </button>
+        <div className="w-[300px] absolute top-18 right-2 p-5 flex flex-col justify-center items-center gap-2 rounded-2xl bg-[rgba(0,0,0,0.5)]">
+          {/* Portfolio Button */}
+          <Link
+            to="/portfolio" // Use `to` instead of `href` for React Router
+            type="button"
+            className="w-full relative p-[1px] rounded-3xl inline-block bg-black cursor-pointer"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-[#CBB2FF] to-[#5A189A] rounded-3xl"></div>
+            <div className="relative flex flex-row gap-2 justify-center items-center p-3 px-6 hover:bg-white rounded-3xl font-medium text-md transition-all duration-900 text-[#fff] hover:text-[#5A189A] bg-zinc-900">
+              <IoWalletOutline className="font-bold text-2xl" />
+              Portfolio
+            </div>
+          </Link>
+
+          {/* Disconnect Button */}
+          <button
+            onClick={handleDisconnectButton}
+            type="button"
+            className="w-full relative p-[1px] rounded-3xl inline-block bg-black cursor-pointer"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-[#CBB2FF] to-[#5A189A] rounded-3xl"></div>
+            <div className="relative flex flex-row gap-2 justify-center items-center p-3 px-6 hover:bg-white rounded-3xl font-medium text-md transition-all duration-900 text-[#db2828] hover:text-[#5A189A] bg-zinc-900">
+              <AiOutlineDisconnect className="font-bold text-2xl" />
+              Disconnect
+            </div>
+          </button>
+        </div>
       )}
     </div>
   );
