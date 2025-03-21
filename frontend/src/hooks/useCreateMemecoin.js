@@ -33,15 +33,14 @@ const useCreateMemecoin = () => {
           discordSocial,
           creatorAddress,
         };
-        const response = await axiosInstance.post("/memecoin/create", coinData);
+        const response = await axiosInstance.post("/memecoins/create", coinData);
         return response.data;
       } catch (error) {
-        toast.error("Error Creating Coin.");
+        toast.error(error?.response?.data?.error || "Error Creating Coin.");
         throw error;
       }
     },
     onSuccess: (data) => {
-      login(data);
       toast.success("Coin created successfully!");
     },
   });

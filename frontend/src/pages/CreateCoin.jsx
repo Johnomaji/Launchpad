@@ -12,26 +12,26 @@ import { useAccountBalance } from "@suiet/wallet-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { toast } from "react-toastify";
 import useCreateMemecoin from "../hooks/useCreateMemecoin";
+import { useNavigate } from "react-router-dom";
 
 const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
   const { wallet, connected, address, signAndExecuteTransaction } =
     useWallet();
+
+  const navigate = useNavigate();
   const { error, loading, balance } = useAccountBalance();
   const [open, setOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [file, setFile] = useState(null);
   const [fileUrl, setFileUrl] = useState(null);
-  const formRef = useRef({
-    name: "",
-    ticker: "",
-    creator: "",
-    image: "",
-    desc: "",
-    totalCoins: "",
-    xSocial: "",
-    telegramSocial: "",
-    discordSocial: "",
-  });
+  const [name, setName] = useState("");
+  const [ticker, setTicker] = useState("");
+  const [image, setImage] = useState("");
+  const [desc, setDesc] = useState("");
+  const [totalCoins, setTotalCoins] = useState("");
+  const [xSocial, setXSocial] = useState("");
+  const [telegramSocial, setTelegramSocial] = useState("");
+  const [discordSocial, setDiscordSocial] = useState("");
 
   const { mutateAsync: addMemecoin } = useCreateMemecoin();
 
@@ -106,83 +106,119 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreviewUrl(objectUrl);
   
-    // try {
-    //   // Convert file to base64
-    //   const reader = new FileReader();
-    //   const fileContent = await new Promise((resolve) => {
-    //     reader.onload = () => resolve(reader.result.split(',')[1]);
-    //     reader.readAsDataURL(selectedFile);
-    //   });
+    try {
+      // Convert file to base64
+      // const reader = new FileReader();
+      // const fileContent = await new Promise((resolve) => {
+      //   reader.onload = () => resolve(reader.result.split(',')[1]);
+      //   reader.readAsDataURL(selectedFile);
+      // });
   
-    //   const payload = {
-    //     files: [{
-    //       name: selectedFile.name,
-    //       size: selectedFile.size,
-    //       type: selectedFile.type,
-    //       content: fileContent, // Base64 encoded file
-    //       customId: null
-    //     }],
-    //     acl: "public-read",
-    //     metadata: null,
-    //     contentDisposition: "inline"
-    //   };
+      // const payload = {
+      //   files: [{
+      //     name: selectedFile.name,
+      //     size: selectedFile.size,
+      //     type: selectedFile.type,
+      //     content: fileContent, // Base64 encoded file
+      //     customId: null
+      //   }],
+      //   acl: "public-read",
+      //   metadata: null,
+      //   contentDisposition: "inline"
+      // };
   
-    //   const response = await fetch("https://api.uploadthing.com/v6/uploadFiles", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       "X-Uploadthing-Api-Key":"sk_live_1c6dad130e9c59ff666a8a88b97d055e95b46274901d97a1317b5b25f3e47c6a"
-    //     },
-    //     body: JSON.stringify(payload)
-    //   });
+      // const response = await fetch("https://api.uploadthing.com/v6/uploadFiles", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "X-Uploadthing-Api-Key":"sk_live_1c6dad130e9c59ff666a8a88b97d055e95b46274901d97a1317b5b25f3e47c6a"
+      //   },
+      //   body: JSON.stringify(payload)
+      // });
   
-    //   const data = await response.json();
-    //   if (!response.ok) throw new Error(data.error || "Upload failed");
+      // const data = await response.json();
+      // if (!response.ok) throw new Error(data.error || "Upload failed");
   
-    //   console.log("Uploaded URL:", data.data[0].url);
-    //   setFileUrl(data.data[0].fileUrl);
-    //   return data.data[0].url;
+      // console.log("Uploaded URL:", data.data[0].url);
+      // setFileUrl(data.data[0].fileUrl);
+      // return data.data[0].url;
+
+          // Convert file to base64
+    const reader = new FileReader();
+    const fileContent = await new Promise((resolve) => {
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.readAsDataURL(selectedFile);
+    });
+
+    // Cloudinary upload
+    const cloudinaryResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/dtgdfntom/image/upload`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          file: `data:${selectedFile.type};base64,${fileContent}`,
+          upload_preset: "launchpad", // Create this in Cloudinary
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const cloudinaryData = await cloudinaryResponse.json();
+    if (cloudinaryData.error) throw new Error(cloudinaryData.error.message);
+
+    console.log("Uploaded URL:", cloudinaryData.secure_url);
+    setFileUrl(cloudinaryData.secure_url);
+    return cloudinaryData.secure_url;
       
-    // } catch (error) {
-    //   toast.error("Upload failed: " + error.message);
-    // } finally {
-    //   URL.revokeObjectURL(objectUrl);
-    // }
+    } catch (error) {
+      toast.error("Upload failed: " + error.message);
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
   };
 
   const handleCreateMemecoin = async () => {
+    console.log(name)
     if (!connected) {
       toast.error("Please connect a wallet to create a memecoin.");
+      return;
     }
 
     if (
-      !formRef.current.name ||
-      !formRef.current.ticker ||
-      !formRef.current.image ||
-      !formRef.current.desc ||
-      !formRef.current.totalCoins
+      !name ||
+      !ticker ||
+      // !formRef.current.image ||
+      !desc 
+      // !formRef.current.totalCoins
     ) {
       toast.error("Please fill in all the required fields.");
+      return
     }
 
     try {
       const body = {
-        name: formRef.current.name,
-        ticker: formRef.current.ticker,
-        creator: formRef.current.creator,
-        image: formRef.current.image,
-        desc: formRef.current.desc,
-        totalCoins: formRef.current.totalCoins,
-        xSocial: formRef.current.xSocial,
-        telegramSocial: formRef.current.telegramSocial,
-        discordSocial: formRef.current.discordSocial,
-        creatorAddress: address,
+        name: name,
+        ticker: ticker,
+        creator: address,
+        image: fileUrl,
+        desc: desc,
+        totalCoins: totalCoins,
+        xSocial: xSocial,
+        telegramSocial: telegramSocial,
+        discordSocial: discordSocial,
       };
       
 
       const data = await addMemecoin(body);
 
       console.log(data);
+
+
+        // toast.success("Memecoin created successfully!");
+        navigate(`/coins/${data?.memecoin?.coinAddress}`);
+
     } catch (error) {
         console.error("Error during authentication:", error);
       
@@ -266,7 +302,12 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                 <div>
                   <p className="mb-2 font-thin">drag here, or</p>
                 </div>
-                <DefaultButton2 name="Select File" icon={<IoMdAdd />} />
+                <div className="flex flex-row justify-center items-center rounded-3xl cursor-pointer border border-[#fff]  hover:bg-[rgba(0,0,0,0.5)] bg-transparent p-3 px-4 gap-2">
+                <IoMdAdd />
+
+          <span className="">Select File</span>
+        </div>
+                {/* <DefaultButton2 name="Select File" icon={<IoMdAdd />} /> */}
               </div>
               <input
                 id="dropzone-file"
@@ -286,7 +327,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
               <input
                 type="text"
                 id="coin_name"
-                ref={formRef.name}
+                onChange={(e)=>{setName(e.target.value)}}
                 className="bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 rounded-lg block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                 placeholder="e.g SUICON"
                 required
@@ -307,7 +348,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                 <input
                   type="text"
                   id="ticker"
-                  ref={formRef.ticker}
+                  onChange={(e)=>{setTicker(e.target.value)}}
                   required
                   className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                   placeholder="$SUIC"
@@ -325,7 +366,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
               <textarea
                 id="desc"
                 rows="4"
-                ref={formRef.desc}
+                onChange={(e)=>{setDesc(e.target.value)}}
                 required
                 className="bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 rounded-lg block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                 placeholder="Write your thoughts here..."
@@ -342,7 +383,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
               <input
                 type="text"
                 id="total_coin"
-                ref={formRef.total_coin}
+                onChange={(e)=>{setTotalCoins(e.target.value)}}
                 className="bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 rounded-lg block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                 placeholder="300k"
                 value={300000}
@@ -379,7 +420,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                     <input
                       type="text"
                       id="twitter"
-                      ref={formRef.twitter}
+                      onChange={(e)=>{setXSocial(e.target.value)}}
                       className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                       placeholder="$SUIC"
                     />
@@ -402,7 +443,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                       id="telegram"
                       className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                       placeholder="$SUIC"
-                      ref={formRef.telegram}
+                      onChange={(e)=>{setTelegramSocial(e.target.value)}}
                     />
                   </div>
                 </div>
@@ -421,7 +462,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                     <input
                       type="text"
                       id="discord"
-                      ref={formRef.discord}
+                      onChange={(e)=>{setDiscordSocial(e.target.value)}}
                       className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                       placeholder="$SUIC"
                     />

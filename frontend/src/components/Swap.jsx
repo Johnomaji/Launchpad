@@ -3,8 +3,10 @@ import PrimaryButton from "./buttons/PrimaryButton";
 import PrimaryButtonInvert from "./buttons/PrimaryButtonInvert";
 import { IoIosSwap } from "react-icons/io";
 import DefaultButton from "./buttons/DefaultButton";
+import { useAccountBalance } from "@suiet/wallet-kit";
 
 const Swap = ({ coinDetails }) => {
+  const { balance } = useAccountBalance();
   return (
     <div className="relative w-full p-[1px] flex gap-3 bg-black rounded-2xl">
       <div className="absolute w-full inset-0 bg-gradient-to-r from-[#EC8AEF] to-[#9033F4] hover:bg-transparent rounded-2xl"></div>
@@ -25,7 +27,7 @@ const Swap = ({ coinDetails }) => {
               type="text"
               id="amount"
               class="bg-transparent border border-transparent text-[#FFFFFF] text-sm rounded-lg focus:ring-[#9033F4] focus:border-[#9033F4] block w-full p-2.5 placeholder-[#FFFFFF]"
-              placeholder="0 HonkToken"
+              placeholder={`0 ${coinDetails.name}`}
               required
             />
           </div>
@@ -78,7 +80,9 @@ const Swap = ({ coinDetails }) => {
               </div>
               <p className="text-xs">SUI</p>
             </div>
-            <p className="text-xs"><span className="font-thin">Balance: </span>$0.00</p>
+            <p className="text-xs"><span className="font-thin">Balance: </span>{(Number(BigInt(balance) / BigInt(10 ** 6)) / 1000).toFixed(
+                    3
+                  )}</p>
           </div>
         </div>
         <div className="w-full">
