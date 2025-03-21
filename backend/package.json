@@ -29,7 +29,6 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
     "nodemon": "^3.1.9"
   }
 }
