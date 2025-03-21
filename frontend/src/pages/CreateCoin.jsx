@@ -15,8 +15,7 @@ import useCreateMemecoin from "../hooks/useCreateMemecoin";
 import { useNavigate } from "react-router-dom";
 
 const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
-  const { wallet, connected, address, signAndExecuteTransaction } =
-    useWallet();
+  const { wallet, connected, address, signAndExecuteTransaction } = useWallet();
 
   const navigate = useNavigate();
   const { error, loading, balance } = useAccountBalance();
@@ -53,7 +52,9 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
           tx.pure.string("Brown"), // name
           tx.pure.string("BRN"), // symbol
           tx.pure.string("Next big thing"), // desc
-          tx.pure.string("https://images.unsplash.com/photo-1742041675087-dc3ceacd88cb?q=80&w=2035&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"), // imgUrl
+          tx.pure.string(
+            "https://images.unsplash.com/photo-1742041675087-dc3ceacd88cb?q=80&w=2035&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          ), // imgUrl
           tx.pure.string("google.com"), // website
           tx.pure.string("google.com"), // x
           tx.pure.string("google.com"), // telegram
@@ -91,21 +92,21 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
   const handleFileChange = async (event) => {
     const selectedFile = event.target.files[0];
     if (!selectedFile) return;
-    setFile(selectedFile)
+    setFile(selectedFile);
 
-    console.log("File: ", selectedFile)
-  
+    console.log("File: ", selectedFile);
+
     // Validate file type
     const validFileTypes = ["image/png", "image/jpeg"];
     if (!validFileTypes.includes(selectedFile.type)) {
       toast.error("Please select a valid image file (PNG or JPEG).");
       return;
     }
-  
+
     // Create preview
     const objectUrl = URL.createObjectURL(selectedFile);
     setPreviewUrl(objectUrl);
-  
+
     try {
       // Convert file to base64
       // const reader = new FileReader();
@@ -113,7 +114,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
       //   reader.onload = () => resolve(reader.result.split(',')[1]);
       //   reader.readAsDataURL(selectedFile);
       // });
-  
+
       // const payload = {
       //   files: [{
       //     name: selectedFile.name,
@@ -126,7 +127,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
       //   metadata: null,
       //   contentDisposition: "inline"
       // };
-  
+
       // const response = await fetch("https://api.uploadthing.com/v6/uploadFiles", {
       //   method: "POST",
       //   headers: {
@@ -135,43 +136,42 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
       //   },
       //   body: JSON.stringify(payload)
       // });
-  
+
       // const data = await response.json();
       // if (!response.ok) throw new Error(data.error || "Upload failed");
-  
+
       // console.log("Uploaded URL:", data.data[0].url);
       // setFileUrl(data.data[0].fileUrl);
       // return data.data[0].url;
 
-          // Convert file to base64
-    const reader = new FileReader();
-    const fileContent = await new Promise((resolve) => {
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.readAsDataURL(selectedFile);
-    });
+      // Convert file to base64
+      const reader = new FileReader();
+      const fileContent = await new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.readAsDataURL(selectedFile);
+      });
 
-    // Cloudinary upload
-    const cloudinaryResponse = await fetch(
-      `https://api.cloudinary.com/v1_1/dtgdfntom/image/upload`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          file: `data:${selectedFile.type};base64,${fileContent}`,
-          upload_preset: "launchpad", // Create this in Cloudinary
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+      // Cloudinary upload
+      const cloudinaryResponse = await fetch(
+        `https://api.cloudinary.com/v1_1/dtgdfntom/image/upload`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            file: `data:${selectedFile.type};base64,${fileContent}`,
+            upload_preset: "launchpad", // Create this in Cloudinary
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    const cloudinaryData = await cloudinaryResponse.json();
-    if (cloudinaryData.error) throw new Error(cloudinaryData.error.message);
+      const cloudinaryData = await cloudinaryResponse.json();
+      if (cloudinaryData.error) throw new Error(cloudinaryData.error.message);
 
-    console.log("Uploaded URL:", cloudinaryData.secure_url);
-    setFileUrl(cloudinaryData.secure_url);
-    return cloudinaryData.secure_url;
-      
+      console.log("Uploaded URL:", cloudinaryData.secure_url);
+      setFileUrl(cloudinaryData.secure_url);
+      return cloudinaryData.secure_url;
     } catch (error) {
       toast.error("Upload failed: " + error.message);
     } finally {
@@ -180,7 +180,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
   };
 
   const handleCreateMemecoin = async () => {
-    console.log(name)
+    console.log(name);
     if (!connected) {
       toast.error("Please connect a wallet to create a memecoin.");
       return;
@@ -190,11 +190,11 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
       !name ||
       !ticker ||
       // !formRef.current.image ||
-      !desc 
+      !desc
       // !formRef.current.totalCoins
     ) {
       toast.error("Please fill in all the required fields.");
-      return
+      return;
     }
 
     try {
@@ -209,24 +209,20 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
         telegramSocial: telegramSocial,
         discordSocial: discordSocial,
       };
-      
 
       const data = await addMemecoin(body);
 
       console.log(data);
 
-
-        // toast.success("Memecoin created successfully!");
-        navigate(`/coins/${data?.memecoin?.coinAddress}`);
-
+      // toast.success("Memecoin created successfully!");
+      navigate(`/coins/${data?.memecoin?.coinAddress}`);
     } catch (error) {
-        console.error("Error during authentication:", error);
-      
+      console.error("Error during authentication:", error);
     }
   };
 
   return (
-    <div className="p-3 mt-6 md:mt-0 md:p-10 md:px-15">
+    <div className="p-3 mt-6 md:mt-0 md:p-10 md:px-15 md:bg-radial-[at_75%_25%] from-[#7212c7] to-[#000000] to-50%">
       <div className="flex flex-row justify-between items-start mb-2 p-4">
         <div>
           <p className="text-lg ">Launch Your Own Memecoin in Minutes! 🚀</p>
@@ -282,7 +278,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
         {/* Create Memecoin input */}
         <div className="w-full md:w-[83%] flex flex-col gap-3">
           {/* Section 1 */}
-          <div className="w-full p-4 flex flex-col gap-3 rounded-xl bg-linear-300 from-[rgba(129,33,224,0.5)] to-[rgb(250,210,210,0.1)]">
+          <div className="w-full p-4 flex flex-col gap-3 rounded-xl bg-linear-300 from-[rgba(22,22,22,0.5)] to-[rgb(22,22,22,0.5)]">
             <label
               for="dropzone-file"
               className="flex flex-row items-center justify-between w-full p-2 px-3 border-[1px] border-[rgba(255,255,255,0.3)] rounded-xl cursor-pointer bg-transparent hover:bg-[rgba(0,0,0,0.5)] hover:border-gray-500"
@@ -303,10 +299,10 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                   <p className="mb-2 font-thin">drag here, or</p>
                 </div>
                 <div className="flex flex-row justify-center items-center rounded-3xl cursor-pointer border border-[#fff]  hover:bg-[rgba(0,0,0,0.5)] bg-transparent p-3 px-4 gap-2">
-                <IoMdAdd />
+                  <IoMdAdd />
 
-          <span className="">Select File</span>
-        </div>
+                  <span className="">Select File</span>
+                </div>
                 {/* <DefaultButton2 name="Select File" icon={<IoMdAdd />} /> */}
               </div>
               <input
@@ -317,42 +313,48 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
               />
             </label>
 
-            <div className="">
-              <label
-                for="coin_name"
-                className="block mb text-sm font-thin text-white"
-              >
-                Coin name *
-              </label>
-              <input
-                type="text"
-                id="coin_name"
-                onChange={(e)=>{setName(e.target.value)}}
-                className="bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 rounded-lg block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
-                placeholder="e.g SUICON"
-                required
-              />
-            </div>
-
-            <div className="">
-              <label
-                for="ticker"
-                className="block mb text-sm font-thin text-white"
-              >
-                Ticker *
-              </label>
-              <div className="flex">
-                <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-white border rounded-e-0 rounded-s-md border-white">
-                  $
-                </span>
+            <div className="flex flex-row gap-4 w-full">
+              <div className="w-full">
+                <label
+                  for="coin_name"
+                  className="block mb text-sm font-thin text-white"
+                >
+                  Coin name *
+                </label>
                 <input
                   type="text"
-                  id="ticker"
-                  onChange={(e)=>{setTicker(e.target.value)}}
+                  id="coin_name"
+                  onChange={(e) => {
+                    setName(e.target.value);
+                  }}
+                  className="bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 rounded-lg block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
+                  placeholder="e.g SUICON"
                   required
-                  className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
-                  placeholder="$SUIC"
                 />
+              </div>
+
+              <div className="w-full">
+                <label
+                  for="ticker"
+                  className="block mb text-sm font-thin text-white"
+                >
+                  Ticker *
+                </label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 text-sm text-gray-200 bg-[#3D3D3D] border rounded-e-0 rounded-s-md border-[#3D3D3D]">
+                    $
+                  </span>
+                  <input
+                    type="text"
+                    id="ticker"
+                    onChange={(e) => {
+                      setTicker(e.target.value);
+                    }}
+                    required
+                    className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
+                    placeholder="$SUIC"
+                  />
+                </div>
               </div>
             </div>
 
@@ -366,7 +368,9 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
               <textarea
                 id="desc"
                 rows="4"
-                onChange={(e)=>{setDesc(e.target.value)}}
+                onChange={(e) => {
+                  setDesc(e.target.value);
+                }}
                 required
                 className="bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 rounded-lg block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                 placeholder="Write your thoughts here..."
@@ -383,7 +387,9 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
               <input
                 type="text"
                 id="total_coin"
-                onChange={(e)=>{setTotalCoins(e.target.value)}}
+                onChange={(e) => {
+                  setTotalCoins(e.target.value);
+                }}
                 className="bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 rounded-lg block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
                 placeholder="300k"
                 value={300000}
@@ -394,14 +400,14 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
           </div>
 
           {/* Section 2 */}
-          <div className="w-full p-4 flex flex-col gap-3 rounded-xl bg-linear-300 from-[rgba(129,33,224,0.5)] to-[rgb(250,210,210,0.1)]">
+          <div className="w-full p-4 flex flex-col gap-3 rounded-xl bg-linear-300 from-[rgba(22,22,22,0.5)] to-[rgb(22,22,22,0.5)]">
             <div className="w-full flex flex-row justify-between items-center">
               <p>Socials</p>
               <button
                 className="cursor-pointer p-2"
                 onClick={toggleOpenSocials}
               >
-                {open ? <IoIosArrowDown /> : <IoIosArrowUp />}
+                {open ? <IoIosArrowUp /> : <IoIosArrowDown />}
               </button>
             </div>
             {open && (
@@ -414,15 +420,17 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                     X/Twitter
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-white border rounded-e-0 rounded-s-md border-white">
+                    <span className="inline-flex items-center px-3 text-sm text-gray-200 bg-[#3D3D3D] border rounded-e-0 rounded-s-md border-[#3D3D3D]">
                       x.com/
                     </span>
                     <input
                       type="text"
                       id="twitter"
-                      onChange={(e)=>{setXSocial(e.target.value)}}
+                      onChange={(e) => {
+                        setXSocial(e.target.value);
+                      }}
                       className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
-                      placeholder="$SUIC"
+                      placeholder="twitter.com"
                     />
                   </div>
                 </div>
@@ -435,15 +443,17 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                     Telegram
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-white border rounded-e-0 rounded-s-md border-white">
+                    <span className="inline-flex items-center px-3 text-sm text-gray-200 bg-[#3D3D3D] border rounded-e-0 rounded-s-md border-[#3D3D3D]">
                       t.me/
                     </span>
                     <input
                       type="text"
                       id="telegram"
                       className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
-                      placeholder="$SUIC"
-                      onChange={(e)=>{setTelegramSocial(e.target.value)}}
+                      placeholder="telegram.com"
+                      onChange={(e) => {
+                        setTelegramSocial(e.target.value);
+                      }}
                     />
                   </div>
                 </div>
@@ -456,15 +466,17 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
                     Discord
                   </label>
                   <div className="flex">
-                    <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-white border rounded-e-0 rounded-s-md border-white">
+                    <span className="inline-flex items-center px-3 text-sm text-gray-200 bg-[#3D3D3D] border rounded-e-0 rounded-s-md border-[#3D3D3D]">
                       discord.gg/
                     </span>
                     <input
                       type="text"
                       id="discord"
-                      onChange={(e)=>{setDiscordSocial(e.target.value)}}
+                      onChange={(e) => {
+                        setDiscordSocial(e.target.value);
+                      }}
                       className="rounded-none rounded-e-lg bg-[rgba(255,255,255,0.3)] text-white text-sm px-4 block w-full p-2.5 placeholder-white font-thin focus:border focus:border-[white]"
-                      placeholder="$SUIC"
+                      placeholder="discord.gg"
                     />
                   </div>
                 </div>
@@ -478,7 +490,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
             <div className="relative w-full flex flex-col gap-2 py-5 px-4 bg-[black] transition-all duration-900 text-white rounded-2xl">
               <div className="flex flex-row justify-between text-sm">
                 <p className="font-thin">Launch cost</p>
-                <p className="font-medium">0.1 SUI</p>
+                <p className="font-medium">0.3 SUI</p>
               </div>
 
               <div className="flex flex-row justify-between text-sm">

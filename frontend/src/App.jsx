@@ -11,6 +11,7 @@ import useAuthCheck from "./hooks/useAuthCheck";
 import Layout from "./components/Layout";
 import DexScreener from "./pages/DexScreener";
 import About from "./pages/About";
+import Portfolio from "./pages/Portfolio";
 
 const App = () => {
   const { isAuthenticated } = useAuthCheck();
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/create-coin" element={<CreateCoin />} />
           <Route path="/dexscreener" element={<DexScreener />} />
+          <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/about" element={<About />} />
         </Routes>
       </Layout>
