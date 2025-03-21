@@ -5,7 +5,7 @@ import { navigation } from "../constants";
 import Button from "./Button";
 import MenuSvg from "../assets/MenuSvg";
 import { useState } from "react";
-import {ConnectButton} from '@suiet/wallet-kit';
+import AuthButton from "./AuthButton";
 
 const Header = () => {
   const pathname = useLocation();
@@ -30,11 +30,11 @@ const Header = () => {
 
   return (
     <div
-      className={`fixed top-0 left-0 w-full z-50  border-b border-n-6 lg:bg-n-8/90 lg:backdrop-blur-sm ${
+      className={`fixed top-0 left-0 w-full z-50  border-b border-n-6 border-gray-500 lg:bg-n-8/90 lg:backdrop-blur-sm ${
         openNavigation ? "bg-n-8" : "bg-n-8/90 backdrop-blur-sm"
       }`}
     >
-      <div className="flex items-center px-5 lg:px-7.5 xl:px-10 max-lg:py-4">
+      <div className="flex justify-between w-full items-center px-2 lg:px-7.5 xl:px-10 max-lg:py-2">
         <a className="block w-[12rem] xl:mr-8" href="#hero">
           {/* <img src="lauchpad.png" width={190} height={40} alt="LaunchPad" /> */}
           LaunchPad
@@ -62,6 +62,9 @@ const Header = () => {
                 {item.title}
               </a>
             ))}
+            <div className="lg:hidden">
+          <AuthButton />
+        </div>
           </div>
         </nav>
 
@@ -71,10 +74,9 @@ const Header = () => {
         >
           Create Coin
         </a>
-        <ConnectButton/>
-        {/* <Button className="hidden lg:flex" href="#login">
-          Sign in
-        </Button> */}
+        <div className="hidden lg:block">
+          <AuthButton />
+        </div>
 
         <Button
           className="ml-auto lg:hidden"

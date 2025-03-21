@@ -1,3 +1,30 @@
+// require('dotenv').config();
+// const http = require('http');
+// const colors = require('colors/safe');
+// const app = require('./app');
+// const { connectDB } = require('./config/db');
+
+// const PORT = process.env.PORT || 5000;
+// const HOST = process.env.HOST || 'localhost';
+
+// const server = http.createServer(app);
+
+// module.exports = async (req, res) => {
+//   try {
+//     // Connect to database per request
+//     await connectDB();
+//     console.log(colors.green('✓ Connected to database'));
+
+//     // Forward the request to the Express app
+//     server.emit('request', req, res);
+//   } catch (err) {
+//     console.error(colors.red('Failed to handle request:'), err);
+//     res.statusCode = 500;
+//     res.end('Internal Server Error');
+//   }
+// };
+
+
 require('dotenv').config();
 const http = require('http');
 const cluster = require('cluster');
