@@ -30,7 +30,7 @@ const CoinDetails = () => {
     return new Intl.DateTimeFormat("en-US", options).format(date);
   };
 
-  if (isError) return <div className="p-5">Error fetching memecoin details.</div>;
+  if (isError) return <div className="p-5">No Memecoin Found.</div>;
 
   return (
     <div className="rounded-lg">
