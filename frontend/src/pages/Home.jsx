@@ -22,7 +22,7 @@ const Home = () => {
               <SecondaryButton
                 name="Launch a coin"
                 icon={<PiPaperPlaneTilt />}
-                href="/create"
+                href="/create-coin"
                 className="text-lg p-2 px-4"
               />
             </div>
