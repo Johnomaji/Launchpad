@@ -364,6 +364,21 @@ use sui::test_utils::assert_eq;
 #[test_only]
 use sui::test_utils;
 
+const ETreasuryCapNotExists: u64 = 50;
+const ECoinNotExists: u64 = 51;
+const ECoinSupplyMismatch: u64 = 52;
+const ECoinDecimalsIncorrect: u64 = 53;
+const ECoinSymbolIncorrect: u64 = 54;
+const ECoinNameIncorrect: u64 = 55;
+const ECoinDescriptionIncorrect: u64 = 56;
+const ECoinIconUrlIncorrect: u64 = 57;
+const ECoinWebsiteExists: u64 = 58;
+const ECoinWebsiteIncorrect: u64 = 59;
+const ECoinTwitterUrlExists: u64 = 60;
+const ECoinTwitterUrlIncorrect: u64 = 61;
+const ECoinTelegramExists: u64 = 62;
+const ECoinTelegramIncorrect: u64 = 63;
+
 #[test_only]
 const TEST_ADMIN: address = @0xA001;
 #[test_only]
@@ -396,6 +411,93 @@ fun setup_test(): Scenario {
 }
 
 
+#[test_only]
+fun create_test_token(scenario: &mut Scenario, sender: address, supply: u64): (TreasuryCap<MEMETIC>, Coin<MEMETIC>) {
+    ts::next_tx(scenario, sender);
+    let ctx = ts::ctx(scenario);
+    
+    let name = string::utf8(b"Test Token");
+    let symbol = string::utf8(b"TEST");
+    let description = string::utf8(b"A token for testing");
+    let icon_url = string::utf8(b"https://url.com/icon.png");
+    let website_url = option::some(string::utf8(b"https://test-token.com"));
+    let twitter_url = option::some(string::utf8(b"https://twitter.com/example"));
+    let telegram_url = option::some(string::utf8(b"https://t.me/example"));
+    
+    let payment = coin::mint_for_testing<sui::sui::SUI>(400_000_000, ctx);
+    
+    create_token(
+        name,
+        symbol,
+        description,
+        icon_url,
+        website_url,
+        twitter_url,
+        telegram_url,
+        supply,
+        payment,
+        9,
+        ctx
+    )
+}
+
+
+#[test]
+fun test_create_token() {
+    let scenario = setup_test();
+    // TODO: Implement test
+    let sender = 0x1234;
+    let supply = 1_000_000_000;
+
+    let (treasury_cap, coin) = create_test_token(&mut scenario, sender, supply);
+
+    assert!(&treasury_cap != null, ETreasuryCapNotExists);
+
+    assert!(&coin != null ECoinNotExists);
+
+    ts::end(scenario);
+}
+
+#[test]
+fun test_token_metadata() {
+    let scenario = setup_test();
+    // TODO: Implement test
+    ts::end(scenario);
+}
+
+
+#[test]
+#[expected_failure(abort_code = EInvalidTokenName)]
+fun test_invalid_token_name() {
+    let scenario = setup_test();
+    // TODO: Implement test
+    ts::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = EInvalidTokenSymbol)]
+fun test_invalid_token_symbol() {
+    let scenario = setup_test();
+    // TODO: Implement test
+    ts::end(scenario);
+}
+
+
+#[test]
+#[expected_failure(abort_code = EInvalidDecimals)]
+fun test_invalid_decimals() {
+    let scenario = setup_test();
+    // TODO: Implement test
+    ts::end(scenario);
+}
+
+#[test]
+#[expected_failure(abort_code = EInvalidSupply)]
+fun test_insufficient_payment() {
+    let scenario = setup_test();
+    // TODO: Implement test
+    ts::end(scenario);
+}
 
 // #[test_only]
 // fun create_test_payment(ctx: &mut TxContext): Coin<sui::sui::SUI> {

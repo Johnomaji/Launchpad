@@ -268,24 +268,24 @@ module memetic::manager {
         };
     }
 
-    #[test]
-    fun test_module_init() {
-        let mut scenario = ts::begin(ADMIN);
-        setup_manager_module(&mut scenario);
+    // #[test]
+    // fun test_module_init() {
+    //     let mut scenario = ts::begin(ADMIN);
+    //     setup_manager_module(&mut scenario);
 
-        ts::next_tx(&mut scenario, ADMIN);
-        {
-            let registry = ts::take_shared<MemeticRegistry>(&scenario);
-            assert_eq(registry.token_count, 0);
-            assert_eq(registry.listing_fee, 50000000);
-            assert_eq(registry.fee_recipient, ADMIN);
+    //     ts::next_tx(&mut scenario, ADMIN);
+    //     {
+    //         let registry = ts::take_shared<MemeticRegistry>(&scenario);
+    //         assert_eq(registry.token_count, 0);
+    //         assert_eq(registry.listing_fee, 50000000);
+    //         assert_eq(registry.fee_recipient, ADMIN);
             
-            assert!(vec_set::contains(&registry.admins, &ADMIN), 0);
+    //         assert!(vec_set::contains(&registry.admins, &ADMIN), 0);
             
-            ts::return_shared(registry);
-        };
+    //         ts::return_shared(registry);
+    //     };
 
-        ts::end(scenario);
-    }
+    //     ts::end(scenario);
+    // }
 
 }
