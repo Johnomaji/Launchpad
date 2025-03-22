@@ -364,20 +364,36 @@ use sui::test_utils::assert_eq;
 #[test_only]
 use sui::test_utils;
 
+#[test_only]
 const ETreasuryCapNotExists: u64 = 50;
+#[test_only]
 const ECoinNotExists: u64 = 51;
+#[test_only]
 const ECoinSupplyMismatch: u64 = 52;
+#[test_only]
 const ECoinDecimalsIncorrect: u64 = 53;
+#[test_only]
 const ECoinSymbolIncorrect: u64 = 54;
+#[test_only]
 const ECoinNameIncorrect: u64 = 55;
+#[test_only]
 const ECoinDescriptionIncorrect: u64 = 56;
+#[test_only]
 const ECoinIconUrlIncorrect: u64 = 57;
+#[test_only]
 const ECoinWebsiteExists: u64 = 58;
+#[test_only]
 const ECoinWebsiteIncorrect: u64 = 59;
+#[test_only]
 const ECoinTwitterUrlExists: u64 = 60;
+#[test_only]
 const ECoinTwitterUrlIncorrect: u64 = 61;
+#[test_only]
 const ECoinTelegramExists: u64 = 62;
+#[test_only]
 const ECoinTelegramIncorrect: u64 = 63;
+#[test_only]
+const ETokenMetadataNotCreated: u64 = 64;
 
 #[test_only]
 const TEST_ADMIN: address = @0xA001;
@@ -444,16 +460,29 @@ fun create_test_token(scenario: &mut Scenario, sender: address, supply: u64): (T
 
 #[test]
 fun test_create_token() {
-    let scenario = setup_test();
+    let mut scenario = setup_test();
     // TODO: Implement test
-    let sender = 0x1234;
+    let sender = @0x1234;
     let supply = 1_000_000_000;
 
-    let (treasury_cap, coin) = create_test_token(&mut scenario, sender, supply);
+    let (treasury_cap, token) = create_test_token(&mut scenario, sender, supply);
 
-    assert!(&treasury_cap != null, ETreasuryCapNotExists);
+    ts::next_tx(&mut scenario, TEST_USER1);
 
-    assert!(&coin != null ECoinNotExists);
+    {
+        assert!(ts::has_most_recent_for_address<TreasuryCap<MEMETIC>>(TEST_USER1), ETreasuryCapNotExists);
+
+        let token_value = coin::value(&token);
+        assert_eq(token_value, supply);
+
+        assert!(
+            ts::has_most_recent_shared<TokenMetadata>(),
+            ETokenMetadataNotCreated
+        );
+
+        transfer::public_transfer(treasury_cap, TEST_USER1);
+        transfer::public_transfer(token, TEST_USER1);
+    };
 
     ts::end(scenario);
 }
