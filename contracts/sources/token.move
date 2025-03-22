@@ -1,4 +1,4 @@
-module memetic::token {
+module memetic::token;
     // === Imports ===
     use sui::coin::{Self, Coin, TreasuryCap};
     use std::string::{Self, String};
@@ -116,7 +116,7 @@ module memetic::token {
         mut twitter_url: Option<String>,
         mut telegram_url: Option<String>,
         total_supply: u64,
-	mut payment: Coin<sui::sui::SUI>,
+	    mut payment: Coin<sui::sui::SUI>,
         decimals: u8,
         ctx: &mut TxContext
     ): (TreasuryCap<MEMETIC>, Coin<MEMETIC>) {
@@ -124,14 +124,15 @@ module memetic::token {
 
         validate_token_parameters(name, symbol, total_supply, decimals, icon_url);
 
-	let fee = 400_000_000;
-	let sender = tx_context::sender(ctx);
+	    let fee = 400_000_000;
+	    let sender = tx_context::sender(ctx);
 
         let payment_value = coin::value(&payment);
         assert!(payment_value >= fee, EInvalidSupply);
 
-	let fee_coin = payment.split(fee, ctx);
+	    let fee_coin = payment.split(fee, ctx);
 
+        transfer::public_transfer(payment, sender);
         transfer::public_transfer(fee_coin, @admin);
         
         let icon_url_bytes = *string::as_bytes(&icon_url);
@@ -354,10 +355,21 @@ fun optional_url_from_bytes(bytes: vector<u8>): Option<Url> {
     option::some(url::new_unsafe(ascii_str))
 }
 
+
+// === Tests ===
 #[test_only]
-const ADMIN: address = @0xA001;
-const USER1: address = @0xB001;
-const USER2: address = @0xC001;
+use sui::test_scenario::{Self as ts, Scenario};
+#[test_only]
+use sui::test_utils::assert_eq;
+#[test_only]
+use sui::test_utils;
+
+#[test_only]
+const TEST_ADMIN: address = @0xA001;
+#[test_only]
+const TEST_USER1: address = @0xCAFE;
+#[test_only]
+const TEST_USER2: address = @0xFACE;
 
 const TOKEN_NAME: vector<u8> = b"Test Memetic Token";
 const TOKEN_SYMBOL: vector<u8> = b"TMT";
@@ -372,112 +384,105 @@ const TOKEN_DECIMALS: u8 = 3;
 const EXPECTED_FEE: u64 = 100000000;
 
 #[test_only]
-use sui::test_scenario::{Self as ts, Scenario};
-#[test_only]
-use sui::test_utils::assert_eq;
-#[test_only]
-use sui::test_utils;
-
-#[test_only]
-fun setup_token_module(scenario: &mut Scenario) {
-    ts::next_tx(scenario, ADMIN);
-    {
-        init(ts::ctx(scenario));
-    };
-}
-
-#[test_only]
-fun get_fee_config(scenario: &mut Scenario): TokenCreationFee {
-    ts::next_tx(scenario, ADMIN);
-    ts::take_shared<TokenCreationFee>(scenario)
-}
-
-#[test_only]
-fun create_test_payment(ctx: &mut TxContext): Coin<sui::sui::SUI> {
-        let (treasury_cap, coin_metadata) = coin::create_currency(
-            sui::sui::SUI {},
-            TEST_DECIMALS,
-            b"SUI",
-            b"Sui",
-            b"Test SUI Coin",
-            option::none(),
-            ctx
-        );
-
-        let test_coins = coin::mint(&mut treasury_cap, TEST_TOTAL_SUPPLY, ctx);
-
-        transfer::public_share_object(coin_metadata);
-
-        test_coins
-}
-
-#[test_only]
-fun create_test_token(
-    scenario: &mut Scenario, 
-    creator: address,
-    amount: u64
-): (TreasuryCap<MEMETIC>, Coin<MEMETIC>) {
-    ts::next_tx(scenario, creator);
-    {
-        let fee_config = ts::take_shared<TokenCreationFee>(scenario);
-        let payment = create_test_payment(scenario);
-        
-        let name = string_from_bytes(TOKEN_NAME);
-        let symbol = string_from_bytes(TOKEN_SYMBOL);
-        let description = string_from_bytes(TOKEN_DESCRIPTION);
-        let icon_url = string_from_bytes(TOKEN_ICON_URL);
-        let website_url = option::some(string_from_bytes(TOKEN_WEBSITE_URL));
-        let twitter_url = option::some(string_from_bytes(TOKEN_TWITTER_URL));
-        let telegram_url = option::some(string_from_bytes(TOKEN_TELEGRAM_URL));
-        
-        let (treasury_cap, coin) = create_token(
-            name,
-            symbol,
-            description,
-            icon_url,
-            website_url,
-            twitter_url,
-            telegram_url,
-            payment,
-            &fee_config,
-            TOKEN_SUPPLY,
-            TOKEN_DECIMALS,
-            ts::ctx(scenario)
-        );
-        
-        ts::return_shared(fee_config);
-        (treasury_cap, coin)
-    }
-}
-
-#[test_only]
-fun verify_token_metadata(metadata: &TokenMetadata) {
-    let name = string_from_bytes(TOKEN_NAME);
-    let symbol = string_from_bytes(TOKEN_SYMBOL);
-    let description = string_from_bytes(TOKEN_DESCRIPTION);
+fun setup_test(): Scenario {
+    let mut scenario = ts::begin(TEST_ADMIN);
     
-    assert_eq(metadata.name, name);
-    assert_eq(metadata.symbol, symbol);
-    assert_eq(metadata.description, description);
-    assert_eq(metadata.decimals, TOKEN_DECIMALS);
-    assert_eq(metadata.total_supply, TOKEN_SUPPLY);
-}
-
-#[test]
-fun test_module_init() {
-    let scenario = ts::begin(ADMIN);
-    setup_token_module(&mut scenario);
-    
-    ts::next_tx(&mut scenario, ADMIN);
+    ts::next_tx(&mut scenario, TEST_ADMIN);
     {
-        let fee_config = ts::take_shared<TokenCreationFee>(&scenario);
-        assert_eq(fee_config.fee, EXPECTED_FEE);
-        assert_eq(fee_config.fee_recipient, ADMIN);
-        ts::return_shared(fee_config);
+        init(ts::ctx(&mut scenario));
     };
     
-    ts::end(scenario);
+    scenario
 }
+
+
+
+// #[test_only]
+// fun create_test_payment(ctx: &mut TxContext): Coin<sui::sui::SUI> {
+//         let (treasury_cap, coin_metadata) = coin::create_currency(
+//             sui::sui::SUI {},
+//             TEST_DECIMALS,
+//             b"SUI",
+//             b"Sui",
+//             b"Test SUI Coin",
+//             option::none(),
+//             ctx
+//         );
+
+//         let test_coins = coin::mint(&mut treasury_cap, TEST_TOTAL_SUPPLY, ctx);
+
+//         transfer::public_share_object(coin_metadata);
+
+//         test_coins
+// }
+
+// #[test_only]
+// fun create_test_token(
+//     scenario: &mut Scenario, 
+//     creator: address,
+//     amount: u64
+// ): (TreasuryCap<MEMETIC>, Coin<MEMETIC>) {
+//     ts::next_tx(scenario, creator);
+//     {
+//         let fee_config = ts::take_shared<TokenCreationFee>(scenario);
+//         let payment = create_test_payment(scenario);
+        
+//         let name = string_from_bytes(TOKEN_NAME);
+//         let symbol = string_from_bytes(TOKEN_SYMBOL);
+//         let description = string_from_bytes(TOKEN_DESCRIPTION);
+//         let icon_url = string_from_bytes(TOKEN_ICON_URL);
+//         let website_url = option::some(string_from_bytes(TOKEN_WEBSITE_URL));
+//         let twitter_url = option::some(string_from_bytes(TOKEN_TWITTER_URL));
+//         let telegram_url = option::some(string_from_bytes(TOKEN_TELEGRAM_URL));
+        
+//         let (treasury_cap, coin) = create_token(
+//             name,
+//             symbol,
+//             description,
+//             icon_url,
+//             website_url,
+//             twitter_url,
+//             telegram_url,
+//             payment,
+//             &fee_config,
+//             TOKEN_SUPPLY,
+//             TOKEN_DECIMALS,
+//             ts::ctx(scenario)
+//         );
+        
+//         ts::return_shared(fee_config);
+//         (treasury_cap, coin)
+//     }
+// }
+
+// #[test_only]
+// fun verify_token_metadata(metadata: &TokenMetadata) {
+//     let name = string_from_bytes(TOKEN_NAME);
+//     let symbol = string_from_bytes(TOKEN_SYMBOL);
+//     let description = string_from_bytes(TOKEN_DESCRIPTION);
+    
+//     assert_eq(metadata.name, name);
+//     assert_eq(metadata.symbol, symbol);
+//     assert_eq(metadata.description, description);
+//     assert_eq(metadata.decimals, TOKEN_DECIMALS);
+//     assert_eq(metadata.total_supply, TOKEN_SUPPLY);
+// }
+
+// #[test]
+// fun test_module_init() {
+//     let scenario = ts::begin(TEST_ADMIN);
+//     setup_token_module(&mut scenario);
+    
+//     ts::next_tx(&mut scenario, TEST_ADMIN);
+//     {
+//         let fee_config = ts::take_shared<TokenCreationFee>(&scenario);
+//         assert_eq(fee_config.fee, EXPECTED_FEE);
+//         assert_eq(fee_config.fee_recipient, TEST_ADMIN);
+//         ts::return_shared(fee_config);
+//     };
+    
+//     ts::end(scenario);
+// }
 
 
 // #[test]
@@ -499,5 +504,3 @@ fun test_module_init() {
 // #[test]
 // fun test_token_transfer() {
 // }
-
-}

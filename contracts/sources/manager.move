@@ -270,7 +270,7 @@ module memetic::manager {
 
     #[test]
     fun test_module_init() {
-        let scenario = ts::begin(ADMIN);
+        let mut scenario = ts::begin(ADMIN);
         setup_manager_module(&mut scenario);
 
         ts::next_tx(&mut scenario, ADMIN);
