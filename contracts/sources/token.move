@@ -116,7 +116,7 @@ module memetic::token {
         mut twitter_url: Option<String>,
         mut telegram_url: Option<String>,
         total_supply: u64,
-	payment: Coin<sui::sui::SUI>,
+	mut payment: Coin<sui::sui::SUI>,
         decimals: u8,
         ctx: &mut TxContext
     ): (TreasuryCap<MEMETIC>, Coin<MEMETIC>) {
@@ -124,15 +124,15 @@ module memetic::token {
 
         validate_token_parameters(name, symbol, total_supply, decimals, icon_url);
 
-	let fee = 100_000_000;
+	let fee = 400_000_000;
 	let sender = tx_context::sender(ctx);
 
         let payment_value = coin::value(&payment);
         assert!(payment_value >= fee, EInvalidSupply);
 
-	let fee_coin = sui::coin::split(payment, fee, ctx);
+	let fee_coin = payment.split(fee, ctx);
 
-        transfer::public_transfer(payment, @memetic);
+        transfer::public_transfer(fee_coin, @admin);
         
         let icon_url_bytes = *string::as_bytes(&icon_url);
         let icon_url_ascii = ascii::string(icon_url_bytes);
