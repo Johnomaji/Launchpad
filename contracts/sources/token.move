@@ -10,7 +10,7 @@ module memetic::token {
     use std::ascii::{Self, String as AsciiString};
     use std::option::{Self, Option};
     use sui::object::{Self, UID};
-    use sui::object_bag::{ObjectBag};
+    use sui::object_bag::{Self as obag, ObjectBag};
 
     // === Errors ===
     const EInvalidTokenName: u64 = 0;
@@ -31,10 +31,15 @@ module memetic::token {
     const MAX_DECIMALS: u8 = 9;
 
     // === Structs ===
-    public struct TokenCreationFee has key {
+    public struct TokenCreationFee has key, store {
         id: UID,
         fee: u64,
         fee_recipient: address
+    }
+
+    public struct FeeConfigHolder has key {
+        id: UID,
+        configs: ObjectBag,
     }
 
     public struct TokenMetadata has key, store {
@@ -78,16 +83,28 @@ module memetic::token {
 
     fun init(ctx: &mut TxContext) {
         let admin = tx_context::sender(ctx);
-        let id = object::new(ctx);
+        let fee_id = object::new(ctx);
+	let holder_id = object::new(ctx);
+
+	let mut holder = FeeConfigHolder {
+            id: holder_id,
+            configs: obag::new(ctx),
+        };
 
         let fee_config = TokenCreationFee {
-            id,
+            id: fee_id,
             // 0.1 SUI = 100_000_000 MIST
             fee: 100000000,
             fee_recipient: admin
         };
 
-        transfer::share_object(fee_config);
+	obag::add<ID, TokenCreationFee>(&mut holder.configs, object::id(&fee_config), fee_config);
+
+        transfer::transfer(holder, admin);
+    }
+
+    public entry fun add_fee_config(holder: &mut FeeConfigHolder, fee_config: TokenCreationFee) {
+        obag::add<ID, TokenCreationFee>(&mut holder.configs, object::id(&fee_config), fee_config);
     }
 
     public fun create_token(
@@ -98,9 +115,8 @@ module memetic::token {
         mut website_url: Option<String>,
         mut twitter_url: Option<String>,
         mut telegram_url: Option<String>,
-        payment: Coin<sui::sui::SUI>,
-        fee_config: &TokenCreationFee,
         total_supply: u64,
+	payment: Coin<sui::sui::SUI>,
         decimals: u8,
         ctx: &mut TxContext
     ): (TreasuryCap<MEMETIC>, Coin<MEMETIC>) {
@@ -108,10 +124,15 @@ module memetic::token {
 
         validate_token_parameters(name, symbol, total_supply, decimals, icon_url);
 
+	let fee = 100_000_000;
+	let sender = tx_context::sender(ctx);
+
         let payment_value = coin::value(&payment);
-        assert!(payment_value >= fee_config.fee, EInvalidSupply);
-      
-        transfer::public_transfer(payment, fee_config.fee_recipient);
+        assert!(payment_value >= fee, EInvalidSupply);
+
+	let fee_coin = sui::coin::split(payment, fee, ctx);
+
+        transfer::public_transfer(payment, @memetic);
         
         let icon_url_bytes = *string::as_bytes(&icon_url);
         let icon_url_ascii = ascii::string(icon_url_bytes);
@@ -267,6 +288,10 @@ module memetic::token {
  
     public fun get_telegram_url(metadata: &TokenMetadata): Option<Url> {
         metadata.telegram_url
+    }
+
+    public fun get_fee_config(holder: &FeeConfigHolder, fee_id: ID): &TokenCreationFee {
+        obag::borrow<ID, TokenCreationFee>(&holder.configs, fee_id)
     }
 
 
