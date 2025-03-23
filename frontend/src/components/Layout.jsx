@@ -20,12 +20,12 @@ const Layout = ({ children }) => {
         {/* Navbar and Sidebar */}
         <Navbar toggleOpenCreateCoin={toggleOpenCreateCoin} />
         <div className="flex flex-row w-full">
-          {openCreateCoin && (
+          {/* {openCreateCoin && (
             <CreateCoin
               openCreateCoin={openCreateCoin}
               toggleOpenCreateCoin={toggleOpenCreateCoin}
             />
-          )}
+          )} */}
           <Sidebar setOpen={setOpen} open={open} toggleOpenCreateCoin={toggleOpenCreateCoin} />
 
           {/* Page Content */}

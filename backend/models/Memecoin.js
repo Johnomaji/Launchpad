@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const memecoinSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, unique: true },
   ticker: { type: String, required: true },
   coinAddress: { type: String, required: true },
-  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  // creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  creator: { type: String, required: true },
   image: { type: String, default: '' },
   desc: {type: String, default: ''},
   totalCoins: { type: Number, default: 0 },

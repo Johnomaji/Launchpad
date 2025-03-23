@@ -31,31 +31,31 @@ const AuthButton = () => {
     const authenticateUser = async () => {
       try {
         // Sign a message for authentication
-        // const msg = "Sign-In Request";
-        // // convert string to Uint8Array
-        // const msgBytes = new TextEncoder().encode(msg);
+        const msg = "Sign-In Request";
+        // convert string to Uint8Array
+        const msgBytes = new TextEncoder().encode(msg);
 
-        // const result = await wallet.signPersonalMessage({
-        //   message: msgBytes,
-        // });
-        // // verify signature with publicKey and SignedMessage (params are all included in result)
-        // const verifyResult = await wallet.verifySignedMessage(
-        //   result,
-        //   wallet.account.publicKey
-        // );
-        // if (!verifyResult) {
-        //   console.log(
-        //     "signPersonalMessage succeed, but verify signedMessage failed"
-        //   );
-        //   wallet.disconnect();
-        // } else {
-        //   console.log(
-        //     "signPersonalMessage succeed, and verify signedMessage succeed! :",
-        //     verifyResult
-        //   );
-        //   // Trigger the authentication flow with the wallet address and signature
-        //     await handleAuth(wallet.account?.address, result.signature);
-        // }
+        const result = await wallet.signPersonalMessage({
+          message: msgBytes,
+        });
+        // verify signature with publicKey and SignedMessage (params are all included in result)
+        const verifyResult = await wallet.verifySignedMessage(
+          result,
+          wallet.account.publicKey
+        );
+        if (!verifyResult) {
+          console.log(
+            "signPersonalMessage succeed, but verify signedMessage failed"
+          );
+          wallet.disconnect();
+        } else {
+          console.log(
+            "signPersonalMessage succeed, and verify signedMessage succeed! :",
+            verifyResult
+          );
+          // Trigger the authentication flow with the wallet address and signature
+            // await handleAuth(wallet.account?.address, result.signature);
+        }
 
         await handleAuth(wallet.account?.address, wallet.account?.address);
       } catch (error) {

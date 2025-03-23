@@ -8,7 +8,7 @@ const DefaultButton2 = ({ name, icon, href, handleOnclick, className }) => {
   if (href) {
     return (
       <Link to={href}>
-        <div className={classes}>
+        <div className="flex flex-row justify-center items-center rounded-3xl cursor-pointer border border-[#fff]  hover:bg-[rgba(0,0,0,0.5)] bg-transparent p-3 px-4 gap-2">
           {icon && icon}
 
           <span className="">{name}</span>
