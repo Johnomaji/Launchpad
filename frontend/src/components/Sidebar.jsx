@@ -53,13 +53,13 @@ const Sidebar = ({setOpen, open, toggleOpenCreateCoin}) => {
             ))}
             {!open ? (
             <li>
-              <SecondaryButton handleOnClick={toggleOpenCreateCoin} icon={<IoMdAdd />} />
+              <SecondaryButton href="/create-coin" icon={<IoMdAdd />} />
             </li>
             ) : (
             <li>
                <div className="flex flex-col gap-2 p-2 bg-white rounded-xl w-[200px]">
                   <img src="/assets/create-coin.png" alt="create-coin"/>
-                  <SecondaryButton name="Launch a coin" icon={<PiPaperPlaneTilt />} handleOnClick={toggleOpenCreateCoin} className="text-lg p-2 px-4"/>
+                  <SecondaryButton name="Launch a coin" icon={<PiPaperPlaneTilt />} href="/create-coin" className="text-lg p-2 px-4"/>
                </div>
             </li>
             )}
