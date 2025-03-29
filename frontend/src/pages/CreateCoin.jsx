@@ -204,7 +204,7 @@ const CreateCoin = ({ openCreateCoin, toggleOpenCreateCoin }) => {
         creator: address,
         image: fileUrl,
         desc: desc,
-        totalCoins: totalCoins,
+        totalCoins: 30,
         xSocial: xSocial,
         telegramSocial: telegramSocial,
         discordSocial: discordSocial,
