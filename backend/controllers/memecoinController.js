@@ -1,6 +1,7 @@
 const Memecoin = require("../models/Memecoin");
 const User = require("../models/User");
 const { newCoin } = require('../utils/coinCreator');
+const { UserNotFoundError, MemecoinExistsError } = require("../utils/errors");
 
 exports.createMemecoin = async (req, res) => {
   const {
@@ -18,12 +19,12 @@ exports.createMemecoin = async (req, res) => {
   try {
     const user = await User.findOne({ walletAddress: creator });
     const coin = await User.findOne({ name: name });
-    if (!user) {
-      throw new Error("User not found");
-    }
 
+	if (!user) {
+      throw new UserNotFoundError();
+    }
     if (coin) {
-      throw new Error("Memecoin already exists");
+      throw new MemecoinExistsError();
     }
 
 	const deploymentResult = await newCoin(name, ticker, image, desc, "testnet");
@@ -31,7 +32,7 @@ exports.createMemecoin = async (req, res) => {
     const memecoin = new Memecoin({
       name,
       ticker,
-      coinAddress,
+      coinAddress: deploymentResult.publishResult.packageId,
       creator,
       image,
       desc,
@@ -46,8 +47,9 @@ exports.createMemecoin = async (req, res) => {
     res
       .status(201)
       .json({ message: "Memecoin created successfully", memecoin });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+  	console.error(error);
+    res.status(error.statusCode || 500).json({ error: error.message });
   }
 };
 

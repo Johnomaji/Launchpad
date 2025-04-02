@@ -1,12 +1,16 @@
 const request = require('supertest');
 const app = require('../app');
 
-jest.mock('../models/Memecoin', () => ({
-  findOne: jest.fn(),
-  prototype: {
-    save: jest.fn()
-  }
-}));
+jest.mock('../models/Memecoin', () => {
+  const originalModule = jest.requireActual('../models/Memecoin');
+  return {
+    ...originalModule,
+    findOne: jest.fn(),
+    prototype: {
+      save: jest.fn()
+    }
+  };
+});
 
 jest.mock('../models/User', () => ({
   findOne: jest.fn()
@@ -14,13 +18,6 @@ jest.mock('../models/User', () => ({
 
 jest.mock('../utils/coinCreator', () => ({
   newCoin: jest.fn()
-}));
-
-jest.mock('../models/Memecoin', () => ({
-  findOne: jest.fn(),
-  prototype: {
-    save: jest.fn()
-  }
 }));
 
 const Memecoin = require('../models/Memecoin');
@@ -45,26 +42,36 @@ describe('createMemecoin Controller', () => {
     };
 
     validRequestBody = {
-	  name: 'RecoCycle',
-	  ticker: 'RCY',
-	  creator: '0x4567890abcdef123',
-	  image: 'https://example.io/ecocycle.png',
-	  desc: 'A sustainable cryptocurrency for environmental conservation',
-	  totalCoins: 2000000000,
-	  xSocial: 'https://twitter.com/ecocyclecoin',
-	  telegramSocial: 'https://t.me/ecocyclecoin',
-	  discordSocial: 'https://discord.gg/ecocyclecoin',
+      name: 'RecoCycle',
+      ticker: 'RCY',
+      creator: '0x4567890abcdef123',
+      image: 'https://example.io/ecocycle.png',
+      desc: 'A sustainable cryptocurrency for environmental conservation',
+      totalCoins: 2000000000,
+      xSocial: 'https://twitter.com/ecocyclecoin',
+      telegramSocial: 'https://t.me/ecocyclecoin',
+      discordSocial: 'https://discord.gg/ecocyclecoin',
     };
 
     jest.clearAllMocks();
   });
 
   it('should create a new memecoin successfully', async () => {
-    User.findOne.mockResolvedValue(mockUser);
+    // Mock User.findOne to return the mock user when creator address matches
+    User.findOne.mockImplementation((query) => {
+      if (query.walletAddress === validRequestBody.creator) {
+        return Promise.resolve(mockUser);
+      }
+      return Promise.resolve(null);
+    });
 
+    // Mock Memecoin.findOne to return null (no existing memecoin)
     Memecoin.findOne.mockResolvedValue(null);
+    
+    // Mock successful coin deployment
     newCoin.mockResolvedValue(mockDeploymentResult);
 
+    // Mock successful save
     Memecoin.prototype.save.mockResolvedValue({
       ...validRequestBody,
       ...mockDeploymentResult,
@@ -74,7 +81,7 @@ describe('createMemecoin Controller', () => {
     const response = await request(app)
       .post('/api/v1/memecoins/create')
       .send(validRequestBody);
-	console.log(response);
+
     expect(response.status).toBe(201);
     expect(response.body.message).toBe('Memecoin created successfully');
     expect(response.body.memecoin).toBeDefined();
@@ -87,56 +94,40 @@ describe('createMemecoin Controller', () => {
     );
   });
 
-  it('should return 500 if user not found', async () => {
+  it('should return 404 if user not found', async () => {
     User.findOne.mockResolvedValue(null);
 
     const response = await request(app)
       .post('/api/v1/memecoins/create')
       .send(validRequestBody);
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(404);
     expect(response.body.error).toBe('User not found');
   });
 
-  it('should return 500 if memecoin already exists', async () => {
-    User.findOne.mockImplementation((query) => {
-      if (query.walletAddress === validRequestBody.creator) {
-        return Promise.resolve(mockUser);
-      }
-      if (query.name === validRequestBody.name) {
-        return Promise.resolve({ name: validRequestBody.name });
-      }
-      return Promise.resolve(null);
-    });
+  it('should return 400 if memecoin already exists', async () => {
+    User.findOne.mockResolvedValue(mockUser);
+    // Mock that a memecoin with this name already exists
+    Memecoin.findOne.mockResolvedValue({ name: validRequestBody.name });
 
     const response = await request(app)
       .post('/api/v1/memecoins/create')
       .send(validRequestBody);
 
-    expect(response.status).toBe(500);
+    expect(response.status).toBe(400);
     expect(response.body.error).toBe('Memecoin already exists');
   });
 
   it('should return 500 if coin deployment fails', async () => {
     User.findOne.mockResolvedValue(mockUser);
-    
-    newCoin.mockRejectedValue(new Error('Deployment failed'));
+    Memecoin.findOne.mockResolvedValue(null);
 
-    const requestBody = {
-      name: 'TwiCoin',
-      ticker: 'TWI',
-      creator: '0x1234567890fedcba',
-      image: 'https://example.com/twi.png',
-      desc: 'The next generation of meme coins',
-      totalCoins: 10000000,
-      xSocial: 'https://twitter.com/twi',
-      telegramSocial: 'https://t.me/twi',
-      discordSocial: 'https://discord.gg/twi',
-    };
+    // Mock failed coin deployment
+    newCoin.mockRejectedValue(new Error('Deployment failed'));
 
     const response = await request(app)
       .post('/api/v1/memecoins/create')
-      .send(requestBody);
+      .send(validRequestBody);
 
     expect(response.status).toBe(500);
     expect(response.body.error).toBe('Deployment failed');
@@ -156,31 +147,16 @@ describe('createMemecoin Controller', () => {
 
   it('should handle database save errors', async () => {
     User.findOne.mockResolvedValue(mockUser);
-    
+    Memecoin.findOne.mockResolvedValue(null);
     newCoin.mockResolvedValue(mockDeploymentResult);
-    const mockSave = jest.fn().mockRejectedValue(new Error('Database save failed'));
-    Memecoin.mockImplementationOnce(() => ({
-      save: mockSave
-    }));
-
-    const requestBody = {
-	  name: 'GalacticToken',
-	  ticker: 'GALX',
-	  creator: '0x9876543210abcdef',
-	  image: 'https://example.net/galactic.png',
-	  desc: 'A revolutionary cryptocurrency for space exploration',
-	  totalCoins: 500000000,
-	  xSocial: 'https://twitter.com/galactic_token',
-	  telegramSocial: 'https://t.me/galactic_token',
-	  discordSocial: 'https://discord.gg/galactic_token',
-	};
-
+    
+    // Mock failed save
+    Memecoin.prototype.save.mockRejectedValue(new Error('Database save failed'));
 
     const response = await request(app)
       .post('/api/v1/memecoins/create')
-      .send(requestBody);
+      .send(validRequestBody);
 
-	console.log(response)
     expect(response.status).toBe(500);
     expect(response.body.error).toBe('Database save failed');
   });
