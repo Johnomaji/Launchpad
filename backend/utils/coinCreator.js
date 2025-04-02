@@ -58,7 +58,7 @@ const newCoin = async (name, symbol, iconUrl, description, network = 'testnet') 
     console.log(`Creating new Sui Move project: ${sanitizedName}`);
     execSync(`sui move new ${sanitizedName}`);
     
-    const templatePath = path.join(rootPath, "scripts", "template.txt");
+    const templatePath = path.join(rootPath, "utils", "template.txt");
     let fileContent = fs.readFileSync(templatePath, "utf8");
 
     const replacements = {

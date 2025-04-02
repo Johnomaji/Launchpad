@@ -1,6 +1,6 @@
 const Memecoin = require("../models/Memecoin");
 const User = require("../models/User");
-// const NewCoin = require("../new_coin/script");
+const { newCoin } = require('../utils/coinCreator');
 
 exports.createMemecoin = async (req, res) => {
   const {
@@ -26,33 +26,8 @@ exports.createMemecoin = async (req, res) => {
       throw new Error("Memecoin already exists");
     }
 
-    // if (!name || !ticker || !desc || !image) {
-    //   throw new Error("Missing required fields");
-    // }
-
-    const generateMockSuiAddress = () => {
-      const prefix = '0x';
-      const characters = '0123456789abcdef'; // Sui addresses use lowercase hex
-      let address = prefix;
+	const deploymentResult = await newCoin(name, ticker, image, desc, "testnet");
     
-      // Generate 64-character long string (Sui address length without 0x prefix)
-      for (let i = 0; i < 64; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        address += characters[randomIndex];
-      }
-    
-      return address;
-    };
-    
-    // Generate new address each time
-    let coinAddress = generateMockSuiAddress();
-
-    // const deploymentResult = await NewCoin(name, ticker, image, desc);
-
-    // const coinPackageId = deploymentResult.objectChanges.find(
-    //   (change) => change.type === "published"
-    // )?.packageId;
-
     const memecoin = new Memecoin({
       name,
       ticker,
@@ -64,7 +39,7 @@ exports.createMemecoin = async (req, res) => {
       xSocial,
       telegramSocial,
       discordSocial,
-      // packageId: coinPackageId,
+      packageId: deploymentResult.publishResult.packageId,
     });
     await memecoin.save();
 
