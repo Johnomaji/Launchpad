@@ -1,9 +1,15 @@
+require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require('child_process');
 const { Transaction } = require('@mysten/sui/transactions');
 const toml = require('toml');
 const tomlify = require('tomlify-j0.4');
+const { SuiClient } = require('@mysten/sui/client');
+const { Ed25519Keypair } = require('@mysten/sui/keypairs/ed25519');
+const { fromB64 } = require('@mysten/sui/utils');
+
+const DEFAULT_GAS_BUDGET = 30000000;
 
 const moveCoinFolder = (sanitizedName) => {
   const rootPath = process.cwd();
@@ -33,7 +39,7 @@ const moveCoinFolder = (sanitizedName) => {
   } 
 };
 
-const newCoin = (name, symbol, iconUrl, description) => {
+const newCoin = async (name, symbol, iconUrl, description, network = 'testnet') => {
 
   if (!name || !symbol || !description) {
     throw new Error('Name, symbol, and description are required');
@@ -52,7 +58,7 @@ const newCoin = (name, symbol, iconUrl, description) => {
     console.log(`Creating new Sui Move project: ${sanitizedName}`);
     execSync(`sui move new ${sanitizedName}`);
     
-    const templatePath = path.join(rootPath, "new_coin", "template.txt");
+    const templatePath = path.join(rootPath, "scripts", "template.txt");
     let fileContent = fs.readFileSync(templatePath, "utf8");
 
     const replacements = {
@@ -112,12 +118,115 @@ const newCoin = (name, symbol, iconUrl, description) => {
 
     console.log(`Coin project ${sanitizedName} created successfully!`);
     moveCoinFolder(sanitizedName);
-    return tx;
+
+    const keyPair = loadKeypairFromEnv();
+    console.log(keyPair);
+    console.log(`Publishing ${sanitizedName} token to ${network}...`);
+    const publishResult = await publishToNetwork(tx, keyPair, network);
+    
+    console.log('Publication result:', publishResult);
+    return {
+      transaction: tx,
+      publishResult,
+      coinName: sanitizedName,
+      symbol: sanitizedSymbol
+    };
 
   } catch (error) {
     console.error('Error creating Sui coin project:', error);
     throw error;
   }
 }
+
+const loadKeypairFromEnv = () => {
+  try {
+  	const privateKeyB64 = process.env.SUI_PRIVATE_KEY;
+	if (!privateKeyB64) {
+      throw new Error('SUI_PRIVATE_KEY environment variable not set');
+    }
+    
+    const privateKeyBytes = fromB64(privateKeyB64);
+
+    console.log(privateKeyBytes, privateKeyB64);
+	return Ed25519Keypair.fromSecretKey(privateKeyBytes.slice(1));
+  } catch (error) {
+    console.error('Error loading keypair:', error);
+    throw error;
+  }
+};
+
+const publishToNetwork = async (transaction, keyPair, networkType = 'testnet') => {
+  try {
+    const networks = {
+      'mainnet': 'https://fullnode.mainnet.sui.io:443',
+      'testnet': 'https://fullnode.testnet.sui.io:443',
+      'devnet': 'https://fullnode.devnet.sui.io:443',
+    };
+    
+    const rpcUrl = networks[networkType] || networks.devnet;
+    const client = new SuiClient({ url: rpcUrl });
+    
+    const senderAddress = keyPair.getPublicKey().toSuiAddress();
+
+    transaction.setSender(senderAddress);
+    
+    transaction.setGasBudget(DEFAULT_GAS_BUDGET);
+
+	const txBlock = await transaction.build({ client });
+	const signedTx = await keyPair.signTransaction(txBlock);
+
+	const bytes = txBlock;
+	const signature = signedTx.signature;
+    console.log(bytes, signature)
+    
+    const response = await client.executeTransactionBlock({
+      transactionBlock: bytes,
+      signature,
+      options: {
+        showEffects: true,
+        showEvents: true,
+        showObjectChanges: true,
+      }
+    });
+    
+    console.log('Transaction executed successfully!');
+    console.log('Transaction digest:', response.digest);
+    console.log(response);
+    
+    if (response.effects?.status?.status === 'success') {
+      console.log('Package published successfully!');
+      
+      const createdObjects = response.effects.created || [];
+      const packageObject = createdObjects.find(obj => obj.owner === 'Immutable');
+      
+      if (packageObject) {
+        console.log('Package ID:', packageObject.reference.objectId);
+        return {
+          success: true,
+          packageId: packageObject.reference.objectId,
+          transactionDigest: response.digest,
+          response
+        };
+      }
+      
+      return {
+        success: true,
+        transactionDigest: response.digest,
+        response
+      };
+    } else {
+      console.error('Transaction failed:', response.effects?.status);
+      return {
+        success: false,
+        error: response.effects?.status,
+        response
+      };
+    }
+  } catch (error) {
+    console.error('Error publishing to network:', error);
+    throw error;
+  }
+};
+
 
 newCoin("lagos", "LAGOS", "http://somewhere.com", "A better version of Naira");
