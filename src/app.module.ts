@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { MemecoinsModule } from './memecoins/memecoins.module';
 
 @Module({
   imports: [
@@ -23,6 +24,8 @@ import { ConfigModule } from '@nestjs/config';
     }),
 
     AuthModule,
+
+    MemecoinsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
