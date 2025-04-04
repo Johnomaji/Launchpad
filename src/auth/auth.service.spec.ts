@@ -1,19 +1,19 @@
-import {Test, TestingModule} from '@nestjs/testing';
-import {AuthService} from './auth.service';
-import {JwtService} from '@nestjs/jwt';
-import {getModelToken} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
+import { AuthService } from './auth.service';
+import { JwtService } from '@nestjs/jwt';
+import { getModelToken } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import * as crypto from 'crypto';
-import {verifyPersonalMessageSignature} from '@mysten/sui/verify';
-import {User} from '@users/schemas/users.schema';
-import {Challenge} from './schemas/challenge.schema';
+import { verifyPersonalMessageSignature } from '@mysten/sui/verify';
+import { User } from '@users/schemas/users.schema';
+import { Challenge } from './schemas/challenge.schema';
 
 jest.mock('@mysten/sui/verify', () => ({
   verifyPersonalMessageSignature: jest.fn(),
 }));
 
 class MockChallengeModel {
-  constructor(private data: any) {}
+  constructor(private data: any) { }
 
   static create = jest.fn((data) => new MockChallengeModel(data));
 
@@ -35,7 +35,7 @@ class MockChallengeModel {
 }
 
 class MockUserModel {
-  constructor(private data: any) {}
+  constructor(private data: any) { }
 
   static create = jest.fn((data) => new MockUserModel(data));
 
@@ -96,6 +96,9 @@ describe('AuthService', () => {
     jwtService = module.get<JwtService>(JwtService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   // describe('generateChallenge', () => {
   //   it('should create and return a challenge', async () => {
   //     const address = '0x123';
@@ -165,15 +168,11 @@ describe('AuthService', () => {
             save: jest.fn(),
           }) as any,
       );
-      // jest
-      //   .spyOn(userModel, 'create')
-      //   .mockResolvedValueOnce({ save: jest.fn() } as any);
-      (userModel.create as jest.Mock).mockImplementation((userData) => {
-        console.log('mock created with: ', userData);
-        return {
-          ...userData,
+      jest.spyOn(userModel, 'create').mockImplementation((userData: any) => {
+        console.log('Mock create called with:', userData);
+        return Object.assign({}, userData, {
           save: jest.fn().mockResolvedValue(true),
-        };
+        });
       });
       jest.spyOn(challengeModel, 'findByIdAndDelete').mockReturnValue({
         exec: jest.fn().mockResolvedValue(true),
@@ -202,9 +201,9 @@ describe('AuthService', () => {
 
       console.log(result);
       expect(result).toBe(true);
-      expect(mockChallengeFind).toHaveBeenCalledWith({address});
+      expect(mockChallengeFind).toHaveBeenCalledWith({ address });
       expect(userModel.create).toHaveBeenCalledWith(
-        expect.objectContaining({walletAddress: address}),
+        expect.objectContaining({ walletAddress: address }),
       );
       expect(challengeModel.findByIdAndDelete).toHaveBeenCalledWith(
         'challengeId',
@@ -219,7 +218,7 @@ describe('AuthService', () => {
       const mockChallengeFind = jest.fn().mockReturnValue({
         sort: jest.fn().mockReturnValue({
           limit: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue([{challenge: message}]),
+            exec: jest.fn().mockResolvedValue([{ challenge: message }]),
           }),
         }),
       });
@@ -236,10 +235,193 @@ describe('AuthService', () => {
       );
 
       expect(result).toBe(false);
-      expect(mockChallengeFind).toHaveBeenCalledWith({address});
+      expect(mockChallengeFind).toHaveBeenCalledWith({ address });
+    });
+
+    it('should return false if no challenge record is found', async () => {
+      const address = '0x123';
+      const signature = 'fake_signature';
+      const message = 'Sign this message to authenticate with our app: abc123';
+
+      const mockChallengeFind = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue([]),
+          }),
+        }),
+      });
+      jest.spyOn(challengeModel, 'find').mockImplementation(mockChallengeFind);
+
+      const result = await authService.verifySignature(
+        address,
+        signature,
+        message,
+      );
+
+      expect(result).toBe(false);
+      expect(mockChallengeFind).toHaveBeenCalledWith({ address });
+    });
+
+    it('should return false if challenge record does not match message', async () => {
+      const address = '0x123';
+      const signature = 'fake_signature';
+      const message = 'Sign this message to authenticate with our app: abc123';
+      const wrongMessage = 'Wrong message';
+
+      const mockChallengeFind = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue([
+              {
+                _id: 'challengeId',
+                challenge: wrongMessage,
+                address,
+              },
+            ]),
+          }),
+        }),
+      });
+      jest.spyOn(challengeModel, 'find').mockImplementation(mockChallengeFind);
+
+      const result = await authService.verifySignature(
+        address,
+        signature,
+        message,
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false if signature verification throws an error', async () => {
+      const address = '0x123';
+      const signature = 'fake_signature';
+      const message = 'Sign this message to authenticate with our app: abc123';
+
+      const mockChallengeFind = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue([
+              {
+                _id: 'challengeId',
+                challenge: message,
+                address,
+              },
+            ]),
+          }),
+        }),
+      });
+      jest.spyOn(challengeModel, 'find').mockImplementation(mockChallengeFind);
+
+      (verifyPersonalMessageSignature as jest.Mock).mockRejectedValueOnce(
+        new Error('Verification failed'),
+      );
+
+      const result = await authService.verifySignature(
+        address,
+        signature,
+        message,
+      );
+
+      expect(result).toBe(false);
+    });
+    it('should not create user if user already exists', async () => {
+      const address = '0x123';
+      const signature = 'fake_signature';
+      const message = 'sign this message to authenticate with our app: abc123';
+
+      (verifyPersonalMessageSignature as jest.Mock).mockResolvedValueOnce(true);
+
+      const existingUser = { walletAddress: address, _id: 'userId' };
+      const mockFindOne = jest.fn().mockReturnValue({
+        exec: jest
+          .fn()
+          .mockResolvedValue({ walletAddress: address, _id: 'userId' }),
+      });
+      jest.spyOn(userModel, 'findOne').mockImplementation(mockFindOne);
+      // jest.spyOn(userModel, 'findOne').mockReturnValue({
+      //   exec: jest.fn().mockResolvedValue(existingUser),
+      // } as any);
+
+      jest.spyOn(userModel, 'create').mockImplementation(() => {
+        throw new Error('Should not be called');
+      });
+
+      const mockChallengeFind = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue([
+              {
+                _id: 'challengeId',
+                challenge: message,
+                address,
+              },
+            ]),
+          }),
+        }),
+      });
+
+      jest.spyOn(challengeModel, 'find').mockImplementation(mockChallengeFind);
+
+      const result = await authService.verifySignature(
+        address,
+        signature,
+        message,
+      );
+
+      expect(result).toBe(true);
+      expect(userModel.findOne).toHaveBeenCalledWith({
+        walletAddress: address,
+      });
+      expect(mockFindOne().exec).toHaveBeenCalled();
+      expect(userModel.create).not.toHaveBeenCalled();
+    });
+
+    it('should still return true if challenge deletion fails', async () => {
+      const address = '0x123';
+      const signature = 'fake_signature';
+      const message = 'Sign this message to authenticate with our app: abc123';
+
+      (verifyPersonalMessageSignature as jest.Mock).mockResolvedValueOnce(true);
+      jest.spyOn(userModel, 'findOne').mockImplementation(
+        () =>
+          ({
+            exec: jest.fn().mockResolvedValue(null),
+            save: jest.fn(),
+          }) as any,
+      );
+      jest
+        .spyOn(userModel, 'create')
+        .mockResolvedValueOnce({ save: jest.fn() } as any);
+      jest.spyOn(challengeModel, 'findByIdAndDelete').mockReturnValue({
+        exec: jest.fn().mockImplementation(() => {
+          throw new Error('Deletion failed!');
+        }),
+      } as any);
+
+      const mockChallengeFind = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue([
+              {
+                _id: 'challengeId',
+                challenge: message,
+                address,
+              },
+            ]),
+          }),
+        }),
+      });
+      jest.spyOn(challengeModel, 'find').mockImplementation(mockChallengeFind);
+
+      const result = await authService.verifySignature(
+        address,
+        signature,
+        message,
+      );
+
+      expect(result).toBe(true);
     });
   });
-
   describe('generateToken', () => {
     it('should generate a JWT token', async () => {
       const address = '0x123';
@@ -248,7 +430,7 @@ describe('AuthService', () => {
 
       const result = await authService.generateToken(address);
       expect(result).toBe(token);
-      expect(jwtService.sign).toHaveBeenCalledWith({sub: address});
+      expect(jwtService.sign).toHaveBeenCalledWith({ sub: address });
     });
   });
 });

@@ -1,6 +1,6 @@
-import {Controller, Post, Body, UnauthorizedException} from '@nestjs/common';
-import {AuthService} from './auth.service';
-import {IsNotEmpty, IsString} from 'class-validator';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 class ChallengeRequestDto {
   @IsString()
@@ -24,7 +24,7 @@ class VerifyRequestDto {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('challenge')
   async getChallenge(@Body() body: ChallengeRequestDto) {
@@ -44,7 +44,6 @@ export class AuthController {
     }
 
     const accessToken = await this.authService.generateToken(body.address);
-    return {accessToken};
+    return { accessToken };
   }
 }
-

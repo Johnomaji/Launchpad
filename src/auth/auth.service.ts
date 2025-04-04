@@ -57,18 +57,23 @@ export class AuthService {
       );
 
       if (isValid) {
-        let user = await this.userModel
+        const user = await this.userModel
           .findOne({ walletAddress: address })
           .exec();
+        console.log('findOne returned: ', user);
         if (!user) {
-          console.log("creating user...")
-          user = new this.userModel({
+          console.log('creating user...');
+          await this.userModel.create({
             walletAddress: address,
           });
-          await user.save();
         }
-
-        await this.challengeModel.findByIdAndDelete(challengeRecord._id).exec();
+        try {
+          await this.challengeModel
+            .findByIdAndDelete(challengeRecord._id)
+            .exec();
+        } catch (deletionError) {
+          console.warn('Failed to delete challenge:', deletionError);
+        }
 
         return true;
       }
