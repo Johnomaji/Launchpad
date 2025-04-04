@@ -7,6 +7,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { MemecoinsModule } from './memecoins/memecoins.module';
+import { CoinCreatorModule } from './coin-creator/coin-creator.module';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { MemecoinsModule } from './memecoins/memecoins.module';
     AuthModule,
 
     MemecoinsModule,
+
+    CoinCreatorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
