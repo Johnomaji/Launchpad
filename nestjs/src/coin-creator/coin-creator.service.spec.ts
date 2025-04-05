@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */	
-console.log(Object.keys(globalThis));
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoinCreatorService } from './coin-creator.service';
 import { ConfigService } from '@nestjs/config';
@@ -15,18 +11,41 @@ import * as path from 'path';
 import { execSync } from 'child_process';
 import * as toml from 'toml';
 
+jest.mock('@mysten/sui/keypairs/ed25519', () => ({
+  Ed25519Keypair: {
+    fromSecretKey: jest.fn().mockImplementation(() => ({
+      getPublicKey: jest.fn().mockReturnValue({
+        toSuiAddress: jest.fn().mockReturnValue('0xmockAddress'),
+      }),
+      signTransactionBlock: jest.fn().mockResolvedValue({
+        signature: 'mockSignature',
+      }),
+    })),
+  },
+}));
+
+jest.mock('@mysten/sui/transactions', () => ({
+  Transaction: jest.fn().mockImplementation(() => ({
+    publish: jest.fn().mockReturnValue('mockCap'),
+    moveCall: jest.fn(),
+    setSender: jest.fn().mockReturnThis(),
+    setGasBudget: jest.fn().mockReturnThis(),
+    build: jest.fn().mockResolvedValue('mockTransactionBytes'),
+  })),
+}));
+
+jest.mock('@mysten/sui/client', () => ({
+  SuiClient: jest.fn().mockImplementation(() => ({
+    executeTransactionBlock: jest.fn(),
+  })),
+}));
+
 jest.mock('child_process');
 jest.mock('fs');
 jest.mock('path');
 jest.mock('toml');
 jest.mock('tomlify-j0.4', () => ({
   toToml: jest.fn().mockReturnValue('mocked toml content'),
-}));
-jest.mock('@mysten/sui/transactions');
-jest.mock('@mysten/sui/client');
-jest.mock('@mysten/sui/keypairs/ed25519');
-jest.mock('@mysten/bcs', () => ({
-  fromBase64: jest.fn().mockReturnValue(new Uint8Array([0, 1, 2, 3])),
 }));
 
 describe('CoinCreatorService', () => {
@@ -39,27 +58,6 @@ describe('CoinCreatorService', () => {
       if (key === 'sui.privateKey') return 'mockBase64PrivateKey';
       return null;
     }),
-  };
-
-  const mockKeyPair = {
-    getPublicKey: jest.fn().mockReturnValue({
-      toSuiAddress: jest.fn().mockReturnValue('0xmockAddress'),
-    }),
-    signTransaction: jest.fn().mockResolvedValue({
-      signature: 'mockSignature',
-    }),
-  };
-
-  const mockTransaction = {
-    publish: jest.fn().mockReturnValue('mockCap'),
-    moveCall: jest.fn(),
-    setSender: jest.fn(),
-    setGasBudget: jest.fn(),
-    build: jest.fn().mockResolvedValue('mockTransactionBytes'),
-  };
-
-  const mockClient = {
-    executeTransactionBlock: jest.fn(),
   };
 
   const mockFsOperations = () => {
@@ -97,12 +95,6 @@ describe('CoinCreatorService', () => {
 
     (toml.parse as jest.Mock).mockReturnValue({ dependencies: {} });
 
-    (Ed25519Keypair.fromSecretKey as jest.Mock).mockReturnValue(mockKeyPair);
-    (Transaction as unknown as jest.Mock).mockImplementation(
-      () => mockTransaction,
-    );
-    (SuiClient as jest.Mock).mockImplementation(() => mockClient);
-
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CoinCreatorService,
@@ -131,6 +123,7 @@ describe('CoinCreatorService', () => {
     };
 
     it('should create a coin successfully', async () => {
+      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -147,7 +140,7 @@ describe('CoinCreatorService', () => {
       const result = await service.createCoin(createCoinDto);
 
       expect(result).toEqual({
-        transaction: mockTransaction,
+        transaction: expect.any(Object),
         publishResult: {
           success: true,
           packageId: '0xmockPackageId',
@@ -159,11 +152,13 @@ describe('CoinCreatorService', () => {
       });
 
       expect(execSync).toHaveBeenCalledWith('sui move new test_coin');
-      expect(fs.writeFileSync).toHaveBeenCalledTimes(2); // Template and Move.toml
+      expect(fs.writeFileSync).toHaveBeenCalledTimes(2);
       expect(execSync).toHaveBeenCalledWith(
         expect.stringContaining('sui move build --dump-bytecode-as-base64'),
         expect.any(Object),
       );
+      
+      const mockTransaction = (Transaction as unknown as jest.Mock).mock.results[0].value;
       expect(mockTransaction.publish).toHaveBeenCalledWith({
         modules: ['mockModuleBase64'],
         dependencies: ['mockDependencyDigest'],
@@ -183,6 +178,7 @@ describe('CoinCreatorService', () => {
     });
 
     it('should handle transaction failure', async () => {
+      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'failure', error: 'Some error' },
@@ -200,6 +196,7 @@ describe('CoinCreatorService', () => {
     });
 
     it('should throw error when network publishing fails', async () => {
+      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockRejectedValueOnce(
         new Error('Network error'),
       );
@@ -213,6 +210,7 @@ describe('CoinCreatorService', () => {
       const dtoWithoutNetwork = { ...createCoinDto };
       delete dtoWithoutNetwork.network;
 
+      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -232,6 +230,7 @@ describe('CoinCreatorService', () => {
     });
 
     it('should handle folder moving operations', async () => {
+      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -266,11 +265,14 @@ describe('CoinCreatorService', () => {
   describe('loadKeypairFromEnv', () => {
     it('should load keypair from environment variable', () => {
       const keypair = (service as any).loadKeypairFromEnv();
-      expect(keypair).toBe(mockKeyPair);
+      expect(keypair).toBeDefined();
+      expect(Ed25519Keypair.fromSecretKey).toHaveBeenCalledWith(
+        Buffer.from('mockBase64PrivateKey', 'base64'),
+      );
     });
 
     it('should throw error when private key is not configured', () => {
-      configService.get = jest.fn().mockReturnValue(null);
+      (configService.get as jest.Mock).mockReturnValueOnce(null);
       expect(() => (service as any).loadKeypairFromEnv()).toThrow(
         'SUI_PRIVATE_KEY is not configured',
       );
@@ -279,6 +281,7 @@ describe('CoinCreatorService', () => {
 
   describe('publishToNetwork', () => {
     it('should publish to specified network', async () => {
+      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -292,9 +295,12 @@ describe('CoinCreatorService', () => {
         digest: '0xmockTransactionDigest',
       });
 
+      const mockKeypair = (Ed25519Keypair.fromSecretKey as jest.Mock).mock.results[0].value;
+      const mockTransaction = (Transaction as unknown as jest.Mock).mock.results[0].value;
+
       const result = await (service as any).publishToNetwork(
         mockTransaction,
-        mockKeyPair,
+        mockKeypair,
         'mainnet',
       );
 
@@ -304,6 +310,7 @@ describe('CoinCreatorService', () => {
     });
 
     it('should handle case when no package object is created', async () => {
+      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -312,9 +319,12 @@ describe('CoinCreatorService', () => {
         digest: '0xmockTransactionDigest',
       });
 
+      const mockKeypair = (Ed25519Keypair.fromSecretKey as jest.Mock).mock.results[0].value;
+      const mockTransaction = (Transaction as unknown as jest.Mock).mock.results[0].value;
+
       const result = await (service as any).publishToNetwork(
         mockTransaction,
-        mockKeyPair,
+        mockKeypair,
         'testnet',
       );
 
