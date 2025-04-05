@@ -6,12 +6,12 @@ import { SUI_NETWORKS } from './constants/sui.constants';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
-import { Transaction } from '@mysten/sui/transactions';
 import * as toml from 'toml';
 import * as tomlify from 'tomlify-j0.4';
 import { SuiClient } from '@mysten/sui/client';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { fromBase64 } from '@mysten/sui/utils';
+import { Transaction } from '@mysten/sui/transactions';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -39,6 +39,7 @@ export class CoinCreatorService {
 
     const sanitizedName = name.replace(/\s+/g, '_').toLowerCase();
     const sanitizedSymbol = symbol.toUpperCase();
+    const uppercaseName = sanitizedName.toUpperCase();
     const capitalizedName =
       sanitizedName.charAt(0).toUpperCase() + sanitizedName.slice(1);
 
@@ -49,12 +50,12 @@ export class CoinCreatorService {
       console.log(`Creating new Sui Move project: ${sanitizedName}`);
       execSync(`sui move new ${sanitizedName}`);
 
-      const templatePath = path.join(rootPath, 'utils', 'template.txt');
+      const templatePath = path.join(rootPath, 'src', 'common', 'template.txt');
       let fileContent = fs.readFileSync(templatePath, 'utf8');
 
       const replacements = {
         template_description: description,
-        TEMPLATE: sanitizedSymbol,
+        TEMPLATE: uppercaseName,
         Template: capitalizedName,
         template: sanitizedName,
       };
@@ -127,6 +128,7 @@ export class CoinCreatorService {
         coinName: sanitizedName,
         symbol: sanitizedSymbol,
       };
+      
     } catch (error) {
       console.error('Error creating Sui coin project:', error);
       throw error;

@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */	
+console.log(Object.keys(globalThis));
 import { Test, TestingModule } from '@nestjs/testing';
 import { CoinCreatorService } from './coin-creator.service';
 import { ConfigService } from '@nestjs/config';

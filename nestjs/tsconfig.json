@@ -7,6 +7,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
+    "lib": ["ES2020", "DOM"],
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -19,7 +20,8 @@
       ],
       "@auth/*": [
         "src/auth/*"
-      ]
+      ],
+      "@coin-creator/*": ["src/coin-creator/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

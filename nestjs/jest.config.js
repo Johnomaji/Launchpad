@@ -7,7 +7,13 @@ module.exports = {
   moduleNameMapper: {
     '^@users/(.*)$': '<rootDir>/src/users/$1',
   },
-  transformIgnorePatterns: ['/node_modules/(?!@mysten/sui)'], // setupFilesAfterEnv: ['./jest.setup.js'],
+  preset: 'ts-jest/presets/default-esm',
+  globals: {
+    'ts-jest': {
+      useESM: true,
+    },
+  },
+  // setupFilesAfterEnv: ['./jest.setup.ts'],
 };
 
 /**
