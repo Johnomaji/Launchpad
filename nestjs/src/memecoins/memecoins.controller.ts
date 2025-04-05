@@ -1,6 +1,5 @@
-import { Controller, Post, Body, Get, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
 import { MemecoinsService } from './memecoins.service';
-import { CreateCoinDto } from './dto/create-coin.dto';
 import { CoinCreation } from '@coin-creator/interfaces/coin-creation.interface';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
 import { User as UserEntity } from '@users/schemas/users.schema';
@@ -14,10 +13,10 @@ export class MemecoinsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   async createMemecoin(
-    @Body() createCoinDto: CreateCoinDto,
+    @Body() createMemecoinDto: CreateMemecoinDto,
     @User() user: UserEntity,
   ): Promise<CoinCreation> {
-    return this.memecoinsService.createCoin(createCoinDto, user);
+    return this.memecoinsService.createCoin(createMemecoinDto, user);
   }
 
   @Get()

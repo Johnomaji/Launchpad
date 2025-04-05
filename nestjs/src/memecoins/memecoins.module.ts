@@ -5,6 +5,7 @@ import { MemecoinsService } from './memecoins.service';
 import { Memecoin, MemecoinSchema } from './schemas/memecoins.schema';
 import { CoinCreatorModule } from '@coin-creator/coin-creator.module';
 import { CoinCreatorService } from '@coin-creator/coin-creator.service';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { CoinCreatorService } from '@coin-creator/coin-creator.service';
     CoinCreatorModule,
   ],
   controllers: [MemecoinsController],
-  providers: [MemecoinsService, CoinCreatorService],
+  providers: [MemecoinsService, CoinCreatorService, ConfigService],
   exports: [MemecoinsService],
 })
 export class MemecoinsModule {}
