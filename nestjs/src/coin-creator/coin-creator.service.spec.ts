@@ -65,11 +65,11 @@ describe('CoinCreatorService', () => {
       if (path.includes('Move.toml')) return 'mock toml content';
       return '';
     });
-    (fs.writeFileSync as jest.Mock).mockImplementation(() => { });
+    (fs.writeFileSync as jest.Mock).mockImplementation(() => {});
     (fs.existsSync as jest.Mock).mockReturnValue(true);
-    (fs.mkdirSync as jest.Mock).mockImplementation(() => { });
-    (fs.rmSync as jest.Mock).mockImplementation(() => { });
-    (fs.renameSync as jest.Mock).mockImplementation(() => { });
+    (fs.mkdirSync as jest.Mock).mockImplementation(() => {});
+    (fs.rmSync as jest.Mock).mockImplementation(() => {});
+    (fs.renameSync as jest.Mock).mockImplementation(() => {});
   };
 
   beforeEach(async () => {
@@ -249,7 +249,7 @@ describe('CoinCreatorService', () => {
     });
 
     it('should throw error when folder moving fails', async () => {
-      fs.renameSync.mockImplementationOnce(() => {
+      (fs.renameSync as jest.Mock).mockImplementationOnce(() => {
         throw new Error('Move error');
       });
 

@@ -7,6 +7,7 @@ module.exports = {
   moduleNameMapper: {
     '^@users/(.*)$': '<rootDir>/src/users/$1',
   },
+  transformIgnorePatterns: ['/node_modules/(?!@mysten/sui)'], // setupFilesAfterEnv: ['./jest.setup.js'],
 };
 
 /**

@@ -11,7 +11,7 @@ import * as toml from 'toml';
 import * as tomlify from 'tomlify-j0.4';
 import { SuiClient } from '@mysten/sui/client';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
-import { fromBase64 } from '@mysten/bcs';
+import { fromBase64 } from '@mysten/sui/utils';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -187,11 +187,10 @@ export class CoinCreatorService {
       const txBlock = await transaction.build({ client });
       const signedTx = await keyPair.signTransaction(txBlock);
 
-      const bytes = txBlock;
       const signature = signedTx.signature;
 
       const response = await client.executeTransactionBlock({
-        transactionBlock: bytes,
+        transactionBlock: txBlock,
         signature,
         options: {
           showEffects: true,
