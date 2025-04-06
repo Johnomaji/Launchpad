@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { User } from './schemas/users.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { MongoError } from 'mongodb';
+import { MongoServerError } from 'mongodb';
 
 @Injectable()
 export class UsersService {
@@ -15,11 +15,13 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     try {
-      const newUser = this.userModel.create(createUserDto);
+      const newUser = await this.userModel.create(createUserDto);
       return newUser;
     } catch (error) {
-      if (error instanceof MongoError && error.code === 11000) {
-        throw new ConflictException('Username already exists');
+      console.log("\n\n === \n\n", error, error.code);
+      
+      if (error instanceof MongoServerError && error.code === 11000) {
+        throw new ConflictException('Wallet address or username already exists');
       }
       throw error;
     }
@@ -58,7 +60,8 @@ export class UsersService {
 
       return updatedUser;
     } catch (error) {
-      if (error instanceof MongoError && error.code === 11000) {
+      console.log(error, error.code);
+      if (error instanceof MongoServerError && error.code === 11000) {
         throw new ConflictException('Wallet address or username already exists');
       }
       throw error;

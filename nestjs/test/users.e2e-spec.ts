@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { disconnect, connection } from 'mongoose';
+import mongoose, { disconnect, connection, Model } from 'mongoose';
 import { UsersModule } from '@users/users.module';
 import { CreateUserDto } from '@users/dto/create-user.dto';
 import { ConfigModule } from '@nestjs/config';
@@ -11,24 +11,24 @@ import { HttpExceptionFilter } from '../src/common/filter/http-exception-filter/
 import { TransformInterceptor } from '../src/common/interceptors/transform/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { MongoError } from 'mongodb';
+import { User } from '@users/schemas/users.schema';
 
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
   let mongod: MongoMemoryServer;
   let createdUserId: string;
+  let userModel: Model<User>;
   const testWalletAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
   const testUser: CreateUserDto = {
     walletAddress: testWalletAddress,
     username: 'testuser',
     bio: 'Test bio'
   };
+  const uri = 'mongodb://localhost:27017/test-db';
 
   beforeAll(async () => {
-    
-    const uri = 'mongodb://localhost:27017/test-db';
- 
-    await connection.collection('your-collection').deleteMany({});
+     
     console.log('URI:', uri);
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
@@ -52,12 +52,13 @@ describe('UsersController (e2e)', () => {
     
 
     await app.init();
+
+    userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
+    await userModel.deleteMany({});
   });
 
   afterAll(async () => {
-    Promise.all([
-      connection.collection('test-db').deleteMany({}),
-    ])
+    await userModel.deleteMany({});
     await disconnect();
     // await mongod.stop();
     await app.close();
@@ -154,12 +155,12 @@ describe('UsersController (e2e)', () => {
       .expect(201);
 
     await request(app.getHttpServer())
-      .delete('/users/wallet/' + newUser.body.walletAddress)
+      .delete('/users/wallet/' + newUser.body.data.walletAddress)
       .expect(200);
 
     // Verify deletion
     await request(app.getHttpServer())
-      .get('/users/by-wallet?address=' + newUser.body.walletAddress)
+      .get('/users/by-wallet?address=' + newUser.body.data.walletAddress)
       .expect(404);
   });
 
@@ -177,8 +178,9 @@ describe('UsersController (e2e)', () => {
 
       expect(response.body).toEqual({
         statusCode: 409,
-        message: 'Wallet address already exists',
-        error: 'Conflict',
+        message: 'Wallet address or username already exists',
+        path: '/users',
+        timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       });
     });
 
@@ -195,14 +197,15 @@ describe('UsersController (e2e)', () => {
         .post('/users')
         .send({
           walletAddress: '0xUniqueAddress2',
-          username: 'uniqueuser' // Same username
+          username: 'uniqueuser'
         })
         .expect(409);
 
       expect(response.body).toEqual({
         statusCode: 409,
-        message: 'Username already exists',
-        error: 'Conflict',
+        path: '/users',
+        message: 'Wallet address or username already exists',
+        timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       });
     });
   });
