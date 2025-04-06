@@ -1,10 +1,11 @@
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schemas/users.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { MongoError } from 'mongodb';
 
 @Injectable()
 export class UsersService {
@@ -13,8 +14,15 @@ export class UsersService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const newUser = this.userModel.create(createUserDto);
-    return newUser;
+    try {
+      const newUser = this.userModel.create(createUserDto);
+      return newUser;
+    } catch (error) {
+      if (error instanceof MongoError && error.code === 11000) {
+        throw new ConflictException('Username already exists');
+      }
+      throw error;
+    }
   }
 
   async findAll(): Promise<User[]> {
@@ -38,15 +46,23 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const updatedUser = await this.userModel
-      .findByIdAndUpdate(id, updateUserDto, { new: true })
-      .exec();
 
-    if (!updatedUser) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+    try {
+      const updatedUser = await this.userModel
+        .findByIdAndUpdate(id, updateUserDto, { new: true })
+        .exec();
+
+      if (!updatedUser) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      return updatedUser;
+    } catch (error) {
+      if (error instanceof MongoError && error.code === 11000) {
+        throw new ConflictException('Wallet address or username already exists');
+      }
+      throw error;
     }
-
-    return updatedUser;
   }
 
   async updateByWalletAddress(walletAddress: string, updateUserDto: UpdateUserDto): Promise<User> {

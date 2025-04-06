@@ -1,9 +1,14 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@users/(.*)$": "<rootDir>/src/users/$1",
+    "^@auth/(.*)$": "<rootDir>/src/auth/$1",
+    "^@coin-creator/(.*)$": "<rootDir>/src/coin-creator/$1"
   }
 }

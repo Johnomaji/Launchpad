@@ -6,7 +6,7 @@ export class User extends Document {
   @Prop({ required: true, unique: true })
   walletAddress: string;
 
-  @Prop({ default: '' })
+  @Prop({ default: '', unique: true })
   username: string;
 
   @Prop({ default: '' })
