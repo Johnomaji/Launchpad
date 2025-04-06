@@ -6,6 +6,8 @@ module.exports = {
   },
   moduleNameMapper: {
     '^@users/(.*)$': '<rootDir>/src/users/$1',
+    '^@auth/(.*)$': '<rootDir>/src/auth/$1',
+    '^@coin-creator/(.*)$': '<rootDir>/src/coin-creator/$1',
   },
   preset: 'ts-jest/presets/default-esm',
   globals: {

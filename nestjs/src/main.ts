@@ -36,7 +36,6 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Team Memetic Labs API')
     .setDescription('API for Memecoin builder application')

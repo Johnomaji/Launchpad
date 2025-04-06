@@ -42,7 +42,7 @@ export class MemecoinsService {
       const coinCreationResult =
         await this.coinCreatorService.createCoin(coinObj);
 
-      const newMemecoin = new this.memecoinModel({
+      const newMemecoin = this.memecoinModel.create({
         name: createMemecoinDto.name,
         ticker: createMemecoinDto.ticker,
         coinAddress: coinCreationResult.publishResult.packageId || '',
@@ -54,7 +54,7 @@ export class MemecoinsService {
         discordSocial: createMemecoinDto.discordSocial,
       });
 
-      await newMemecoin.save();
+      await newMemecoin;
 
       return coinCreationResult;
     } catch (error) {

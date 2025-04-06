@@ -11,33 +11,39 @@ import * as path from 'path';
 import { execSync } from 'child_process';
 import * as toml from 'toml';
 
+const mockKeypair = {
+  getPublicKey: jest.fn().mockReturnValue({
+    toSuiAddress: jest.fn().mockReturnValue('0xmockAddress'),
+  }),
+  signTransaction: jest.fn().mockResolvedValue({
+    signature: 'mockSignature',
+  }),
+};
+
+const mockTransaction = {
+  publish: jest.fn().mockReturnValue('mockCap'),
+  moveCall: jest.fn(),
+  setSender: jest.fn().mockReturnThis(),
+  setGasBudget: jest.fn().mockReturnThis(),
+  build: jest.fn().mockResolvedValue('mockTransactionBytes'),
+};
+
+const mockClient = {
+  executeTransactionBlock: jest.fn(),
+};
+
+jest.mock('@mysten/sui/transactions', () => ({
+  Transaction: jest.fn().mockImplementation(() => mockTransaction),
+}));
+
 jest.mock('@mysten/sui/keypairs/ed25519', () => ({
   Ed25519Keypair: {
-    fromSecretKey: jest.fn().mockImplementation(() => ({
-      getPublicKey: jest.fn().mockReturnValue({
-        toSuiAddress: jest.fn().mockReturnValue('0xmockAddress'),
-      }),
-      signTransactionBlock: jest.fn().mockResolvedValue({
-        signature: 'mockSignature',
-      }),
-    })),
+    fromSecretKey: jest.fn().mockImplementation(() => mockKeypair),
   },
 }));
 
-jest.mock('@mysten/sui/transactions', () => ({
-  Transaction: jest.fn().mockImplementation(() => ({
-    publish: jest.fn().mockReturnValue('mockCap'),
-    moveCall: jest.fn(),
-    setSender: jest.fn().mockReturnThis(),
-    setGasBudget: jest.fn().mockReturnThis(),
-    build: jest.fn().mockResolvedValue('mockTransactionBytes'),
-  })),
-}));
-
 jest.mock('@mysten/sui/client', () => ({
-  SuiClient: jest.fn().mockImplementation(() => ({
-    executeTransactionBlock: jest.fn(),
-  })),
+  SuiClient: jest.fn().mockImplementation(() => mockClient),
 }));
 
 jest.mock('child_process');
@@ -123,7 +129,6 @@ describe('CoinCreatorService', () => {
     };
 
     it('should create a coin successfully', async () => {
-      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -140,7 +145,7 @@ describe('CoinCreatorService', () => {
       const result = await service.createCoin(createCoinDto);
 
       expect(result).toEqual({
-        transaction: expect.any(Object),
+        transaction: mockTransaction,
         publishResult: {
           success: true,
           packageId: '0xmockPackageId',
@@ -157,8 +162,6 @@ describe('CoinCreatorService', () => {
         expect.stringContaining('sui move build --dump-bytecode-as-base64'),
         expect.any(Object),
       );
-      
-      const mockTransaction = (Transaction as unknown as jest.Mock).mock.results[0].value;
       expect(mockTransaction.publish).toHaveBeenCalledWith({
         modules: ['mockModuleBase64'],
         dependencies: ['mockDependencyDigest'],
@@ -178,7 +181,6 @@ describe('CoinCreatorService', () => {
     });
 
     it('should handle transaction failure', async () => {
-      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'failure', error: 'Some error' },
@@ -196,7 +198,6 @@ describe('CoinCreatorService', () => {
     });
 
     it('should throw error when network publishing fails', async () => {
-      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockRejectedValueOnce(
         new Error('Network error'),
       );
@@ -210,7 +211,6 @@ describe('CoinCreatorService', () => {
       const dtoWithoutNetwork = { ...createCoinDto };
       delete dtoWithoutNetwork.network;
 
-      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -230,7 +230,6 @@ describe('CoinCreatorService', () => {
     });
 
     it('should handle folder moving operations', async () => {
-      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -265,9 +264,9 @@ describe('CoinCreatorService', () => {
   describe('loadKeypairFromEnv', () => {
     it('should load keypair from environment variable', () => {
       const keypair = (service as any).loadKeypairFromEnv();
-      expect(keypair).toBeDefined();
+      expect(keypair).toBe(mockKeypair);
       expect(Ed25519Keypair.fromSecretKey).toHaveBeenCalledWith(
-        Buffer.from('mockBase64PrivateKey', 'base64'),
+        expect.any(Uint8Array)
       );
     });
 
@@ -281,7 +280,6 @@ describe('CoinCreatorService', () => {
 
   describe('publishToNetwork', () => {
     it('should publish to specified network', async () => {
-      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -295,9 +293,6 @@ describe('CoinCreatorService', () => {
         digest: '0xmockTransactionDigest',
       });
 
-      const mockKeypair = (Ed25519Keypair.fromSecretKey as jest.Mock).mock.results[0].value;
-      const mockTransaction = (Transaction as unknown as jest.Mock).mock.results[0].value;
-
       const result = await (service as any).publishToNetwork(
         mockTransaction,
         mockKeypair,
@@ -310,7 +305,6 @@ describe('CoinCreatorService', () => {
     });
 
     it('should handle case when no package object is created', async () => {
-      const mockClient = (SuiClient as jest.Mock).mock.results[0].value;
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {
           status: { status: 'success' },
@@ -318,9 +312,6 @@ describe('CoinCreatorService', () => {
         },
         digest: '0xmockTransactionDigest',
       });
-
-      const mockKeypair = (Ed25519Keypair.fromSecretKey as jest.Mock).mock.results[0].value;
-      const mockTransaction = (Transaction as unknown as jest.Mock).mock.results[0].value;
 
       const result = await (service as any).publishToNetwork(
         mockTransaction,

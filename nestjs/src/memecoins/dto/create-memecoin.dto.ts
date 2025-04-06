@@ -12,11 +12,6 @@ export class CreateMemecoinDto {
   @IsNotEmpty()
   ticker: string;
 
-  @ApiProperty({ description: 'Blockchain address of the coin', example: '0x123...abc' })
-  @IsString()
-  @IsNotEmpty()
-  coinAddress: string;
-
   @ApiProperty({ description: 'URL of the memecoin image', required: false })
   @IsUrl()
   @IsOptional()

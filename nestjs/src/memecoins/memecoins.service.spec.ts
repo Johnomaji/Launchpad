@@ -8,6 +8,7 @@ import { Memecoin } from './schemas/memecoins.schema';
 import { User } from '@users/schemas/users.schema';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CoinCreation } from "@coin-creator/interfaces/coin-creation.interface";
+import { SuiTransactionBlockResponse } from "@mysten/sui/client";
 
 describe('MemecoinsService', () => {
   let service: MemecoinsService;
@@ -25,24 +26,14 @@ describe('MemecoinsService', () => {
     desc: 'Test description',
     image: 'http://test.com/image.png',
     xSocial: 'http://x.com/test',
-    coinAddress: '0xffp',
     telegramSocial: 'http://t.me/test',
     discordSocial: 'http://discord.gg/test',
   };
 
-  const mockCoinCreationResult: CoinCreation {
+  const mockCoinCreationResult: CoinCreation = {
     transaction: {
       digest: '7y3h9s8d2h1j9k3l8p0o2i9u7y6t5r4e3',
-      rawTransaction: '0xmockrawtransactiondata',
-      effects: {
-        status: { status: 'success' },
-        gasUsed: {
-          computationCost: 1000,
-          storageCost: 500,
-          storageRebate: 200,
-        },
-      },
-    },
+    } as any,
     publishResult: {
       success: true,
       packageId: '0x123',
@@ -57,12 +48,22 @@ describe('MemecoinsService', () => {
             storageRebate: 200,
           },
         },
-      } as SuiTransactionBlockResponse,
+      } as unknown as SuiTransactionBlockResponse,
     },
     coinName: 'TestCoin',
     symbol: 'TEST',
   };
+
+  const mockCreatedMemecoin = {
+    ...mockCreateMemecoinDto,
+    coinAddress: mockCoinCreationResult.publishResult.packageId,
+    creator: mockUser._id,
+    save: jest.fn(),
+  };
+
   beforeEach(async () => {
+    jest.clearAllMocks();
+    
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MemecoinsService,
@@ -70,11 +71,10 @@ describe('MemecoinsService', () => {
           provide: getModelToken(Memecoin.name),
           useValue: {
             findOne: jest.fn(),
-            create: jest.fn(),
-            save: jest.fn(),
+            create: jest.fn().mockResolvedValue(mockCreatedMemecoin),
             find: jest.fn(),
             findById: jest.fn(),
-            populate: jest.fn(),
+            populate: jest.fn().mockReturnThis(),
             exec: jest.fn(),
           },
         },
@@ -92,19 +92,16 @@ describe('MemecoinsService', () => {
     coinCreatorService = module.get<CoinCreatorService>(CoinCreatorService);
   });
 
+  afterEach(() => {
+	jest.clearAllMocks();
+  });
+
   describe('createCoin', () => {
     it('should successfully create a new memecoin', async () => {
       jest.spyOn(memecoinModel, 'findOne').mockResolvedValueOnce(null);
       jest
         .spyOn(coinCreatorService, 'createCoin')
         .mockResolvedValueOnce(mockCoinCreationResult);
-      jest.spyOn(memecoinModel, 'create').mockImplementationOnce(() => ({
-        save: jest.fn().mockResolvedValueOnce({
-          ...mockCreateMemecoinDto,
-          coinAddress: mockCoinCreationResult.publishResult.packageId,
-          creator: mockUser._id,
-        }),
-      }));
 
       const result = await service.createCoin(
         mockCreateMemecoinDto,
@@ -115,7 +112,11 @@ describe('MemecoinsService', () => {
         name: mockCreateMemecoinDto.name,
       });
       expect(coinCreatorService.createCoin).toHaveBeenCalled();
-      expect(memecoinModel.create).toHaveBeenCalled();
+      expect(memecoinModel.create).toHaveBeenCalledWith({
+        ...mockCreateMemecoinDto,
+        coinAddress: mockCoinCreationResult.publishResult.packageId,
+        creator: mockUser._id,
+      });
     });
 
     it('should throw BadRequestException if memecoin name already exists', async () => {
@@ -138,6 +139,17 @@ describe('MemecoinsService', () => {
         service.createCoin(mockCreateMemecoinDto, mockUser as User),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('should throw BadRequestException if ticker is invalid', async () => {
+      const invalidDto = {
+        ...mockCreateMemecoinDto,
+        ticker: 'INVALIDTICKER',
+      };
+
+      await expect(
+        service.createCoin(invalidDto, mockUser as User),
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   describe('findAll', () => {
@@ -156,14 +168,23 @@ describe('MemecoinsService', () => {
       ];
 
       jest.spyOn(memecoinModel, 'find').mockReturnValueOnce({
-        populate: jest.fn().mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValueOnce(mockMemecoins),
-        }),
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce(mockMemecoins),
       } as any);
 
       const result = await service.findAll();
       expect(result).toEqual(mockMemecoins);
       expect(memecoinModel.find).toHaveBeenCalled();
+    });
+
+    it('should return empty array if no memecoins exist', async () => {
+      jest.spyOn(memecoinModel, 'find').mockReturnValueOnce({
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce([]),
+      } as any);
+
+      const result = await service.findAll();
+      expect(result).toEqual([]);
     });
   });
 
@@ -176,9 +197,8 @@ describe('MemecoinsService', () => {
       };
 
       jest.spyOn(memecoinModel, 'findById').mockReturnValueOnce({
-        populate: jest.fn().mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValueOnce(mockMemecoin),
-        }),
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce(mockMemecoin),
       } as any);
 
       const result = await service.findById('507f1f77bcf86cd799439012');
@@ -190,9 +210,8 @@ describe('MemecoinsService', () => {
 
     it('should throw NotFoundException if memecoin not found', async () => {
       jest.spyOn(memecoinModel, 'findById').mockReturnValueOnce({
-        populate: jest.fn().mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValueOnce(null),
-        }),
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce(null),
       } as any);
 
       await expect(service.findById('nonexistentid')).rejects.toThrow(
@@ -215,16 +234,26 @@ describe('MemecoinsService', () => {
       ];
 
       jest.spyOn(memecoinModel, 'find').mockReturnValueOnce({
-        populate: jest.fn().mockReturnValueOnce({
-          exec: jest.fn().mockResolvedValueOnce(mockMemecoins),
-        }),
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce(mockMemecoins),
       } as any);
 
-      const result = await service.findByCreator(mockUser._id);
+      const result = await service.findByCreator(mockUser._id as string);
       expect(result).toEqual(mockMemecoins);
       expect(memecoinModel.find).toHaveBeenCalledWith({
         creator: mockUser._id,
       });
     });
+
+    it('should return empty array if creator has no memecoins', async () => {
+      jest.spyOn(memecoinModel, 'find').mockReturnValueOnce({
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce([]),
+      } as any);
+
+      const result = await service.findByCreator(mockUser._id as string);
+      expect(result).toEqual([]);
+    });
   });
+
 });
