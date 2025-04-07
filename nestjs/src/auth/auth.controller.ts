@@ -1,7 +1,26 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UnauthorizedException,
+  Get,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { ApiProperty, ApiTags, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiUnauthorizedResponse,
+  getSchemaPath,
+} from '@nestjs/swagger';
+import { UserSchema, User } from '@src/users/schemas/users.schema';
+import { User as UserDec } from '@users/users.decorator';
+import { UserDto } from '@users/dto/user.dto';
+import { JwtAuthGuard } from './jwt/jwt.guard';
+import { IsSuiAddress } from '@src/common/decorators/is-sui-address.decorator';
 
 export class ChallengeRequestDto {
   @ApiProperty({
@@ -20,6 +39,7 @@ export class VerifyRequestDto {
   })
   @IsString()
   @IsNotEmpty()
+  @IsSuiAddress()
   address: string;
 
   @ApiProperty({
@@ -45,7 +65,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('challenge')
-  @ApiOperation({ summary: 'Request a challenge message for signature verification' })
+  @ApiOperation({
+    summary: 'Request a challenge message for signature verification',
+  })
   @ApiResponse({
     status: 201,
     description: 'Challenge message generated successfully',
@@ -55,7 +77,9 @@ export class AuthController {
       },
     },
   })
-  async getChallenge(@Body() body: ChallengeRequestDto) {
+  async getChallenge(
+    @Body() body: ChallengeRequestDto,
+  ): Promise<{ challenge: string; nonce: string }> {
     return this.authService.generateChallenge(body.address);
   }
 
@@ -84,5 +108,25 @@ export class AuthController {
 
     const accessToken = await this.authService.generateToken(body.address);
     return { accessToken };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('whoami')
+  @ApiOperation({
+    summary: 'Return the current authenticated user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The current authenticated user',
+    schema: {
+      $ref: getSchemaPath(UserDto),
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
+  whoAmI(@UserDec() user: User) {
+    return user;
   }
 }

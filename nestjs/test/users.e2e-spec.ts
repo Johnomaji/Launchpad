@@ -3,16 +3,16 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import mongoose, { disconnect, connection, Model } from 'mongoose';
+import { disconnect, connection, Model } from 'mongoose';
 import { UsersModule } from '@users/users.module';
 import { CreateUserDto } from '@users/dto/create-user.dto';
 import { ConfigModule } from '@nestjs/config';
 import { HttpExceptionFilter } from '../src/common/filter/http-exception-filter/http-exception-filter.filter';
 import { TransformInterceptor } from '../src/common/interceptors/transform/transform.interceptor';
 import { ValidationPipe } from '@nestjs/common';
-import { MongoError } from 'mongodb';
 import { User } from '@users/schemas/users.schema';
-
+import { UserDto } from '@src/users/dto/user.dto';
+import { log } from 'node:console';
 
 describe('UsersController (e2e)', () => {
   let app: INestApplication;
@@ -23,12 +23,11 @@ describe('UsersController (e2e)', () => {
   const testUser: CreateUserDto = {
     walletAddress: testWalletAddress,
     username: 'testuser',
-    bio: 'Test bio'
+    bio: 'Test bio',
   };
   const uri = 'mongodb://localhost:27017/test-db';
 
   beforeAll(async () => {
-     
     console.log('URI:', uri);
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
@@ -49,11 +48,11 @@ describe('UsersController (e2e)', () => {
     );
     app.useGlobalFilters(new HttpExceptionFilter());
     app.useGlobalInterceptors(new TransformInterceptor());
-    
 
     await app.init();
 
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
+    console.log(userModel);
     await userModel.deleteMany({});
   });
 
@@ -70,14 +69,14 @@ describe('UsersController (e2e)', () => {
       .send(testUser)
       .expect(201);
 
-    console.log(response.body)
-    let data = response.body.data;
+    console.log(response.body);
+    const data = response.body.data;
 
     expect(data).toHaveProperty('_id');
     expect(data.walletAddress).toBe(testUser.walletAddress);
     expect(data.username).toBe(testUser.username);
     expect(data.bio).toBe(testUser.bio);
-    
+
     createdUserId = data._id;
   });
 
@@ -94,16 +93,9 @@ describe('UsersController (e2e)', () => {
       .expect(200);
 
     expect(Array.isArray(response.body.data)).toBeTruthy();
+    console.log('all', response.body);
+
     expect(response.body.data.length).toBeGreaterThan(0);
-  });
-
-  it('/users/by-wallet?address= (GET) - should return user by wallet address', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/users/by-wallet?address=' + testWalletAddress)
-      .expect(200);
-
-    expect(response.body).toHaveProperty('success', true);  
-    expect(response.body.data.walletAddress).toBe(testWalletAddress);
   });
 
   it('/users/by-wallet?address= (GET) - should return user by wallet address', async () => {
@@ -122,7 +114,7 @@ describe('UsersController (e2e)', () => {
       .send({ bio: updatedBio })
       .expect(200);
 
-    expect(response.body).toHaveProperty('success', true);  
+    expect(response.body).toHaveProperty('success', true);
     expect(response.body.data.bio).toBe(updatedBio);
   });
 
@@ -133,7 +125,7 @@ describe('UsersController (e2e)', () => {
       .send({ username: updatedUsername })
       .expect(200);
 
-    expect(response.body).toHaveProperty('success', true);  
+    expect(response.body).toHaveProperty('success', true);
     expect(response.body.data.username).toBe(updatedUsername);
   });
 
@@ -178,34 +170,11 @@ describe('UsersController (e2e)', () => {
 
       expect(response.body).toEqual({
         statusCode: 409,
-        message: 'Wallet address or username already exists',
+        message: 'Wallet address already exists',
         path: '/users',
-        timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
-      });
-    });
-
-    it('should prevent duplicate usernames', async () => {
-      await request(app.getHttpServer())
-        .post('/users')
-        .send({ 
-          walletAddress: '0xUniqueAddress1',
-          username: 'uniqueuser'
-        })
-        .expect(201);
-
-      const response = await request(app.getHttpServer())
-        .post('/users')
-        .send({
-          walletAddress: '0xUniqueAddress2',
-          username: 'uniqueuser'
-        })
-        .expect(409);
-
-      expect(response.body).toEqual({
-        statusCode: 409,
-        path: '/users',
-        message: 'Wallet address or username already exists',
-        timestamp: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+        timestamp: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        ),
       });
     });
   });
