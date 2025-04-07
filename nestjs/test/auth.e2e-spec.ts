@@ -16,10 +16,13 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let jwtService: JwtService;
+  let configService: ConfigService;
   const testAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
   let challengeResponse: any;
   let userModel: Model<User>;
-  const keypair = Ed25519Keypair.fromSecretKey(fromBase64(configService.get()));
+  const keypair = Ed25519Keypair.fromSecretKey(fromBase64(configService.get<string>(
+    'JWT_PRIVATE_KEY_BASE64'
+  )));
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -28,6 +31,9 @@ describe('AuthController (e2e)', () => {
         ConfigModule.forRoot(),
         MongooseModule.forRoot('mongodb://localhost:27017/test-db'),
       ],
+      // providers: [
+      //   ConfigService
+      // ]
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -45,6 +51,7 @@ describe('AuthController (e2e)', () => {
     await app.init();
 
     jwtService = moduleFixture.get<JwtService>(JwtService);
+    configService = moduleFixture.get<ConfigService>(ConfigService);
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
     await userModel.deleteMany({});
   });
@@ -105,8 +112,8 @@ describe('AuthController (e2e)', () => {
       const { challenge } = challengeRes.body;
 
       const messageBytes = new TextEncoder().encode(challenge);
-      const signatureBytes = keypair.signData(messageBytes);
-      const signature = toBase64(signatureBytes.signature);
+      const signatureBytes = await keypair.signPersonalMessage(messageBytes);
+      const signature = toBase64(Buffer.from(signatureBytes.signature));
 
       const response = await request(app.getHttpServer())
         .post('/auth/verify')
@@ -118,7 +125,7 @@ describe('AuthController (e2e)', () => {
         .expect(200);
 
       expect(response.body).toHaveProperty('accessToken');
-      const payload = jwtService.verify(response.body.accessToken);
+      const payload = jwtService.verify(response.body.data.accessToken);
       expect(payload.sub).toBe(testAddress);
     });
 
