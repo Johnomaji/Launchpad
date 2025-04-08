@@ -14,6 +14,8 @@ export function IsSuiAddress(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: any, args: ValidationArguments) {
+          console.log(value, isValidSuiAddress(value));
+
           return typeof value === 'string' && isValidSuiAddress(value);
         },
         defaultMessage(args: ValidationArguments) {

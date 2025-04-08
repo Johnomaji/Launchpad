@@ -26,7 +26,8 @@ export class Challenge extends Document {
   nonce: string;
 
   @ApiProperty({
-    description: 'Date when the challenge expires (auto-deletes after 5 minutes)',
+    description:
+      'Date when the challenge expires (auto-deletes after 5 minutes)',
     example: new Date().toISOString(),
   })
   @Prop({ required: true, default: Date.now, expires: 300 })

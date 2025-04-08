@@ -28,6 +28,7 @@ export class ChallengeRequestDto {
     example: '0x1234567890abcdef1234567890abcdef12345678',
   })
   @IsString()
+  @IsSuiAddress()
   @IsNotEmpty()
   address: string;
 }
@@ -62,7 +63,7 @@ export class VerifyRequestDto {
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('challenge')
   @ApiOperation({
@@ -96,6 +97,9 @@ export class AuthController {
   })
   @ApiUnauthorizedResponse({ description: 'Invalid signature' })
   async verifySignature(@Body() body: VerifyRequestDto) {
+    console.log('=====\n');
+    console.log(body);
+
     const isValid = await this.authService.verifySignature(
       body.address,
       body.signature,

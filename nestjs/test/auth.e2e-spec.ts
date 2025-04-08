@@ -12,17 +12,18 @@ import { User } from '@src/users/schemas/users.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { fromBase64, toBase64 } from '@mysten/sui/utils';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
+import { Challenge } from '@src/auth/schemas/challenge.schema';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
   let jwtService: JwtService;
   let configService: ConfigService;
-  const testAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
+  const testAddress =
+    '0x5fb156f9ebdcf2badf6aa77145c48665b758b5f142469e50c077157f1b5dc758';
   let challengeResponse: any;
   let userModel: Model<User>;
-  const keypair = Ed25519Keypair.fromSecretKey(fromBase64(configService.get<string>(
-    'JWT_PRIVATE_KEY_BASE64'
-  )));
+  let challengeModel: Model<Challenge>;
+  let keypair: Ed25519Keypair;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -53,6 +54,14 @@ describe('AuthController (e2e)', () => {
     jwtService = moduleFixture.get<JwtService>(JwtService);
     configService = moduleFixture.get<ConfigService>(ConfigService);
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
+    challengeModel = moduleFixture.get<Model<Challenge>>(
+      getModelToken(Challenge.name),
+    );
+    // keypair = Ed25519Keypair.fromSecretKey(
+    //   fromBase64(configService.get<string>('SUI_PRIVATE_KEY')).slice(1),
+    // );
+    keypair = new Ed25519Keypair();
+
     await userModel.deleteMany({});
   });
 
@@ -107,70 +116,81 @@ describe('AuthController (e2e)', () => {
     it('should return JWT token for valid signature', async () => {
       const challengeRes = await request(app.getHttpServer())
         .post('/auth/challenge')
-        .send({ address: testAddress });
+        .send({ address: keypair.getPublicKey().toSuiAddress() });
 
-      const { challenge } = challengeRes.body;
+      expect(challengeRes.statusCode).toBe(201);
+      const { challenge } = challengeRes.body.data;
 
       const messageBytes = new TextEncoder().encode(challenge);
-      const signatureBytes = await keypair.signPersonalMessage(messageBytes);
-      const signature = toBase64(Buffer.from(signatureBytes.signature));
+      const { signature } = await keypair.signPersonalMessage(messageBytes);
+      // const signature = signatureBytes.signature;
+      console.log(
+        keypair.getPublicKey().toSuiAddress(),
+        signature,
+        messageBytes,
+        challenge,
+      );
+      console.log(keypair.toSuiAddress());
 
       const response = await request(app.getHttpServer())
         .post('/auth/verify')
         .send({
-          address: testAddress,
+          address: keypair.getPublicKey().toSuiAddress(),
           signature,
           message: challenge,
         })
-        .expect(200);
+        .expect(201);
 
-      expect(response.body).toHaveProperty('accessToken');
+      console.log('\n\n===\n', response.body);
+
+      expect(response.body.data).toHaveProperty('accessToken');
       const payload = jwtService.verify(response.body.data.accessToken);
-      expect(payload.sub).toBe(testAddress);
+      expect(payload.sub).toBe(keypair.getPublicKey().toSuiAddress());
     });
 
     it('should create user if not exists', async () => {
-      // This test depends on the previous one succeeding with a valid signature
-      // In a real E2E test, this would be properly set up with a real wallet
+      const newKeypair = new Ed25519Keypair();
+      const newAddress = newKeypair.getPublicKey().toSuiAddress();
 
-      // First, get a real challenge
       const challengeRes = await request(app.getHttpServer())
         .post('/auth/challenge')
-        .send({ address: testAddress });
+        .send({ address: newAddress });
 
-      const { challenge } = challengeRes.body;
+      expect(challengeRes.statusCode).toBe(201);
+      const { challenge } = challengeRes.body.data;
 
-      // The following would be a real signature in actual implementation
-      const signature = '0x12345...'; // In real test, generate this with a real wallet
+      const messageBytes = new TextEncoder().encode(challenge);
+      const { signature } = await newKeypair.signPersonalMessage(messageBytes);
 
-      await request(app.getHttpServer()).post('/auth/verify').send({
-        address: testAddress,
-        signature: signature,
-        message: challenge,
-      });
+      const response = await request(app.getHttpServer())
+        .post('/auth/verify')
+        .send({
+          address: newAddress,
+          signature,
+          message: challenge,
+        })
+        .expect(201);
 
-      // In a real test environment, check if user was created
+      expect(response.body.data).toHaveProperty('accessToken');
+
       const userModel = app.get('UserModel');
       const user = await userModel
-        .findOne({ walletAddress: testAddress })
+        .findOne({ walletAddress: newAddress })
         .exec();
 
-      // This check would pass in a real environment with valid signatures
-      if (user) {
-        expect(user.walletAddress).toBe(testAddress);
-      }
+      expect(user).toBeTruthy();
+      expect(user.walletAddress).toBe(newAddress);
     });
 
     it('should reject invalid signature', async () => {
-      // First, get a real challenge
       const challengeRes = await request(app.getHttpServer())
         .post('/auth/challenge')
         .send({ address: testAddress });
 
-      const { challenge } = challengeRes.body;
+      expect(challengeRes.statusCode).toBe(201);
+      const { challenge } = challengeRes.body.data;
 
-      // Using obviously invalid signature
-      const invalidSignature = '0xinvalid';
+      const invalidSignature = '0x12345678';
 
       await request(app.getHttpServer())
         .post('/auth/verify')
@@ -183,33 +203,94 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should reject mismatched challenge message', async () => {
-      // First, get a real challenge
+      const keypair = new Ed25519Keypair();
+      const address = keypair.getPublicKey().toSuiAddress();
+
       const challengeRes = await request(app.getHttpServer())
         .post('/auth/challenge')
-        .send({ address: testAddress });
+        .send({ address });
 
-      // Use a different message than the one generated
+      expect(challengeRes.statusCode).toBe(201);
+
       const wrongMessage = 'This is not the challenge message';
 
-      // For a real implementation, we'd need a real signature
-      const signature = '0x12345...'; // In real test, generate this with a real wallet
+      const wrongMessageBytes = new TextEncoder().encode(wrongMessage);
+      const { signature } =
+        await keypair.signPersonalMessage(wrongMessageBytes);
 
-      await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/auth/verify')
         .send({
-          address: testAddress,
-          signature: signature,
+          address,
+          signature,
           message: wrongMessage,
         })
         .expect(401);
+
+      expect(response.body).toEqual({
+        message: 'Invalid signature',
+        path: '/auth/verify',
+        statusCode: 401,
+        timestamp: expect.stringMatching(
+          /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+        ),
+      });
+    });
+
+    it('should set a TTL index on expiresAt for 5 minutes', async () => {
+      const indexes = await challengeModel.collection.indexes();
+
+      const ttlIndex = indexes.find(
+        (index) => index.expireAfterSeconds !== undefined,
+      );
+
+      expect(ttlIndex).toBeDefined();
+      expect(ttlIndex.key).toEqual({ expiresAt: 1 });
+      expect(ttlIndex.expireAfterSeconds).toBe(300);
+    });
+
+    it('should return existing user if already created', async () => {
+      const keypair = new Ed25519Keypair();
+      const address = keypair.getPublicKey().toSuiAddress();
+
+      const userModel = app.get('UserModel');
+      await userModel.create({
+        walletAddress: address,
+        username: 'testuser',
+        createdAt: new Date(),
+      });
+
+      const challengeRes = await request(app.getHttpServer())
+        .post('/auth/challenge')
+        .send({ address });
+
+      expect(challengeRes.statusCode).toBe(201);
+      const { challenge } = challengeRes.body.data;
+
+      // Sign and verify
+      const messageBytes = new TextEncoder().encode(challenge);
+      const { signature } = await keypair.signPersonalMessage(messageBytes);
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/verify')
+        .send({
+          address,
+          signature,
+          message: challenge,
+        })
+        .expect(201);
+
+      expect(response.body.data).toHaveProperty('accessToken');
+
+      const users = await userModel.find({ walletAddress: address }).exec();
+      expect(users.length).toBe(1);
+      expect(users[0].username).toBe('testuser');
     });
   });
-
   describe('Protected Routes', () => {
     let validToken: string;
 
     beforeEach(async () => {
-      // Create a valid token manually for testing protected routes
       validToken = jwtService.sign({ sub: testAddress });
 
       // Create a user in database directly

@@ -44,17 +44,18 @@ export class AuthService {
       .exec();
 
     const challengeRecord = challengeRecords[0];
+    console.log(challengeRecords, await this.challengeModel.find().exec());
 
     if (!challengeRecord || challengeRecord.challenge !== message) {
       return false;
     }
+    const encMsg = new TextEncoder().encode(message);
+    console.log(address, signature, message, encMsg);
 
     try {
-      const isValid = await verifyPersonalMessageSignature(
-        new TextEncoder().encode(message),
-        signature,
-        { address },
-      );
+      const isValid = await verifyPersonalMessageSignature(encMsg, signature, {
+        address,
+      });
 
       if (isValid) {
         const user = await this.userModel
