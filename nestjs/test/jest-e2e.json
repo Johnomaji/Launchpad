@@ -14,6 +14,8 @@
     "^@src/(.*)$": "<rootDir>/src/$1",
     "^@users/(.*)$": "<rootDir>/src/users/$1",
     "^@auth/(.*)$": "<rootDir>/src/auth/$1",
-    "^@coin-creator/(.*)$": "<rootDir>/src/coin-creator/$1"
+    "^@coin-creator/(.*)$": "<rootDir>/src/coin-creator/$1",
+    "^@common/(.*)$": "<rootDir>/src/common/$1",
+    "^@memecoins/(.*)$": "<rootDir>/src/memecoins/$1"
   }
 }
