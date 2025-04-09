@@ -30,7 +30,7 @@ describe('AuthController (e2e)', () => {
       imports: [
         AuthModule,
         ConfigModule.forRoot(),
-        MongooseModule.forRoot('mongodb://localhost:27017/test-db'),
+        MongooseModule.forRoot('mongodb://localhost:27017/test-db-auth'),
       ],
       // providers: [
       //   ConfigService
@@ -77,6 +77,7 @@ describe('AuthController (e2e)', () => {
 
   afterAll(async () => {
     await userModel.deleteMany({});
+    await challengeModel.deleteMany({});
     await disconnect();
     await app.close();
   });
@@ -310,3 +311,4 @@ describe('AuthController (e2e)', () => {
     });
   });
 });
+

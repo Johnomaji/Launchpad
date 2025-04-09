@@ -25,7 +25,7 @@ describe('UsersController (e2e)', () => {
     username: 'testuser',
     bio: 'Test bio',
   };
-  const uri = 'mongodb://localhost:27017/test-db';
+  const uri = 'mongodb://localhost:27017/test-db-userd';
 
   beforeAll(async () => {
     console.log('URI:', uri);
@@ -102,6 +102,7 @@ describe('UsersController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .get('/users/by-wallet?address=' + testWalletAddress)
       .expect(200);
+    console.log(response.body);
 
     expect(response.body).toHaveProperty('success', true);
     expect(response.body.data.walletAddress).toBe(testWalletAddress);
@@ -179,3 +180,4 @@ describe('UsersController (e2e)', () => {
     });
   });
 });
+
