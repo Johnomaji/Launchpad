@@ -1,24 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { TransformInterceptor } from '@common/interceptors/transform/transform.interceptor';
 import { HttpExceptionFilter } from '@common/filter/http-exception-filter/http-exception-filter.filter';
 import { MemecoinsModule } from '@memecoins/memecoins.module';
 import { User, UserSchema } from '@users/schemas/users.schema';
+import { Memecoin, MemecoinSchema } from '@memecoins/schemas/memecoins.schema';
 import { Model } from 'mongoose';
 import { CreateMemecoinDto } from '@memecoins/dto/create-memecoin.dto';
+import { AuthModule } from '@auth/auth.module';
 
 describe('MemecoinsController (e2e)', () => {
   let app: INestApplication;
   let mongod: MongoMemoryServer;
   let userModel: Model<User>;
+  let memecoinModel: Model<Memecoin>;
   let authToken: string;
   let testUser: User;
 
+  jest.setTimeout(30_000);
+	
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create();
     const uri = mongod.getUri();
@@ -30,56 +35,40 @@ describe('MemecoinsController (e2e)', () => {
           envFilePath: '.env.test',
         }),
         MongooseModule.forRoot(uri),
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }, {
+		  name: Memecoin.name, schema: MemecoinSchema
+        }]),
         MemecoinsModule,
-        JwtModule.registerAsync({
-          imports: [ConfigModule],
-          useFactory: async (configService: ConfigService) => {
-            const privateKey = Buffer.from(
-              configService.get<string>('JWT_PRIVATE_KEY_BASE64'),
-              'base64',
-            );
-            const publicKey = Buffer.from(
-              configService.get<string>('JWT_PUBLIC_KEY_BASE64'),
-              'base64',
-            );
-
-            return {
-              privateKey: {
-                key: privateKey,
-                passphrase: configService.get<string>('JWT_KEY_PASSPHRASE'),
-              },
-              publicKey,
-              signOptions: {
-                algorithm: 'RS256',
-                expiresIn: '1h',
-              },
-              verifyOptions: {
-                algorithms: ['RS256'],
-              },
-            };
-          },
-          inject: [ConfigService],
-        }),
+        AuthModule
+        ,
       ],
     }).compile();
 
+	console.log(moduleFixture, "=====");
     app = moduleFixture.createNestApplication();
+
+    app.useGlobalPipes(                                  
+        new ValidationPipe({
+    	    whitelist: true,         
+        	forbidNonWhitelisted: true,
+	        transform: true,  
+        }),
+    );
     app.useGlobalInterceptors(new TransformInterceptor());
     app.useGlobalFilters(new HttpExceptionFilter());
     await app.init();
 
-    userModel = moduleFixture.get<Model<User>>('UserModel');
+    userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
+    memecoinModel = moduleFixture.get<Model<Memecoin>>(getModelToken(Memecoin.name));
 
-    // Create test user
     testUser = await userModel.create({
       username: 'testuser',
       walletAddress: '0x1234567890abcdef',
     });
 
-    const jwtService = moduleFixture.get('JwtService');
-    authToken = jwtService.sign({ userId: testUser._id.toString() });
-  });
+    const jwtService = moduleFixture.get<JwtService>(JwtService);
+    authToken = jwtService.sign({ sub: testUser.walletAddress });
+  }, 30000);
 
   afterAll(async () => {
     await app.close();
@@ -107,13 +96,20 @@ describe('MemecoinsController (e2e)', () => {
         .send(validCreateDto)
         .expect(201);
 
-      expect(response.body).toEqual({
-        success: true,
-        data: expect.objectContaining({
-          publishResult: expect.any(Object),
-          transactionDigest: expect.any(String),
-        }),
-      });
+	  expect(response.body).toEqual({
+	    success: true,
+	    data: expect.objectContaining({
+	      coinName: expect.any(String),
+	      publishResult: expect.objectContaining({
+	        packageId: expect.any(String),
+	        response: expect.any(Object),
+	        success: expect.any(Boolean),
+	        transactionDigest: expect.any(String),
+	      }),
+	      symbol: expect.any(String),
+	      transaction: expect.any(Object),
+	    }),
+	  });
 
       const memecoinsResponse = await request(app.getHttpServer())
         .get('/memecoins')
@@ -237,6 +233,7 @@ describe('MemecoinsController (e2e)', () => {
     });
 
     it('should return empty array when no memecoins exist', async () => {
+	  await memecoinModel.deleteMany({});
       const response = await request(app.getHttpServer())
         .get('/memecoins')
         .expect(200);
@@ -254,14 +251,17 @@ describe('MemecoinsController (e2e)', () => {
         .post('/memecoins')
         .set('Authorization', `Bearer ${authToken}`)
         .send({
-          name: 'TestCoin',
-          ticker: 'TST',
-          desc: 'Test coin',
-          image: 'https://example.com/test.png',
+          name: 'Trojan Coin',
+          ticker: 'TRJ',
+          desc: 'Trojan coin',
+          image: 'https://example.com/trojan.png',
           totalCoins: 1000000,
-        });
+        })
+        .expect(201);
 
-      const memecoinId = createResponse.body.data.publishResult.packageId;
+      console.log(createResponse.body);
+
+      const memecoinId = createResponse.body.data._id;
 
       const response = await request(app.getHttpServer())
         .get(`/memecoins/${memecoinId}`)
@@ -271,8 +271,8 @@ describe('MemecoinsController (e2e)', () => {
       expect(response.body).toEqual({
         success: true,
         data: expect.objectContaining({
-          name: 'TestCoin',
-          ticker: 'TST',
+          name: 'TrojanCoin',
+          ticker: 'TRJ',
         }),
       });
     });
@@ -310,7 +310,7 @@ describe('MemecoinsController (e2e)', () => {
     });
   });
 
-  describe('GET /memecoins/creator/:creatorId', () => {
+  describe('GET /memecoins/creator/', () => {
     it('should return memecoins by creator (200)', async () => {
       await request(app.getHttpServer())
         .post('/memecoins')
@@ -335,7 +335,7 @@ describe('MemecoinsController (e2e)', () => {
         });
 
       const response = await request(app.getHttpServer())
-        .get(`/memecoins/creator/${testUser._id}`)
+        .get(`/memecoins/creator/`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
@@ -350,7 +350,7 @@ describe('MemecoinsController (e2e)', () => {
 
     it('should return empty array when creator has no memecoins', async () => {
       const response = await request(app.getHttpServer())
-        .get(`/memecoins/creator/${testUser._id}`)
+        .get(`/memecoins/creator/`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(200);
 
@@ -362,7 +362,7 @@ describe('MemecoinsController (e2e)', () => {
 
     it('should return 401 when not authenticated', async () => {
       await request(app.getHttpServer())
-        .get(`/memecoins/creator/${testUser._id}`)
+        .get(`/memecoins/creator`)
         .expect(401);
     });
   });
