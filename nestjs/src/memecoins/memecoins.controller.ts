@@ -1,9 +1,11 @@
+
 import {
   Controller,
   Post,
   Body,
   Get,
   Param,
+  BadRequestException,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
@@ -14,6 +16,7 @@ import { User as UserEntity } from '@users/schemas/users.schema';
 import { User } from '@users/users.decorator';
 import { CreateMemecoinDto } from './dto/create-memecoin.dto';
 import { Memecoin } from './schemas/memecoins.schema';
+import { IMemecoinCreation } from './interfaces/memecoins.interface';
 
 @ApiTags('Memecoins')
 @Controller('memecoins')
@@ -32,7 +35,7 @@ export class MemecoinsController {
   async createMemecoin(
     @Body() createMemecoinDto: CreateMemecoinDto,
     @User() user: UserEntity,
-  ): Promise<CoinCreation> {
+  ): Promise<IMemecoinCreation> {
     return this.memecoinsService.createCoin(createMemecoinDto, user);
   }
 
@@ -58,20 +61,25 @@ export class MemecoinsController {
     type: Memecoin,
   })
   async getMemecoinById(@Param('id') id: string) {
-    return this.memecoinsService.findById(id);
+    try {
+          this.memecoinsService.findById(id);
+	} catch (error) {
+		if (error.name === 'CastError') {
+    		return new BadRequestException("Invalid ID provided!");
+	    }
+	}
   }
 
-  @Get('creator/:creatorId')
+  @Get('creator')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all memecoins created by a specific user' })
-  @ApiParam({ name: 'creatorId', description: 'The ID of the creator user' })
+  @ApiOperation({ summary: 'Get all memecoins created by the authenticated user' })
   @ApiResponse({
     status: 200,
     description: 'List of memecoins created by the user',
     type: [Memecoin],
   })
-  async getMemecoinsByCreator(@Param('creatorId') creatorId: string) {
-    return this.memecoinsService.findByCreator(creatorId);
+  async getMemecoinsByCreator(@User() user: UserEntity) {
+    return this.memecoinsService.findByCreator(user._id as string);
   }
 }

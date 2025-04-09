@@ -4,13 +4,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Memecoin } from './schemas/memecoins.schema';
+import { Model, Types } from 'mongoose';
+import { Memecoin, MemecoinSchema } from './schemas/memecoins.schema';
 import { CreateCoinDto } from '@coin-creator/dto/create-coin.dto';
 import { CoinCreation } from '@coin-creator/interfaces/coin-creation.interface';
 import { CoinCreatorService } from '@coin-creator/coin-creator.service';
 import { User } from '@users/schemas/users.schema';
 import { CreateMemecoinDto } from './dto/create-memecoin.dto';
+import { IMemecoinCreation } from './interfaces/memecoins.interface';
 
 @Injectable()
 export class MemecoinsService {
@@ -22,7 +23,7 @@ export class MemecoinsService {
   async createCoin(
     createMemecoinDto: CreateMemecoinDto,
     user: User,
-  ): Promise<CoinCreation> {
+  ): Promise<IMemecoinCreation> {
     const existingCoin = await this.memecoinModel.findOne({
       name: createMemecoinDto.name,
     });
@@ -42,7 +43,7 @@ export class MemecoinsService {
       const coinCreationResult =
         await this.coinCreatorService.createCoin(coinObj);
 
-      const newMemecoin = this.memecoinModel.create({
+      const newMemecoin = await this.memecoinModel.create({
         name: createMemecoinDto.name,
         ticker: createMemecoinDto.ticker,
         coinAddress: coinCreationResult.publishResult.packageId || '',
@@ -54,9 +55,7 @@ export class MemecoinsService {
         discordSocial: createMemecoinDto.discordSocial,
       });
 
-      await newMemecoin;
-
-      return coinCreationResult;
+      return { ...coinCreationResult, _id: newMemecoin._id as string };
     } catch (error) {
       throw new BadRequestException(
         `Failed to create memecoin: ${error.message}`,
