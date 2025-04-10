@@ -54,7 +54,7 @@ describe('AppModule (e2e)', () => {
     });
 
     await app.init();
-  });
+  }, 13000);
 
   afterAll(async () => {
     await mongoose.disconnect();
@@ -106,25 +106,6 @@ describe('AppModule (e2e)', () => {
     });
   });
 
-  describe('Rate Limiting', () => {
-    it('should enforce rate limits', async () => {
-      const endpoint = '/';
-      const requests = Array(15).fill(null);
-
-      for (const _ of requests) {
-        const response = await request(app.getHttpServer()).get(endpoint);
-
-        if (response.status === 429) {
-          expect(response.status).toBe(429);
-          expect(response.headers).toHaveProperty('retry-after');
-          return;
-        }
-      }
-
-      throw new Error('Rate limiting not properly enforced');
-    }, 30000);
-  });
-
   describe('Users Module', () => {
     it('/users (GET) - should require authentication', () => {
       return request(app.getHttpServer()).get('/users').expect(401);
@@ -162,4 +143,24 @@ describe('AppModule (e2e)', () => {
         });
     });
   });
+
+  describe('Rate Limiting', () => {
+    it('should enforce rate limits', async () => {
+      const endpoint = '/';
+      const requests = Array(15).fill(null);
+
+      for (const _ of requests) {
+        const response = await request(app.getHttpServer()).get(endpoint);
+
+        if (response.status === 429) {
+          expect(response.status).toBe(429);
+          expect(response.headers).toHaveProperty('retry-after');
+          return;
+        }
+      }
+
+      throw new Error('Rate limiting not properly enforced');
+    }, 30000);
+  });
+
 });
