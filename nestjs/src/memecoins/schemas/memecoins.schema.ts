@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { User } from '@users/schemas/users.schema';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -30,7 +30,7 @@ export class Memecoin extends Document {
     description: 'Reference to the creator (user)',
     type: String,
   })
-  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true })
   creator: User;
 
   @ApiProperty({

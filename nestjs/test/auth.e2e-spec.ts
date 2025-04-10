@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { disconnect } from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import { AuthModule } from '@auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
 import { TransformInterceptor } from '@src/common/interceptors/transform/transform.interceptor';
@@ -16,6 +17,7 @@ import { Challenge } from '@src/auth/schemas/challenge.schema';
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication;
+  let mongod: MongoMemoryServer;
   let jwtService: JwtService;
   let configService: ConfigService;
   const testAddress =
@@ -26,11 +28,14 @@ describe('AuthController (e2e)', () => {
   let keypair: Ed25519Keypair;
 
   beforeAll(async () => {
+    mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
+    
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         AuthModule,
         ConfigModule.forRoot(),
-        MongooseModule.forRoot('mongodb://localhost:27017/test-db-auth'),
+        MongooseModule.forRoot(uri),
       ],
       // providers: [
       //   ConfigService
@@ -63,7 +68,7 @@ describe('AuthController (e2e)', () => {
     keypair = new Ed25519Keypair();
 
     await userModel.deleteMany({});
-  });
+  }, 20000);
 
   beforeEach(async () => {
     const connection = app.get('DatabaseConnection');
@@ -73,12 +78,13 @@ describe('AuthController (e2e)', () => {
     for (const collection of collections) {
       await collection.deleteMany({});
     }
-  });
+  }, 10000);
 
   afterAll(async () => {
     await userModel.deleteMany({});
     await challengeModel.deleteMany({});
     await disconnect();
+    await mongod.stop();
     await app.close();
   });
 

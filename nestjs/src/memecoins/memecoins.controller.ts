@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Post,
@@ -8,7 +7,13 @@ import {
   BadRequestException,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { MemecoinsService } from './memecoins.service';
 import { CoinCreation } from '@coin-creator/interfaces/coin-creation.interface';
 import { JwtAuthGuard } from '@auth/jwt-auth.guard';
@@ -41,6 +46,7 @@ export class MemecoinsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all memecoins' })
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     status: 200,
     description: 'List of all memecoins',
@@ -48,6 +54,22 @@ export class MemecoinsController {
   })
   async getAllMemecoins() {
     return this.memecoinsService.findAll();
+  }
+
+  @Get('creator')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get all memecoins created by the authenticated user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of memecoins created by the user',
+    type: [Memecoin],
+  })
+  async getMemecoinsByCreator(@User() user: UserEntity) {
+    console.log(user);
+    return this.memecoinsService.findByCreator(user._id as string);
   }
 
   @Get(':id')
@@ -62,24 +84,12 @@ export class MemecoinsController {
   })
   async getMemecoinById(@Param('id') id: string) {
     try {
-          this.memecoinsService.findById(id);
-	} catch (error) {
-		if (error.name === 'CastError') {
-    		return new BadRequestException("Invalid ID provided!");
-	    }
-	}
-  }
-
-  @Get('creator')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all memecoins created by the authenticated user' })
-  @ApiResponse({
-    status: 200,
-    description: 'List of memecoins created by the user',
-    type: [Memecoin],
-  })
-  async getMemecoinsByCreator(@User() user: UserEntity) {
-    return this.memecoinsService.findByCreator(user._id as string);
+      return this.memecoinsService.findById(id);
+    } catch (error) {
+      if (error.name === 'CastError') {
+        throw new BadRequestException('Invalid ID provided!');
+      }
+      throw error;
+    }
   }
 }

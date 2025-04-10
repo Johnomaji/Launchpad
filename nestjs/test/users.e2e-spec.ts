@@ -25,9 +25,12 @@ describe('UsersController (e2e)', () => {
     username: 'testuser',
     bio: 'Test bio',
   };
-  const uri = 'mongodb://localhost:27017/test-db-userd';
+  // const uri = 'mongodb://localhost:27017/test-db-userd';
 
   beforeAll(async () => {
+    mongod = await MongoMemoryServer.create();
+    const uri = mongod.getUri();
+    
     console.log('URI:', uri);
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
@@ -54,12 +57,12 @@ describe('UsersController (e2e)', () => {
     userModel = moduleFixture.get<Model<User>>(getModelToken(User.name));
     console.log(userModel);
     await userModel.deleteMany({});
-  });
+  }, 20000);
 
   afterAll(async () => {
     await userModel.deleteMany({});
     await disconnect();
-    // await mongod.stop();
+    await mongod.stop();
     await app.close();
   });
 

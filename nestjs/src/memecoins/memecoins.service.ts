@@ -55,7 +55,9 @@ export class MemecoinsService {
         discordSocial: createMemecoinDto.discordSocial,
       });
 
-      return { ...coinCreationResult, _id: newMemecoin._id as string };
+      const rezz = { ...coinCreationResult, _id: newMemecoin._id as string };
+      console.log(rezz);
+      return rezz;
     } catch (error) {
       throw new BadRequestException(
         `Failed to create memecoin: ${error.message}`,
@@ -71,9 +73,16 @@ export class MemecoinsService {
   }
 
   async findById(id: string): Promise<Memecoin> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid memecoin ID format');
+    }
+
     const memecoin = await this.memecoinModel
-      .findById(id)
-      .populate('creator', 'walletAddress')
+      .findOne({ _id: new Types.ObjectId(id) })
+      .populate({
+        path: 'creator',
+        select: 'walletAddress username',
+      })
       .exec();
 
     if (!memecoin) {
@@ -84,9 +93,16 @@ export class MemecoinsService {
   }
 
   async findByCreator(creatorId: string): Promise<Memecoin[]> {
+    if (!Types.ObjectId.isValid(creatorId)) {
+      throw new BadRequestException('Invalid creator ID format');
+    }
+
     return this.memecoinModel
-      .find({ creator: creatorId })
-      .populate('creator', 'walletAddress')
+      .find({ creator: new Types.ObjectId(creatorId) })
+      .populate({
+        path: 'creator',
+        select: 'walletAddress username',
+      })
       .exec();
   }
 }
