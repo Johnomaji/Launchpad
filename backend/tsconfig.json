@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": [
+        "src/*"
+      ],
+      "@users/*": [
+        "src/users/*"
+      ],
+      "@auth/*": [
+        "src/auth/*"
+      ],
+      "@coin-creator/*": [
+        "src/coin-creator/*"
+      ],
+      "@memecoins/*": [
+        "src/memecoins/*"
+      ],
+      "@common/*": [
+        "src/common/*"
+      ],
+    },
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  }
+}
