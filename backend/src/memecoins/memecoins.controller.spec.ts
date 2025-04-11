@@ -31,7 +31,7 @@ describe('MemecoinsController', () => {
     transaction: mockTransaction,
     publishResult: mockPublishResult,
     coinName: 'TestCoin',
-    symbol: 'TEST'
+    symbol: 'TEST',
   };
 
   const mockMemecoin: Memecoin = {
@@ -79,11 +79,11 @@ describe('MemecoinsController', () => {
       const createDto: CreateMemecoinDto = {
         name: 'TestCoin',
         ticker: 'TEST',
-        desc: 'Test description'
+        desc: 'Test description',
       };
 
       const result = await controller.createMemecoin(createDto, mockUser);
-      
+
       expect(service.createCoin).toHaveBeenCalledWith(createDto, mockUser);
       expect(result).toEqual(mockCoinCreation);
       expect(result.coinName).toBe('TestCoin');
@@ -94,7 +94,7 @@ describe('MemecoinsController', () => {
   describe('getAllMemecoins', () => {
     it('should return an array of all memecoins', async () => {
       const result = await controller.getAllMemecoins();
-      
+
       expect(service.findAll).toHaveBeenCalled();
       expect(result).toEqual([mockMemecoin]);
       expect(result[0].name).toBe('TestCoin');
@@ -103,20 +103,20 @@ describe('MemecoinsController', () => {
   });
 
   describe('getMemecoinById', () => {
-	it('should return a memecoin by its ID with populated creator walletAddress', async () => {
-	  const populatedMemecoin = {
+    it('should return a memecoin by its ID with populated creator walletAddress', async () => {
+      const populatedMemecoin = {
         ...mockMemecoin,
         creator: {
           _id: mockUser._id,
-          walletAddress: mockUser.walletAddress
-        }
+          walletAddress: mockUser.walletAddress,
+        },
       } as unknown as Memecoin;
 
       jest.spyOn(service, 'findById').mockResolvedValue(populatedMemecoin);
 
       const memecoinId = mockMemecoin._id.toString();
       const result = await controller.getMemecoinById(memecoinId);
-    
+
       expect(service.findById).toHaveBeenCalledWith(memecoinId);
       expect(result).toEqual(populatedMemecoin);
       expect(result.creator.walletAddress).toBe('0x1234567890abcdef');
@@ -125,14 +125,18 @@ describe('MemecoinsController', () => {
     });
 
     it('should throw NotFoundException for invalid ID', async () => {
-      jest.spyOn(service, 'findById').mockRejectedValue(
-        new NotFoundException('Memecoin with ID invalid-id not found')
+      jest
+        .spyOn(service, 'findById')
+        .mockRejectedValue(
+          new NotFoundException('Memecoin with ID invalid-id not found'),
+        );
+
+      await expect(controller.getMemecoinById('invalid-id')).rejects.toThrow(
+        NotFoundException,
       );
-    
-      await expect(controller.getMemecoinById('invalid-id'))
-        .rejects.toThrow(NotFoundException);
-      await expect(controller.getMemecoinById('invalid-id'))
-        .rejects.toThrow('Memecoin with ID invalid-id not found');
+      await expect(controller.getMemecoinById('invalid-id')).rejects.toThrow(
+        'Memecoin with ID invalid-id not found',
+      );
     });
   });
 
@@ -140,7 +144,7 @@ describe('MemecoinsController', () => {
     it('should return memecoins created by the specific user', async () => {
       const creatorId = mockUser._id.toString();
       const result = await controller.getMemecoinsByCreator(mockUser);
-      
+
       expect(service.findByCreator).toHaveBeenCalledWith(mockUser._id);
       expect(result).toEqual([mockMemecoin]);
       expect(result[0].creator._id).toEqual(mockUser._id);
@@ -148,36 +152,47 @@ describe('MemecoinsController', () => {
 
     it('should return empty array for creator with no memecoins', async () => {
       jest.spyOn(service, 'findByCreator').mockResolvedValue([]);
-      
+
       const result = await controller.getMemecoinsByCreator(mockUser);
       expect(result).toEqual([]);
     });
   });
 
   describe('guards', () => {
-  it('should protect createMemecoin with JwtAuthGuard', () => {
-    const guards = Reflect.getMetadata('__guards__', controller.createMemecoin);
-    expect(guards).toHaveLength(1);
+    it('should protect createMemecoin with JwtAuthGuard', () => {
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        controller.createMemecoin,
+      );
+      expect(guards).toHaveLength(1);
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
     });
 
     it('should protect getMemecoinById with JwtAuthGuard', () => {
-      const guards = Reflect.getMetadata('__guards__', controller.getMemecoinById);
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        controller.getMemecoinById,
+      );
       expect(guards).toHaveLength(1);
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
     });
 
     it('should protect getMemecoinsByCreator with JwtAuthGuard', () => {
-      const guards = Reflect.getMetadata('__guards__', controller.getMemecoinsByCreator);
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        controller.getMemecoinsByCreator,
+      );
       expect(guards).toHaveLength(1);
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
     });
 
     it('should protect getAllMemecoins with JWT guard', () => {
-      const guards = Reflect.getMetadata('__guards__', controller.getAllMemecoins);
-      expect(guards).toHaveLength(1);      
+      const guards = Reflect.getMetadata(
+        '__guards__',
+        controller.getAllMemecoins,
+      );
+      expect(guards).toHaveLength(1);
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
-
     });
   });
 });

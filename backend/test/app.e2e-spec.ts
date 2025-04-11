@@ -162,5 +162,4 @@ describe('AppModule (e2e)', () => {
       throw new Error('Rate limiting not properly enforced');
     }, 30000);
   });
-
 });

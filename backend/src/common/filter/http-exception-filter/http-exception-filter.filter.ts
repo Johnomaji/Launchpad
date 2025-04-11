@@ -36,5 +36,4 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message: message,
     });
   }
-
 }

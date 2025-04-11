@@ -28,13 +28,11 @@ describe('AuthModule Integration Tests', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create();
     const uri = mongod.getUri();
-    
+
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot(),
-        MongooseModule.forRoot(
-          uri
-        ),
+        MongooseModule.forRoot(uri),
         MongooseModule.forFeature([
           { name: Challenge.name, schema: ChallengeSchema },
           { name: User.name, schema: UserSchema },

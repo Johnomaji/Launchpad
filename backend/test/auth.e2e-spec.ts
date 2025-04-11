@@ -30,7 +30,7 @@ describe('AuthController (e2e)', () => {
   beforeAll(async () => {
     mongod = await MongoMemoryServer.create();
     const uri = mongod.getUri();
-    
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         AuthModule,
@@ -317,4 +317,3 @@ describe('AuthController (e2e)', () => {
     });
   });
 });
-

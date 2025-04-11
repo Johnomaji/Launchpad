@@ -4,4 +4,4 @@ export interface IUser {
   bio?: string;
   createdAt: Date;
   updatedAt: Date;
-};
+}

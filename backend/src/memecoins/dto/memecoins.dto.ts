@@ -8,10 +8,16 @@ export class MemecoinDto {
   @ApiProperty({ description: 'Name of the memecoin', example: 'DogeCoin' })
   name: string;
 
-  @ApiProperty({ description: 'Ticker symbol of the memecoin', example: 'DOGE' })
+  @ApiProperty({
+    description: 'Ticker symbol of the memecoin',
+    example: 'DOGE',
+  })
   ticker: string;
 
-  @ApiProperty({ description: 'Blockchain address of the coin', example: '0x123...abc' })
+  @ApiProperty({
+    description: 'Blockchain address of the coin',
+    example: '0x123...abc',
+  })
   coinAddress: string;
 
   @ApiProperty({ description: 'ID of the creator user' })

@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsUrl, IsInt, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsUrl,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class CreateMemecoinDto {
   @ApiProperty({ description: 'Name of the memecoin', example: 'DogeCoin' })
@@ -7,7 +15,10 @@ export class CreateMemecoinDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'Ticker symbol of the memecoin', example: 'DOGE' })
+  @ApiProperty({
+    description: 'Ticker symbol of the memecoin',
+    example: 'DOGE',
+  })
   @IsString()
   @IsNotEmpty()
   ticker: string;
@@ -23,11 +34,11 @@ export class CreateMemecoinDto {
   desc?: string;
 
   @ApiProperty({
-	description: 'Total supply of coins',
-	required: false,
-	minimum: 1,
-	maximum: 18_400_000_000,
-  	example: 1000000,
+    description: 'Total supply of coins',
+    required: false,
+    minimum: 1,
+    maximum: 18_400_000_000,
+    example: 1000000,
   })
   @IsOptional()
   @IsInt()

@@ -25,7 +25,7 @@ describe('UsersController (e2e)', () => {
   let authToken: string;
   let testUserii: User;
   let testUser: CreateUserDto;
-  
+
   const testWalletAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
 
   beforeAll(async () => {
@@ -68,10 +68,10 @@ describe('UsersController (e2e)', () => {
     console.log(userModel);
 
     testUser = {
-        username: 'testuser',
-        walletAddress: testWalletAddress,
-        bio: 'test user'
-    }
+      username: 'testuser',
+      walletAddress: testWalletAddress,
+      bio: 'test user',
+    };
   }, 20000);
 
   afterAll(async () => {

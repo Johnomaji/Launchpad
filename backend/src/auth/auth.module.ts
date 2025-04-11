@@ -48,4 +48,4 @@ import { User, UserSchema } from '@users/schemas/users.schema';
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, ConfigService],
 })
-export class AuthModule { }
+export class AuthModule {}

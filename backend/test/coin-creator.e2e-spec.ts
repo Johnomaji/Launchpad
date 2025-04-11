@@ -119,4 +119,3 @@ describe('CoinCreatorService (e2e)', () => {
     });
   });
 });
-

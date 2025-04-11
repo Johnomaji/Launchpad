@@ -7,8 +7,8 @@ import { CreateMemecoinDto } from './dto/create-memecoin.dto';
 import { Memecoin } from './schemas/memecoins.schema';
 import { User } from '@users/schemas/users.schema';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { CoinCreation } from "@coin-creator/interfaces/coin-creation.interface";
-import { SuiTransactionBlockResponse } from "@mysten/sui/client";
+import { CoinCreation } from '@coin-creator/interfaces/coin-creation.interface';
+import { SuiTransactionBlockResponse } from '@mysten/sui/client';
 
 describe('MemecoinsService', () => {
   let service: MemecoinsService;
@@ -63,7 +63,7 @@ describe('MemecoinsService', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MemecoinsService,
@@ -93,7 +93,7 @@ describe('MemecoinsService', () => {
   });
 
   afterEach(() => {
-	jest.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('createCoin', () => {
@@ -208,9 +208,9 @@ describe('MemecoinsService', () => {
 
       const result = await service.findById('507f1f77bcf86cd799439012');
       expect(result).toEqual(mockMemecoin);
-      expect(memecoinModel.findOne).toHaveBeenCalledWith(
-        {"_id": new Types.ObjectId("507f1f77bcf86cd799439012") }
-      );
+      expect(memecoinModel.findOne).toHaveBeenCalledWith({
+        _id: new Types.ObjectId('507f1f77bcf86cd799439012'),
+      });
     });
 
     it('should throw NotFoundException if memecoin not found', async () => {
@@ -219,9 +219,9 @@ describe('MemecoinsService', () => {
         exec: jest.fn().mockResolvedValueOnce(null),
       } as any);
 
-      await expect(service.findById('507f1f77bcf86cd799439012')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.findById('507f1f77bcf86cd799439012'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -260,5 +260,4 @@ describe('MemecoinsService', () => {
       expect(result).toEqual([]);
     });
   });
-
 });

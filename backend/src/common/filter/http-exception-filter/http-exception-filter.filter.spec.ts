@@ -156,5 +156,4 @@ describe('HttpExceptionFilter', () => {
       message: '',
     });
   });
-
 });

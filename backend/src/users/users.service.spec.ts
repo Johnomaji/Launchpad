@@ -1,11 +1,11 @@
-import {Test, TestingModule} from '@nestjs/testing';
-import {getModelToken} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
-import {UsersService} from './users.service';
-import {User} from './schemas/users.schema';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UpdateUserDto} from './dto/update-user.dto';
-import {NotFoundException} from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getModelToken } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { UsersService } from './users.service';
+import { User } from './schemas/users.schema';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { NotFoundException } from '@nestjs/common';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -130,8 +130,8 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should update a user by id', async () => {
-      const updateUserDto: UpdateUserDto = {username: 'Updated Name'};
-      const updatedUser = {...mockUser, name: 'Updated Name'};
+      const updateUserDto: UpdateUserDto = { username: 'Updated Name' };
+      const updatedUser = { ...mockUser, name: 'Updated Name' };
 
       mockUserModel.findByIdAndUpdate.mockReturnValue({
         exec: jest.fn().mockResolvedValue(updatedUser),
@@ -142,7 +142,7 @@ describe('UsersService', () => {
       expect(mockUserModel.findByIdAndUpdate).toHaveBeenCalledWith(
         mockUser._id,
         updateUserDto,
-        {new: true},
+        { new: true },
       );
       expect(result).toEqual(updatedUser);
     });
@@ -160,8 +160,8 @@ describe('UsersService', () => {
 
   describe('updateByWalletAddress', () => {
     it('should update a user by wallet address', async () => {
-      const updateUserDto: UpdateUserDto = {username: 'Updated Name'};
-      const updatedUser = {...mockUser, name: 'Updated Name'};
+      const updateUserDto: UpdateUserDto = { username: 'Updated Name' };
+      const updatedUser = { ...mockUser, name: 'Updated Name' };
 
       mockUserModel.findOneAndUpdate.mockReturnValue({
         exec: jest.fn().mockResolvedValue(updatedUser),
@@ -173,9 +173,9 @@ describe('UsersService', () => {
       );
 
       expect(mockUserModel.findOneAndUpdate).toHaveBeenCalledWith(
-        {walletAddress: mockUser.walletAddress},
+        { walletAddress: mockUser.walletAddress },
         updateUserDto,
-        {new: true},
+        { new: true },
       );
       expect(result).toEqual(updatedUser);
     });

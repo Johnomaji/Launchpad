@@ -266,7 +266,7 @@ describe('CoinCreatorService', () => {
       const keypair = (service as any).loadKeypairFromEnv();
       expect(keypair).toBe(mockKeypair);
       expect(Ed25519Keypair.fromSecretKey).toHaveBeenCalledWith(
-        expect.any(Uint8Array)
+        expect.any(Uint8Array),
       );
     });
 

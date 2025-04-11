@@ -32,11 +32,12 @@ import { APP_GUARD } from '@nestjs/core';
     CoinCreatorModule,
   ],
   controllers: [AppController],
-  providers: [AppService,
+  providers: [
+    AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

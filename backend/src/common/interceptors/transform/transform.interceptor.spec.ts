@@ -55,14 +55,16 @@ describe('TransformInterceptor', () => {
         handle: () => of(mockData),
       };
 
-      interceptor.intercept(mockContext, mockCallHandler).subscribe((result) => {
-        expect(result).toEqual({
-          success: true,
-          data: mockData,
-        });
+      interceptor
+        .intercept(mockContext, mockCallHandler)
+        .subscribe((result) => {
+          expect(result).toEqual({
+            success: true,
+            data: mockData,
+          });
 
-        if (index === testCases.length - 1) done();
-      });
+          if (index === testCases.length - 1) done();
+        });
     });
   });
 });

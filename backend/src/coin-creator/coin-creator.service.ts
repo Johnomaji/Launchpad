@@ -128,7 +128,6 @@ export class CoinCreatorService {
         coinName: sanitizedName,
         symbol: sanitizedSymbol,
       };
-      
     } catch (error) {
       console.error('Error creating Sui coin project:', error);
       throw error;

@@ -13,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Challenge.name) private challengeModel: Model<Challenge>,
-  ) { }
+  ) {}
 
   async generateChallenge(
     address: string,
