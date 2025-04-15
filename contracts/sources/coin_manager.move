@@ -236,9 +236,9 @@ module memetic::coin_manager {
 	) {
 	    assert!(!string::is_empty(&name), EInvalidName);
 	    assert!(!string::is_empty(&symbol), EInvalidSymbol);
-	    assert!(decimals <= 18, EInvalidDecimals);  // Common max for most blockchains
+	    assert!(decimals <= 18, EInvalidDecimals); 
 	    assert!(initial_supply <= total_supply, EInvalidSupply);
-	    assert!(creator != @0x0, EInvalidCreator);
+	    assert!(creator != @memetic, EInvalidCreator);
 	    
 	    assert!(!dynamic_field::exists_with_type<String, CoinInfo<T>>(&admin.id, symbol), EAlreadyRegistered);
 
@@ -278,6 +278,22 @@ module memetic::coin_manager {
 	        timestamp: tx_context::epoch(ctx)
 	    });
 	}
+
+	public fun get_coin_name<T>(coin_info: &CoinInfo<T>): string::String {
+	    coin_info.name
+	}
+
+	public fun get_coin_symbol<T>(coin_info: &CoinInfo<T>): string::String {
+	    coin_info.symbol
+	}
+
+	public fun get_total_supply<T>(coin_info: &CoinInfo<T>): u64 {
+	    coin_info.total_supply
+	}
+
+	public fun get_total_minted<T>(coin_info: &CoinInfo<T>): u64 {
+	    coin_info.total_minted
+	}
     
 	#[test_only]
 	public struct TEST_TOKEN has drop {}
@@ -311,41 +327,51 @@ module memetic::coin_manager {
 	}
 
 	#[test]
-	fun register_test_coin(): ID {
+	fun register_test_coin_2(): ID {
 	    let mut scenario = sui::test_scenario::begin(ADMIN);
 
-        next_tx(scenario, ADMIN); {
-            let admin_cap = ts::take_from_sender<AdminCap>(scenario);
-            
-            let name = string::utf8(b"Test Token");
-            let symbol = string::utf8(b"TEST");
-            let description = string::utf8(b"A token for testing");
-            let icon_url = none();
-            let telegram = some(string::utf8(b"https://t.me/testtoken"));
-            let x = some(string::utf8(b"https://x.com/testtoken"));
-            let discord = some(string::utf8(b"https://discord.com/testtoken"));
-            
-            register_coin_metadata<TEST_TOKEN>(
-                &mut admin_cap,
-                name,
-                symbol,
-                description,
-                9, // decimals
-                icon_url,
-                telegram,
-                x,
-                discord,
-                PACKAGE_ID,
-                CREATOR,
-                1000000000, // initial supply
-                10000000000, // total supply
-                ts::ctx(scenario)
-            );
-            
-            let admin_id = object::id(&admin_cap);
-            ts::return_to_sender(scenario, admin_cap);
-            admin_id
-        }
+        sui::test_scenario::next_tx(&mut scenario, ADMIN); 
+
+        {
+            let ctx = sui::test_scenario::ctx(&mut scenario);
+            let otw = COIN_MANAGER {};
+            init(otw, ctx);
+        };
+        
+	    sui::test_scenario::next_tx(&mut scenario, ADMIN); 
+        let mut admin_cap = sui::test_scenario::take_from_sender<AdminCap>(&scenario);
+        let ctx = sui::test_scenario::ctx(&mut scenario);
+
+        let name = string::utf8(b"Test Token");
+        let symbol = string::utf8(b"TEST");
+        let description = string::utf8(b"A token for testing");
+        let icon_url = none();
+        let telegram = some(string::utf8(b"https://t.me/testtoken"));
+        let x = some(string::utf8(b"https://x.com/testtoken"));
+        let discord = some(string::utf8(b"https://discord.com/testtoken"));
+        
+        register_coin_metadata<TEST_TOKEN>(
+            &mut admin_cap,
+            name,
+            symbol,
+            description,
+            9, // decimals
+            icon_url,
+            telegram,
+            x,
+            discord,
+            PACKAGE_ID,
+            CREATOR,
+            1000000000, // initial supply
+            10000000000, // total supply
+            sui::test_scenario::ctx(&mut scenario)
+        );
+        
+        let admin_id = object::id(&admin_cap);
+        sui::test_scenario::return_to_sender(&scenario, admin_cap);
+        sui::test_scenario::end(scenario);
+        admin_id
+ 
     }
 
 	#[test]
@@ -363,6 +389,14 @@ module memetic::coin_manager {
 	    {
 	        let mut admin_cap = sui::test_scenario::take_from_sender<AdminCap>(&scenario);
 	        let ctx = sui::test_scenario::ctx(&mut scenario);
+
+	        let name = string::utf8(b"Test Token");
+            let symbol = string::utf8(b"TEST");
+            let description = string::utf8(b"A token for testing");
+            let icon_url = none();
+            let telegram = some(string::utf8(b"https://t.me/testtoken"));
+            let x = some(string::utf8(b"https://x.com/testtoken"));
+            let discord = some(string::utf8(b"https://discord.com/testtoken"));
 	        
 	        register_coin_metadata<COIN_MANAGER>(
 	            &mut admin_cap,
@@ -390,8 +424,9 @@ module memetic::coin_manager {
             assert!(option::is_some(&coin_info.telegram_social), 0);
             assert!(option::is_some(&coin_info.x_social), 0);
             assert!(option::is_some(&coin_info.discord_social), 0);
-            assert!(option::is_some(&coin_info.max_supply), 0);
-            assert!(coin_info.creator == ADMIN, 0);
+            assert!(&coin_info.total_supply == 10000000000, 0);
+            assert!(&coin_info.initial_supply == 1000000000, 0);
+            assert!(coin_info.creator == CREATOR, 0);
             assert!(coin_info.total_minted == 0, 0);
 
 	        sui::test_scenario::return_to_sender(&mut scenario, admin_cap);
@@ -427,9 +462,10 @@ module memetic::coin_manager {
 	        some(string::utf8(b"https://t.me/testcoin")),
 	        some(string::utf8(b"https://x.com/testcoin")),
 	        some(string::utf8(b"https://discord.gg/testcoin")),
-	        some(1000000000),
-	        @memetic,
-	        tx_context::sender(ctx),
+	        PACKAGE_ID,
+	        USER,
+			1000000000, // initial supply
+            10000000000, // total supply
 	        ctx
 	    );
 	}
@@ -462,5 +498,95 @@ module memetic::coin_manager {
 	}
 
 	
+    #[test]
+    fun test_register_coin_metadata_2() {
+        let mut scenario = init_test();
+        
+        let admin_id = register_test_coin_2();
+        
+        sui::test_scenario::next_tx(&mut scenario, ADMIN); {
+            let admin_cap = sui::test_scenario::take_from_address<AdminCap>(&mut scenario, ADMIN);
+            let coin_symbol = string::utf8(b"TEST");
+            
+            let coin_info = get_coin_info<TEST_TOKEN>(&admin_cap, coin_symbol);
+            
+            assert!(get_coin_name(coin_info) == string::utf8(b"Test Token"), 0);
+            assert!(get_coin_symbol(coin_info) == string::utf8(b"TEST"), 0);
+            assert!(get_total_supply(coin_info) == 10000000000, 0);
+            assert!(get_total_minted(coin_info) == 0, 0);
+            
+            sui::test_scenario::return_to_address(ADMIN, admin_cap);
+        };
+        
+        sui::test_scenario::end(scenario);
+    }
+
+/**	#[test_only]
+	public fun return_mint_capability<T>(mint_cap: MintCapability<T>) {
+		let treasury = mint_cap.treasury;
+		sui::test_scenario::return_to_sender(treasury);
+		sui::test_scenario::return_to_sender(mint_cap);
+	}
+*/
+
+	#[test]
+    fun test_mint_tokens() {
+        let mut scenario = init_test();
+        register_test_coin_2();
+        
+        sui::test_scenario::next_tx(&mut scenario, ADMIN); {
+            let mut admin_cap = sui::test_scenario::take_from_address<AdminCap>(&mut scenario, ADMIN);
+            let coin_symbol = string::utf8(b"TEST");
+            
+            let treasury_cap = sui::test_scenario::take_shared<TreasuryCap<TEST_TOKEN>>(&scenario);
+            let mut mint_cap = create_mint_capability<TEST_TOKEN>(&admin_cap, treasury_cap, sui::test_scenario::ctx(&mut scenario));
+            
+            let coin_info = borrow_mut_coin_info<TEST_TOKEN>(&mut admin_cap, coin_symbol);
+            
+            mint<TEST_TOKEN>(
+                &mut mint_cap,
+                1000000,
+                USER,
+                coin_info,
+                sui::test_scenario::ctx(&mut scenario)
+            );
+            
+           assert!(get_total_minted(coin_info) == 1000000, 0);
+            
+            // return_mint_capability(&scenario, mint_cap);
+            //sui::test_scenario::return_(mint_cap);
+            sui::test_scenario::return_to_address(ADMIN, admin_cap);
+        };
+        
+        // Verify USER received the tokens
+        sui::test_scenario::next_tx(&mut scenario, USER); {
+            let coins = sui::test_scenario::take_from_address<coin::Coin<TEST_TOKEN>>(&mut scenario, USER);
+            sui::test_utils::assert_eq(coin::value(&coins), 1000000);
+            sui::test_scenario::return_to_address(USER, coins);
+        };
+        
+        sui::test_scenario::end(scenario);
+    }
+
+    public fun create_mint_capability<T>(
+	    _admin: &AdminCap,
+	    treasury: TreasuryCap<T>,
+	    ctx: &mut TxContext
+	): MintCapability<T> {
+	    let id = object::new(ctx);
+	    MintCapability {
+	        id,
+	        treasury: treasury,
+	        total_minted: 0
+	    }
+	}
+
+	public fun borrow_mut_coin_info<T>(
+	    admin: &mut AdminCap,
+	    symbol: string::String
+	): &mut CoinInfo<T> {
+	    dynamic_field::borrow_mut<String, CoinInfo<T>>(&mut admin.id, symbol)
+	}
+
 }
 
