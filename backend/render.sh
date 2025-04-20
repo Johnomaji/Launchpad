@@ -3,7 +3,7 @@
 # Build script for Render web service
 
 echo "Installing dependencies..."
-npm install
+npm ci
 
 echo "Adding nest to PATH..."
 export PATH="$PATH:$(pwd)/node_modules/.bin"
