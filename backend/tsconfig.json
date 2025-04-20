@@ -9,7 +9,6 @@
     "target": "ES2021",
     "lib": [
       "ES2020",
-      "DOM"
     ],
     "sourceMap": true,
     "outDir": "./dist",
@@ -41,5 +40,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
