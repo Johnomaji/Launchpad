@@ -534,10 +534,10 @@ module memetic::coin_manager {
         let mut scenario = init_test();
         register_test_coin_2();
         
-        sui::test_scenario::next_tx(&mut scenario, ADMIN); {
+        sui::test_scenario::next_tx(&mut scenario, ADMIN);
             let mut admin_cap = sui::test_scenario::take_from_address<AdminCap>(&mut scenario, ADMIN);
             let coin_symbol = string::utf8(b"TEST");
-            
+
             let treasury_cap = sui::test_scenario::take_shared<TreasuryCap<TEST_TOKEN>>(&scenario);
             let mut mint_cap = create_mint_capability<TEST_TOKEN>(&admin_cap, treasury_cap, sui::test_scenario::ctx(&mut scenario));
             
@@ -553,10 +553,8 @@ module memetic::coin_manager {
             
            assert!(get_total_minted(coin_info) == 1000000, 0);
             
-            // return_mint_capability(&scenario, mint_cap);
-            //sui::test_scenario::return_(mint_cap);
             sui::test_scenario::return_to_address(ADMIN, admin_cap);
-        };
+        
         
         // Verify USER received the tokens
         sui::test_scenario::next_tx(&mut scenario, USER); {
@@ -564,10 +562,12 @@ module memetic::coin_manager {
             sui::test_utils::assert_eq(coin::value(&coins), 1000000);
             sui::test_scenario::return_to_address(USER, coins);
         };
-        
+        return_mint_capability(mint_cap);
+
         sui::test_scenario::end(scenario);
     }
 
+	#[test_only]
     public fun create_mint_capability<T>(
 	    _admin: &AdminCap,
 	    treasury: TreasuryCap<T>,
@@ -581,11 +581,22 @@ module memetic::coin_manager {
 	    }
 	}
 
+	#[test_only]
 	public fun borrow_mut_coin_info<T>(
 	    admin: &mut AdminCap,
 	    symbol: string::String
 	): &mut CoinInfo<T> {
 	    dynamic_field::borrow_mut<String, CoinInfo<T>>(&mut admin.id, symbol)
+	}
+
+
+	#[test_only]
+	public fun return_mint_capability<T>(mint_cap: MintCapability<T>) {
+	    let MintCapability { id, treasury, total_minted: _ } = mint_cap;
+	    
+	    object::delete(id);
+	    
+	    sui::transfer::public_share_object(treasury);
 	}
 
 }
