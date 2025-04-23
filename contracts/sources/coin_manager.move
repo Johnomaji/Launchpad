@@ -190,7 +190,7 @@ module memetic::coin_manager {
 	    });
 	}
 
-	fun process_url_option(url_opt: Option<String>): Option<Url> {
+	public fun process_url_option(url_opt: Option<String>): Option<Url> {
 	    if (option::is_some(&url_opt)) {
 	        let url_str = *option::borrow(&url_opt);
 	        assert!(!string::is_empty(&url_str), EInvalidUrl);
