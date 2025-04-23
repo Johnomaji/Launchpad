@@ -107,6 +107,40 @@ module memetic::coin_manager {
 	    }
     }
 
+    public fun create_coin_info<T>(
+	    name: String,
+	    symbol: String,
+	    description: String,
+	    decimals: u8,
+	    icon_url: Option<String>,
+	    telegram_social: Option<Url>,
+	    x_social: Option<Url>,
+	    discord_social: Option<Url>,
+	    total_supply: u64,
+	    initial_supply: u64,
+	    ctx: &mut TxContext,
+	    creator: address,
+	): CoinInfo<T> {
+	    
+	    CoinInfo<T> {
+	        name,
+	        symbol,
+	        description,
+	        decimals,
+	        icon_url,
+	        telegram_social,
+	        x_social,
+	        discord_social,
+	        total_supply,
+	        initial_supply,
+	        creator,
+	        total_minted: 0,
+	        creation_time: tx_context::epoch(ctx),
+	        first_mint_time: 0,
+	        last_mint_time: 0 
+	    }
+	}
+
     public fun get_coin_info<T>(
         admin: &AdminCap,
         symbol: String
