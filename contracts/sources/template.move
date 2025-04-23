@@ -1,4 +1,4 @@
-module launchpad::template;
+module launchpad::templates;
 use sui::coin;
 use sui::url;
 
