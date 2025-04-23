@@ -99,6 +99,14 @@ module memetic::coin_manager {
         dynamic_field::exists_with_type<String, CoinInfo<T>>(&admin.id, symbol)
     }
 
+    public fun create_mint_capability<T>(ctx: &mut TxContext, treasury: TreasuryCap<T>): MintCapability<T> {
+		MintCapability {
+	        id: object::new(ctx),
+	        treasury,
+	        total_minted: 0,
+	    }
+    }
+
     public fun get_coin_info<T>(
         admin: &AdminCap,
         symbol: String
