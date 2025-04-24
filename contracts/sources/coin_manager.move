@@ -53,7 +53,7 @@ module memetic::coin_manager {
         id: UID
     }
 
-    public struct MintCapability<T> has key {
+    public struct MintCapability<T> has key, store {
 	    id: UID,
 	    treasury: TreasuryCap<T>,
 	    total_minted: u64,
@@ -581,7 +581,7 @@ module memetic::coin_manager {
             let coin_symbol = string::utf8(b"TEST");
 
             let treasury_cap = sui::test_scenario::take_shared<TreasuryCap<TEST_TOKEN>>(&scenario);
-            let mut mint_cap = create_mint_capability<TEST_TOKEN>(&admin_cap, treasury_cap, sui::test_scenario::ctx(&mut scenario));
+            let mut mint_cap = create_mint_capability<TEST_TOKEN>(sui::test_scenario::ctx(&mut scenario), treasury_cap);
             
             let coin_info = borrow_mut_coin_info<TEST_TOKEN>(&mut admin_cap, coin_symbol);
             
@@ -608,20 +608,6 @@ module memetic::coin_manager {
 
         sui::test_scenario::end(scenario);
     }
-
-	#[test_only]
-    public fun create_mint_capability<T>(
-	    _admin: &AdminCap,
-	    treasury: TreasuryCap<T>,
-	    ctx: &mut TxContext
-	): MintCapability<T> {
-	    let id = object::new(ctx);
-	    MintCapability {
-	        id,
-	        treasury: treasury,
-	        total_minted: 0
-	    }
-	}
 
 	#[test_only]
 	public fun borrow_mut_coin_info<T>(
