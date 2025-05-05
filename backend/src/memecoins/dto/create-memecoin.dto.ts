@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,
-  IsOptional,
   IsUrl,
   IsInt,
   Min,
@@ -15,49 +14,44 @@ export class CreateMemecoinDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    description: 'Ticker symbol of the memecoin',
-    example: 'DOGE',
-  })
+  @ApiProperty({ description: 'Ticker symbol of the memecoin', example: 'DOGE' })
   @IsString()
   @IsNotEmpty()
   ticker: string;
 
-  @ApiProperty({ description: 'URL of the memecoin image', required: false })
+  @ApiProperty({ description: 'URL of the memecoin image', example: 'https://example.com/image.png' })
   @IsUrl()
-  @IsOptional()
-  image?: string;
+  @IsNotEmpty()
+  image: string;
 
-  @ApiProperty({ description: 'Description of the memecoin', required: false })
+  @ApiProperty({ description: 'Description of the memecoin', example: 'A fun coin based on Doge meme.' })
   @IsString()
-  @IsOptional()
-  desc?: string;
+  @IsNotEmpty()
+  desc: string;
 
   @ApiProperty({
     description: 'Total supply of coins',
-    required: false,
+    example: 1000000,
     minimum: 1,
     maximum: 18_400_000_000,
-    example: 1000000,
   })
-  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(18_400_000_000)
-  totalCoins?: number;
+  totalCoins: number;
 
-  @ApiProperty({ description: 'X (Twitter) social link', required: false })
+  @ApiProperty({ description: 'X (Twitter) social link', example: 'https://x.com/dogecoin' })
   @IsUrl()
-  @IsOptional()
-  xSocial?: string;
+  @IsNotEmpty()
+  xSocial: string;
 
-  @ApiProperty({ description: 'Telegram social link', required: false })
+  @ApiProperty({ description: 'Telegram social link', example: 'https://t.me/dogecoin' })
   @IsUrl()
-  @IsOptional()
-  telegramSocial?: string;
+  @IsNotEmpty()
+  telegramSocial: string;
 
-  @ApiProperty({ description: 'Discord social link', required: false })
+  @ApiProperty({ description: 'Discord social link', example: 'https://discord.gg/dogecoin' })
   @IsUrl()
-  @IsOptional()
-  discordSocial?: string;
+  @IsNotEmpty()
+  discordSocial: string;
 }

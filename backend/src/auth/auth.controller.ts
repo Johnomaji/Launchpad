@@ -6,21 +6,23 @@ import {
   Get,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { IsNotEmpty, IsString } from 'class-validator';
 import {
-  ApiProperty,
   ApiTags,
   ApiOperation,
-  ApiResponse,
+  ApiOkResponse,
+  ApiBadRequestResponse,
   ApiUnauthorizedResponse,
   getSchemaPath,
+  ApiResponse,
 } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { AuthService } from './auth.service';
 import { UserSchema, User } from '@users/schemas/users.schema';
 import { User as UserDec } from '@users/users.decorator';
 import { UserDto } from '@users/dto/user.dto';
 import { JwtAuthGuard } from './jwt/jwt.guard';
 import { IsSuiAddress } from '@common/decorators/is-sui-address.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class ChallengeRequestDto {
   @ApiProperty({
@@ -39,8 +41,8 @@ export class VerifyRequestDto {
     example: '0x1234567890abcdef1234567890abcdef12345678',
   })
   @IsString()
-  @IsNotEmpty()
   @IsSuiAddress()
+  @IsNotEmpty()
   address: string;
 
   @ApiProperty({
@@ -69,37 +71,76 @@ export class AuthController {
   @ApiOperation({
     summary: 'Request a challenge message for signature verification',
   })
-  @ApiResponse({
-    status: 201,
+  @ApiOkResponse({
     description: 'Challenge message generated successfully',
     schema: {
       example: {
-        challenge: 'Sign this message to authenticate: abc123nonce...',
+        success: true,
+        data: {
+          challenge: 'Sign this message to authenticate: abc123nonce...',
+          nonce: 'abc123nonce...',
+        },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    description: 'Validation error',
+    schema: {
+      example: {
+        statusCode: 422,
+        timestamp: '2025-05-04T12:34:56.789Z',
+        path: '/auth/challenge',
+        message: 'Validation failed (invalid address)',
       },
     },
   })
   async getChallenge(
     @Body() body: ChallengeRequestDto,
   ): Promise<{ challenge: string; nonce: string }> {
-    return this.authService.generateChallenge(body.address);
+    const result = await this.authService.generateChallenge(body.address);
+    return result;
   }
 
   @Post('verify')
-  @ApiOperation({ summary: 'Verify signature and issue JWT Bearer token' })
-  @ApiResponse({
-    status: 200,
-    description: 'Signature is valid, JWT Bearer token returned',
+  @ApiOperation({
+    summary: 'Verify signature and issue JWT Bearer token',
+  })
+  @ApiOkResponse({
+    description: 'JWT token issued successfully',
     schema: {
       example: {
-        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        success: true,
+        data: {
+          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        },
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Invalid signature' })
-  async verifySignature(@Body() body: VerifyRequestDto) {
-    console.log('=====\n');
-    console.log(body);
-
+  @ApiBadRequestResponse({
+    description: 'Invalid input',
+    schema: {
+      example: {
+        statusCode: 400,
+        timestamp: '2025-05-04T12:34:56.789Z',
+        path: '/auth/verify',
+        message: 'Signature must be a valid string',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid signature',
+    schema: {
+      example: {
+        statusCode: 401,
+        timestamp: '2025-05-04T12:34:56.789Z',
+        path: '/auth/verify',
+        message: 'Invalid signature',
+      },
+    },
+  })
+  async verifySignature(
+    @Body() body: VerifyRequestDto,
+  ): Promise<{ accessToken: string }> {
     const isValid = await this.authService.verifySignature(
       body.address,
       body.signature,
@@ -116,19 +157,33 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('whoami')
-  @ApiOperation({
-    summary: 'Return the current authenticated user',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'The current authenticated user',
+  @ApiOperation({ summary: 'Return the current authenticated user' })
+  @ApiOkResponse({
+    description: 'Authenticated user returned',
     schema: {
-      $ref: getSchemaPath(UserDto),
+      example: {
+        success: true,
+        data: {
+          _id: 'user_id_here',
+          username: 'memetic.eth',
+          "walletAddress": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+          "bio": "Blockchain enthusiast and NFT collector",
+          "createdAt": "2023-04-01T12:00:00.000Z",
+          "updatedAt": "2023-04-02T15:30:00.000Z"
+        },
+      },
     },
   })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized',
+  @ApiUnauthorizedResponse({
+    description: 'User not authenticated',
+    schema: {
+      example: {
+        statusCode: 401,
+        timestamp: '2025-05-04T12:34:56.789Z',
+        path: '/auth/whoami',
+        message: 'Unauthorized',
+      },
+    },
   })
   whoAmI(@UserDec() user: User) {
     return user;
