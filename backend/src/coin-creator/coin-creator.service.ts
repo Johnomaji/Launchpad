@@ -13,6 +13,7 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { fromBase64 } from '@mysten/sui/utils';
 import { Transaction } from '@mysten/sui/transactions';
 import { ConfigService } from '@nestjs/config';
+import { CreateMemecoinDto } from '@memecoins/dto/create-memecoin.dto';
 
 @Injectable()
 export class CoinCreatorService {
@@ -24,14 +25,19 @@ export class CoinCreatorService {
     );
   }
 
-  async createCoin(createCoinDto: CreateCoinDto): Promise<CoinCreation> {
+  async createCoin(createCoinDto: CreateMemecoinDto): Promise<CoinCreation> {
     const {
       name,
-      symbol,
-      iconUrl,
-      description,
-      network = 'testnet',
-    } = createCoinDto;
+      symbol: ticker,
+      iconUrl: image,
+      description: desc,
+	  totalCoins,
+	  xSocial,
+	  discordSocial,
+	  telegramSocial,
+	  initialSupply,
+	  decimals
+    } = createMemecoinDto;
 
     if (!name || !symbol || !description) {
       throw new Error('Name, symbol, and description are required');
@@ -54,10 +60,15 @@ export class CoinCreatorService {
       let fileContent = fs.readFileSync(templatePath, 'utf8');
 
       const replacements = {
-        template_description: description,
-        TEMPLATE: uppercaseName,
-        Template: capitalizedName,
-        template: sanitizedName,
+        'b"template_description"': `b"${description}"`,
+        'b"TEMPLATE"': `b"${uppercaseName}"`,
+		'b"TMP"': `b"{sanitizedSymbol}"`,
+		'b"template_icon_url"': `b"{iconUrl}"`,
+        'b"Template"': `b"{capitalizedName}"`,
+        'b"template"': `b"{sanitizedName}"`,
+		'const DECIMALS: u8 = 6;': `const DECIMALS: u8 = ${decimals};`,
+		'const INITIAL_SUPPLY: u64 = 1;': `const INITIAL_SUPPLY: u64 = ${initialSupply};`,
+	    'const TOTAL_SUPPLY: u64 = 100;': `const TOTAL_SUPPLY: u64 = ${totalCoins};`,
       };
 
       Object.entries(replacements).forEach(([placeholder, replacement]) => {

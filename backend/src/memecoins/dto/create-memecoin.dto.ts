@@ -7,6 +7,7 @@ import {
   Min,
   Max,
 } from 'class-validator';
+import { IsLessThanOrEqual } from '@common/decorators/is-less-than-or-equal.decorator';
 
 export class CreateMemecoinDto {
   @ApiProperty({ description: 'Name of the memecoin', example: 'DogeCoin' })
@@ -39,6 +40,32 @@ export class CreateMemecoinDto {
   @Min(1)
   @Max(18_400_000_000)
   totalCoins: number;
+
+
+  @ApiProperty({
+    description: 'Initial supply of coins',
+    example: 1000000,
+    minimum: 1,
+    maximum: 18_400_000_000,
+  })
+  @IsInt()
+  @Min(1)
+  @Max(18_400_000_000)
+  @IsLessThanOrEqual('totalCoins', {
+    message: 'initialSupply must be less than or equal to totalCoins',
+  })
+  initialSupply: number;
+
+  @ApiProperty({
+	  description: 'Number of decimals (1-9)',
+	  example: 6,
+	  minimum: 1,
+	  maximum: 9,
+	})
+	@IsInt({ message: 'Decimals must be an integer (1-9)' })
+	@Min(1)
+	@Max(9)
+	decimals: number;
 
   @ApiProperty({ description: 'X (Twitter) social link', example: 'https://x.com/dogecoin' })
   @IsUrl()

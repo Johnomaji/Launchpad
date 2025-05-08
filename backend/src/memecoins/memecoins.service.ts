@@ -41,7 +41,7 @@ export class MemecoinsService {
       };
 
       const coinCreationResult =
-        await this.coinCreatorService.createCoin(coinObj);
+        await this.coinCreatorService.createCoin(createMemecoinDto);
 
       const newMemecoin = await this.memecoinModel.create({
         name: createMemecoinDto.name,
