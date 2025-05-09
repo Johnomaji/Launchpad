@@ -55,9 +55,6 @@ module memetic::coin_manager {
 
     /// Event emitted when a coin is registered
     public struct CoinRegistered<phantom T> has copy, drop {
-        package_id: address,
-        module_name: String,
-        struct_name: String,
         name: String,
         symbol: String,
         creator: address,
@@ -110,7 +107,6 @@ module memetic::coin_manager {
         telegram_social: Option<String>,
         x_social: Option<String>,
         discord_social: Option<String>,
-        package_id: address,
         creator: address,
         initial_supply: u64,
         total_supply: u64,
@@ -151,9 +147,6 @@ module memetic::coin_manager {
         );
 
         event::emit(CoinRegistered<T> {
-            package_id,
-            module_name: string::utf8(b"coin_manager"),
-            struct_name: symbol,
             name,
             symbol,
             creator,
@@ -290,8 +283,6 @@ module memetic::coin_manager {
     const USER: address = @0xB0B;
     #[test_only]
     const CREATOR: address = @0xC8EA108;
-    #[test_only]
-    const PACKAGE_ID: address = @0xFAC8ABE;
 
     #[test]
     fun init_test(): sui::test_scenario::Scenario {
@@ -340,12 +331,11 @@ module memetic::coin_manager {
                 name,
                 symbol,
                 description,
-                9, // decimals
+                9,
                 icon_url,
                 telegram,
                 x,
                 discord,
-                PACKAGE_ID,
                 CREATOR,
                 1000000000, // initial supply
                 10000000000, // total supply
@@ -398,7 +388,6 @@ module memetic::coin_manager {
                 some(string::utf8(b"https://t.me/testtoken")),
                 some(string::utf8(b"https://x.com/testtoken")),
                 some(string::utf8(b"https://discord.com/testtoken")),
-                PACKAGE_ID,
                 CREATOR,
                 1000000000,
                 10000000000,
@@ -457,7 +446,6 @@ module memetic::coin_manager {
                 some(string::utf8(b"https://t.me/testtoken")),
                 some(string::utf8(b"https://x.com/testtoken")),
                 some(string::utf8(b"https://discord.com/testtoken")),
-                PACKAGE_ID,
                 CREATOR,
                 1000000000,
                 10000000000,
@@ -526,7 +514,6 @@ module memetic::coin_manager {
                 some(string::utf8(b"https://t.me/testtoken")),
                 some(string::utf8(b"https://x.com/testtoken")),
                 some(string::utf8(b"https://discord.com/testtoken")),
-                PACKAGE_ID,
                 CREATOR,
                 1000000000,
                 10000000000,
@@ -544,7 +531,6 @@ module memetic::coin_manager {
                 none(),
                 none(),
                 none(),
-                PACKAGE_ID,
                 CREATOR,
                 1000000000,
                 10000000000,

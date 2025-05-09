@@ -4,6 +4,7 @@ import { CoinCreatorModule } from '@coin-creator/coin-creator.module';
 import { CoinCreatorService } from '@coin-creator/coin-creator.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CreateCoinDto } from '@coin-creator/dto/create-coin.dto';
+import { CreateMemecoinDto } from '@memecoins/dto/create-memecoin.dto';
 import suiConfig from '@coin-creator/config/sui.config';
 import { validate } from '@coin-creator/config/env.validation';
 import * as fs from 'fs';
@@ -14,12 +15,17 @@ describe('CoinCreatorService (e2e)', () => {
   let coinCreatorService: CoinCreatorService;
   let configService: ConfigService;
 
-  const createCoinDto: CreateCoinDto = {
+  const createCoinDto: CreateMemecoinDto = {
     name: 'Test Coin',
-    symbol: 'TST',
-    description: 'A test coin for e2e testing',
-    iconUrl: 'https://example.com/test.png',
-    network: 'testnet',
+    ticker: 'TST',
+    desc: 'A test coin for e2e testing',
+    image: 'https://example.com/icon.png',
+	totalCoins: 1000000,
+    xSocial: 'http://x.com/test',
+    telegramSocial: 'http://t.me/test',
+    discordSocial: 'http://discord.gg/test',
+    initialSupply: 500000,
+    decimals: 8,
   };
 
   beforeAll(async () => {

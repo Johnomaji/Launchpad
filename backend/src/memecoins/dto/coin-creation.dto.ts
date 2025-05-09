@@ -10,7 +10,8 @@ export class CoinCreation {
   transaction: Transaction;
 
   @ApiProperty({
-    description: 'Result of the publish operation including status and metadata.',
+    description:
+      'Result of the publish operation including status and metadata.',
     type: PublishResult,
   })
   publishResult: PublishResult;

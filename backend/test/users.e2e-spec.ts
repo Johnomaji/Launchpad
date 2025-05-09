@@ -23,8 +23,11 @@ describe('UsersController (e2e)', () => {
   let userModel: Model<User>;
   let jwtService: JwtService;
   let authToken: string;
+  let authToken_2: string;
   let testUserii: User;
+  let testUseriii: User;
   let testUser: CreateUserDto;
+  let testDupUser: CreateUserDto;
 
   const testWalletAddress = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
 
@@ -64,12 +67,24 @@ describe('UsersController (e2e)', () => {
       walletAddress: '0x1234567890abcdef',
     });
 
+	testUseriii = await userModel.create({
+      username: 'testuseriii',
+      walletAddress: '0x1234567890abcdeffedcba',
+    });
+
     authToken = jwtService.sign({ sub: testUserii.walletAddress });
+    authToken_2 = jwtService.sign({ sub: testUseriii.walletAddress });
     console.log(userModel);
 
     testUser = {
       username: 'testuser',
       walletAddress: testWalletAddress,
+      bio: 'test user',
+    };
+
+	testDupUser = {
+      username: 'testdupuser',
+      walletAddress: "0xfaceecaf",
       bio: 'test user',
     };
   }, 20000);
@@ -156,13 +171,13 @@ describe('UsersController (e2e)', () => {
 
   it('/users/:id (DELETE) - should delete user', async () => {
     await request(app.getHttpServer())
-      .delete('/users/' + createdUserId)
+      .delete('/users/' + testUserii._id)
       .set('Authorization', `Bearer ${authToken}`)
       .expect(200);
 
     await request(app.getHttpServer())
-      .get('/users/' + createdUserId)
-      .set('Authorization', `Bearer ${authToken}`)
+      .get('/users/' + testUserii._id)
+      .set('Authorization', `Bearer ${authToken_2}`)
       .expect(404);
   });
 
@@ -171,7 +186,7 @@ describe('UsersController (e2e)', () => {
     const newUser = await request(app.getHttpServer())
       .post('/users')
       .set('Authorization', `Bearer ${authToken}`)
-      .send({ walletAddress: '0xAnotherTestAddress' })
+      .send({ walletAddress: '0x1234567890abcdef' })
       .expect(201);
 
     await request(app.getHttpServer())
@@ -182,7 +197,7 @@ describe('UsersController (e2e)', () => {
     // Verify deletion
     await request(app.getHttpServer())
       .get('/users/by-wallet?address=' + newUser.body.data.walletAddress)
-      .set('Authorization', `Bearer ${authToken}`)
+      .set('Authorization', `Bearer ${authToken_2}`)
       .expect(404);
   });
 
@@ -191,13 +206,13 @@ describe('UsersController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/users')
         .set('Authorization', `Bearer ${authToken}`)
-        .send(testUser)
+        .send(testDupUser)
         .expect(201);
 
       const response = await request(app.getHttpServer())
         .post('/users')
         .set('Authorization', `Bearer ${authToken}`)
-        .send(testUser)
+        .send(testDupUser)
         .expect(409);
 
       expect(response.body).toEqual({
@@ -211,3 +226,4 @@ describe('UsersController (e2e)', () => {
     });
   });
 });
+

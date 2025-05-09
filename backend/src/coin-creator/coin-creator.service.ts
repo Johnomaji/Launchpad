@@ -13,6 +13,7 @@ import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { fromBase64 } from '@mysten/sui/utils';
 import { Transaction } from '@mysten/sui/transactions';
 import { ConfigService } from '@nestjs/config';
+import { CreateMemecoinDto } from '@memecoins/dto/create-memecoin.dto';
 
 @Injectable()
 export class CoinCreatorService {
@@ -24,14 +25,20 @@ export class CoinCreatorService {
     );
   }
 
-  async createCoin(createCoinDto: CreateCoinDto): Promise<CoinCreation> {
+  async createCoin(createMemecoinDto: CreateMemecoinDto): Promise<CoinCreation> {
     const {
       name,
-      symbol,
-      iconUrl,
-      description,
-      network = 'testnet',
-    } = createCoinDto;
+      ticker: symbol,
+      image: iconUrl,
+      desc: description,
+      totalCoins,
+      xSocial,
+      discordSocial,
+      telegramSocial,
+      initialSupply,
+      decimals,
+    } = createMemecoinDto;
+	const network = "testnet";
 
     if (!name || !symbol || !description) {
       throw new Error('Name, symbol, and description are required');
@@ -50,14 +57,21 @@ export class CoinCreatorService {
       console.log(`Creating new Sui Move project: ${sanitizedName}`);
       execSync(`sui move new ${sanitizedName}`);
 
-      const templatePath = path.join(rootPath, 'src', 'common', 'template.txt');
+      const templatePath = path.join(rootPath, 'src', 'common', 'template.move');
       let fileContent = fs.readFileSync(templatePath, 'utf8');
 
       const replacements = {
-        template_description: description,
-        TEMPLATE: uppercaseName,
-        Template: capitalizedName,
-        template: sanitizedName,
+        'b"template_description"': `b"${description}"`,
+        'b"TEMPLATE"': `b"${uppercaseName}"`,
+        'b"TMP"': `b"${sanitizedSymbol}"`,
+        'b"template_icon_url"': `b"${iconUrl}"`,
+        'b"Template"': `b"${capitalizedName}"`,
+        'b"template"': `b"${sanitizedName}"`,
+        'template': `${sanitizedName}`,
+        'TEMPLATE': `${uppercaseName}`,
+        'const DECIMALS: u8 = 6;': `const DECIMALS: u8 = ${decimals ?? 6};`,
+        'const INITIAL_SUPPLY: u64 = 1;': `const INITIAL_SUPPLY: u64 = ${initialSupply ?? 1};`,
+        'const TOTAL_SUPPLY: u64 = 100;': `const TOTAL_SUPPLY: u64 = ${totalCoins};`,
       };
 
       Object.entries(replacements).forEach(([placeholder, replacement]) => {
@@ -83,7 +97,7 @@ export class CoinCreatorService {
       parsedToml.dependencies.Sui = {
         git: 'https://github.com/MystenLabs/sui.git',
         subdir: 'crates/sui-framework/packages/sui-framework',
-        rev: '9c04e1840eb5',
+        rev: 'e54b798790ed',
         override: true,
       };
 
