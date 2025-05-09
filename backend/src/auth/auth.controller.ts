@@ -166,10 +166,10 @@ export class AuthController {
         data: {
           _id: 'user_id_here',
           username: 'memetic.eth',
-          "walletAddress": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-          "bio": "Blockchain enthusiast and NFT collector",
-          "createdAt": "2023-04-01T12:00:00.000Z",
-          "updatedAt": "2023-04-02T15:30:00.000Z"
+          walletAddress: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+          bio: 'Blockchain enthusiast and NFT collector',
+          createdAt: '2023-04-01T12:00:00.000Z',
+          updatedAt: '2023-04-02T15:30:00.000Z',
         },
       },
     },

@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import * as toml from 'toml';
+import { CreateMemecoinDto } from '@memecoins/dto/create-memecoin.dto';
 
 const mockKeypair = {
   getPublicKey: jest.fn().mockReturnValue({
@@ -120,13 +121,19 @@ describe('CoinCreatorService', () => {
   });
 
   describe('createCoin', () => {
-    const createCoinDto: CreateCoinDto = {
-      name: 'Test Coin',
-      symbol: 'TEST',
-      iconUrl: 'https://example.com/icon.png',
-      description: 'A test coin for testing purposes',
-      network: 'testnet',
-    };
+    
+	const createCoinDto: CreateMemecoinDto = {
+	  name: 'MyToken',
+	  ticker: 'MTK',
+	  image: 'https://example.com/icon.png',
+	  desc: 'A meme coin for fun',
+	  totalCoins: 1000000,
+	  xSocial: 'https://x.com/mytoken',
+	  discordSocial: 'https://discord.gg/mytoken',
+	  telegramSocial: 'https://t.me/mytoken',
+	  initialSupply: 500000,
+	  decimals: 18,
+	};
 
     it('should create a coin successfully', async () => {
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
@@ -152,11 +159,11 @@ describe('CoinCreatorService', () => {
           transactionDigest: '0xmockTransactionDigest',
           response: expect.any(Object),
         },
-        coinName: 'test_coin',
-        symbol: 'TEST',
+        coinName: 'mytoken',
+        symbol: 'MTK',
       });
 
-      expect(execSync).toHaveBeenCalledWith('sui move new test_coin');
+      expect(execSync).toHaveBeenCalledWith('sui move new mytoken');
       expect(fs.writeFileSync).toHaveBeenCalledTimes(2);
       expect(execSync).toHaveBeenCalledWith(
         expect.stringContaining('sui move build --dump-bytecode-as-base64'),
@@ -209,7 +216,6 @@ describe('CoinCreatorService', () => {
 
     it('should use testnet by default when network is not specified', async () => {
       const dtoWithoutNetwork = { ...createCoinDto };
-      delete dtoWithoutNetwork.network;
 
       mockClient.executeTransactionBlock.mockResolvedValueOnce({
         effects: {

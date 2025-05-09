@@ -80,6 +80,13 @@ describe('MemecoinsController', () => {
         name: 'TestCoin',
         ticker: 'TEST',
         desc: 'Test description',
+	    image: 'https://example.com/icon.png',
+	    totalCoins: 1000000,
+	    xSocial: 'http://x.com/test',
+	    telegramSocial: 'http://t.me/test',
+	    discordSocial: 'http://discord.gg/test',
+	    initialSupply: 500000,
+	    decimals: 8,
       };
 
       const result = await controller.createMemecoin(createDto, mockUser);
@@ -168,15 +175,6 @@ describe('MemecoinsController', () => {
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
     });
 
-    it('should protect getMemecoinById with JwtAuthGuard', () => {
-      const guards = Reflect.getMetadata(
-        '__guards__',
-        controller.getMemecoinById,
-      );
-      expect(guards).toHaveLength(1);
-      expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
-    });
-
     it('should protect getMemecoinsByCreator with JwtAuthGuard', () => {
       const guards = Reflect.getMetadata(
         '__guards__',
@@ -186,13 +184,5 @@ describe('MemecoinsController', () => {
       expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
     });
 
-    it('should protect getAllMemecoins with JWT guard', () => {
-      const guards = Reflect.getMetadata(
-        '__guards__',
-        controller.getAllMemecoins,
-      );
-      expect(guards).toHaveLength(1);
-      expect(new guards[0]()).toBeInstanceOf(JwtAuthGuard);
-    });
   });
 });

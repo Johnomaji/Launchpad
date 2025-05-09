@@ -113,8 +113,8 @@ describe('AppModule (e2e)', () => {
   });
 
   describe('Memecoins Module', () => {
-    it('/memecoins (GET) - should return authentication', () => {
-      return request(app.getHttpServer()).get('/memecoins').expect(401);
+    it('/memecoins (GET) - should not require authentication', () => {
+      return request(app.getHttpServer()).get('/memecoins').expect(200);
     });
   });
 

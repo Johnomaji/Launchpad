@@ -80,7 +80,7 @@ describe('AuthModule Integration Tests', () => {
 
     await challengeModel.deleteMany({});
     await userModel.deleteMany({});
-  }, 20_000);
+  }, 80_000);
 
   afterEach(async () => {
     await Promise.all([

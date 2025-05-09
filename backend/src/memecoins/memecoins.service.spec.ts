@@ -24,7 +24,21 @@ describe('MemecoinsService', () => {
     name: 'TestCoin',
     ticker: 'TEST',
     desc: 'Test description',
-    image: 'http://test.com/image.png',
+    image: 'https://example.com/icon.png',
+	totalCoins: 1000000,
+    xSocial: 'http://x.com/test',
+    telegramSocial: 'http://t.me/test',
+    discordSocial: 'http://discord.gg/test',
+	initialSupply: 500000,
+    decimals: 8,
+  };
+
+
+  const mockCreateMemecoinForModel: Partial<CreateMemecoinDto> = {
+    name: 'TestCoin',
+    ticker: 'TEST',
+    desc: 'Test description',
+    image: 'https://example.com/icon.png',
     xSocial: 'http://x.com/test',
     telegramSocial: 'http://t.me/test',
     discordSocial: 'http://discord.gg/test',
@@ -113,7 +127,7 @@ describe('MemecoinsService', () => {
       });
       expect(coinCreatorService.createCoin).toHaveBeenCalled();
       expect(memecoinModel.create).toHaveBeenCalledWith({
-        ...mockCreateMemecoinDto,
+        ...mockCreateMemecoinForModel,
         coinAddress: mockCoinCreationResult.publishResult.packageId,
         creator: mockUser._id,
       });

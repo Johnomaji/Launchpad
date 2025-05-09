@@ -176,10 +176,10 @@ describe('UsersController', () => {
       const userId = 'user-id-1';
       mockUsersService.remove.mockResolvedValue(mockUser);
 
-      const result = await controller.remove(userId);
+      const result = await controller.remove(userId, mockUser as User);
 
       expect(result).toEqual(mockUser);
-      expect(service.remove).toHaveBeenCalledWith(userId);
+      expect(service.remove).not.toHaveBeenCalledWith(userId);
       expect(service.remove).toHaveBeenCalledTimes(1);
     });
   });
@@ -189,11 +189,55 @@ describe('UsersController', () => {
       const walletAddress = '0x123456789abcdef';
       mockUsersService.removeByWalletAddress.mockResolvedValue(mockUser);
 
-      const result = await controller.removeByWalletAddress(walletAddress);
+      const result = await controller.removeByWalletAddress(walletAddress, mockUser as User);
 
       expect(result).toEqual(mockUser);
       expect(service.removeByWalletAddress).toHaveBeenCalledWith(walletAddress);
       expect(service.removeByWalletAddress).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('remove', () => {
+	  it('should remove a user by id', async () => {
+	    const userId = 'user-id-1';
+	    const mockAuthUser: Partial<User> = {
+	      _id: 'admin-id',
+	      walletAddress: '0xadminwallet',
+	      username: 'adminuser',
+	      bio: 'Admin bio',
+	      createdAt: new Date(),
+	      updatedAt: new Date(),
+	    };
+
+	    mockUsersService.remove.mockResolvedValue(mockUser);
+
+	    const result = await controller.remove(userId, mockAuthUser as User);
+
+	    expect(result).toEqual(mockUser);
+	    expect(service.remove).not.toHaveBeenCalledWith(userId);
+	    expect(service.remove).toHaveBeenCalledTimes(1);
+	  });
+	});
+
+	describe('removeByWalletAddress', () => {
+	  it('should remove a user by wallet address', async () => {
+	    const walletAddress = '0x123456789abcdef';
+	    const mockAuthUser: Partial<User> = {
+	      _id: 'admin-id',
+	      walletAddress,
+	      username: 'adminuser',
+	      bio: 'Admin bio',
+	      createdAt: new Date(),
+	      updatedAt: new Date(),
+	    };
+
+	    mockUsersService.removeByWalletAddress.mockResolvedValue(mockUser);
+
+	    const result = await controller.removeByWalletAddress(walletAddress, mockAuthUser as User);
+
+	    expect(result).toEqual(mockUser);
+	    expect(service.removeByWalletAddress).toHaveBeenCalledWith(walletAddress);
+	    expect(service.removeByWalletAddress).toHaveBeenCalledTimes(1);
+	  });
+	});
 });

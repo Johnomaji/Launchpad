@@ -97,7 +97,12 @@ export class MemecoinsController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a memecoin by its ID' })
-  @ApiParam({ name: 'id', description: 'The ID of the memecoin', type: String, example: '5d3a21e47b' })
+  @ApiParam({
+    name: 'id',
+    description: 'The ID of the memecoin',
+    type: String,
+    example: '5d3a21e47b',
+  })
   @ApiOkResponse({
     description: 'The memecoin with the given ID',
     type: MemecoinResponseDto,
